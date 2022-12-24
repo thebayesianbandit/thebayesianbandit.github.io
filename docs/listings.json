@@ -3,6 +3,7 @@
     "listing": "/index.html",
     "items": [
       "/posts/test-notebook-post/test.html",
+      "/posts/intro-to-bayes/intro_to_bayes.html",
       "/posts/post-with-code/index.html",
       "/posts/welcome/index.html"
     ]
