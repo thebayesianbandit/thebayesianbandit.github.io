@@ -11,7 +11,14 @@
     "href": "index.html",
     "title": "Bayesian Business by Brandon",
     "section": "",
-    "text": "Quarto Basics\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\n\n\n\n\n\n\nAn Introduction To Bayesian Statistics\n\n\n\n\n\n\n\nanalysis\n\n\nbayesian\n\n\n\n\n\n\n\n\n\n\n\nDec 24, 2022\n\n\nBrandon Scott\n\n\n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nDec 13, 2022\n\n\nHarlow Malloc\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nDec 10, 2022\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+    "text": "An Introduction To Bayesian Statistics\n\n\n\n\n\n\n\nanalysis\n\n\nbayesian\n\n\n\n\n\n\n\n\n\n\n\nDec 24, 2022\n\n\nBrandon Scott\n\n\n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nDec 13, 2022\n\n\nHarlow Malloc\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nDec 10, 2022\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/intro-to-bayes/intro_to_bayes.html",
+    "href": "posts/intro-to-bayes/intro_to_bayes.html",
+    "title": "An Introduction To Bayesian Statistics",
+    "section": "",
+    "text": "The foundation for the Bayesian section of the blog\n\nTL;DR\nStatistics has long been a subject of great debate because of the way it is implmented. Due to “arbitrary” rules or guidelines that the academic community or business organizations follow in this field, it can be easy to be confused as to why certain numbers matter, if results from experiments actually have genuine impact, and how can we improve of the results we obtained. As well, what do we do when a test results contradicts what a subject matter expert says they expected to happen? Bayesian methods attempt to clear the confusion surrounding statistics. Bayesian methods allow us to incorporate our own knowledge into statistical modeling practices to properly draw conclusions from data. From those conclusions, we can gain direction and insight on what kind of decisions to make to better guide an organization.\n\n\nIntroduction: A New Place\n\n\n\nSuppose you just moved to a new town. In this town, you would like to take advantage of the public bus system to get to work. You look up online information about the nearest station to you and see that the first bus arrives at 7:00am and there should be subsequent buses every 15 minutes."
   },
   {
     "objectID": "posts/post-with-code/index.html",
@@ -21,24 +28,10 @@
     "text": "This is a post with executable code."
   },
   {
-    "objectID": "posts/test-notebook-post/test.html",
-    "href": "posts/test-notebook-post/test.html",
-    "title": "Quarto Basics",
-    "section": "",
-    "text": "This is my test file\n\n# Test code chunk\n2+2\n\n4\n\n\n\nimport pandas as pd\n\n\nimport numpy as np\n\n\nnp.arange(0,9, .5)\n\narray([0. , 0.5, 1. , 1.5, 2. , 2.5, 3. , 3.5, 4. , 4.5, 5. , 5.5, 6. ,\n       6.5, 7. , 7.5, 8. , 8.5])"
-  },
-  {
     "objectID": "posts/welcome/index.html",
     "href": "posts/welcome/index.html",
     "title": "Welcome To My Blog",
     "section": "",
     "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
-  },
-  {
-    "objectID": "posts/intro-to-bayes/intro_to_bayes.html",
-    "href": "posts/intro-to-bayes/intro_to_bayes.html",
-    "title": "An Introduction To Bayesian Statistics",
-    "section": "",
-    "text": "The foundation for the Bayesian section of the blog\n\nTL;DR\nStatistics has long been a subject of great debate because of the way it is implmented. Due to “arbitrary” rules or guidelines that the academic community or business organizations follow in this field, it can be easy to be confused as to why certain numbers matter, if results from experiments actually have genuine impact, and how can we improve of the results we obtained. As well, what do we do when a test results contradicts what a subject matter expert says they expected to happen? Bayesian methods attempt to clear the confusion surrounding statistics. Bayesian methods allow us to incorporate our own knowledge into statistical modeling practices to properly draw conclusions from data. From those conclusions, we can gain direction and insight on what kind of decisions to make to better guide an organization.\n\n\nIntroduction: A New Place\n\n\n\nSuppose you just moved to a new town. In this town, you would like to take advantage of the public bus system to get to work. You look up online information about the nearest station to you and see that the first bus arrives at 7:00am and there should be subsequent buses every 15 minutes."
   }
 ]
