@@ -6,11 +6,12 @@ website:
   title: "Bayesian Business by Brandon"
   navbar:
     right:
-      - about.qmd
+      - href: about.qmd
+        text: About 
       - icon: github
-        href: https://github.com/
-      - icon: twitter
-        href: https://twitter.com
+        href: https://github.com/devscotte
+      - icon: linkedin
+        href: https://www.linkedin.com/in/brandon-scott-5a7139211/
 format:
   html:
     theme: lux

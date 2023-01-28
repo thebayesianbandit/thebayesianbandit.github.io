@@ -3,17 +3,31 @@ title: "Brandon Scott"
 image: about_img.jpg
 about:
   template: broadside
+  image-shape: rounded
+  image-width: 15eme
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com
+      href: https://www.linkedin.com/in/brandon-scott-5a7139211/
     - icon: github
       text: Github
-      href: https://github.com
+      href: https://github.com/devscotte
 
 ---
 
-I love learning and teaching so this blog is my motivation to learn new topics and learn how to best convey the messages I received. 
+I love learning and teaching so this blog is my motivation to learn new topics and learn how to best convey the messages I received. I hope to demonstrate in this blog an analytical way to approach problems. I like using a tool-box method in my posts, approaching a problem and demonstrating how various tools can be used to solve it. I hope you enjoy this blog as much as I enjoy writing it! 
+
+## Education
+Texas A&M University
+M.S. in Statistics | January 2023 - May 2025
+
+Utah Valley University
+M.S. in Computer Science | September 2021 - April 2022 (transferred)
+
+Brigham Young University
+B.S. in Actuarial Science | September 2017 - April 2021
+
+## Experience
+Uber | Data Analyst | October 2022 - Present
+AdvancedMD | Senior Business Analyst | July 2021 - October 2022
+
