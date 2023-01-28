@@ -1,8 +1,8 @@
 ---
-title: "About"
-image: profile.jpg
+title: "Brandon Scott"
+image: about_img.jpg
 about:
-  template: jolla
+  template: broadside
   links:
     - icon: twitter
       text: Twitter
@@ -16,4 +16,4 @@ about:
 
 ---
 
-About this blog
+I love learning and teaching so this blog is my motivation to learn new topics and learn how to best convey the messages I received. 
