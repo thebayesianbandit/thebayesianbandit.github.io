@@ -6,6 +6,8 @@ website:
   title: "Bayesian Business by Brandon"
   navbar:
     right:
+      - href: index.qmd
+        text: Home
       - href: about.qmd
         text: About 
       - icon: github
