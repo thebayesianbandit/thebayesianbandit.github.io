@@ -17,7 +17,7 @@ website:
 format:
   html:
     theme: lux
-    css: styles.css
-
+    css: theme.scss
+    include-after-body: footer.html
 
 
