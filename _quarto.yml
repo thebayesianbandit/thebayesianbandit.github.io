@@ -16,8 +16,9 @@ website:
         href: https://www.linkedin.com/in/brandon-scott-5a7139211/
 format:
   html:
-    theme: lux
-    css: theme.scss
+    theme: 
+     - lux
+     - theme.scss
     include-after-body: footer.html
 
 
