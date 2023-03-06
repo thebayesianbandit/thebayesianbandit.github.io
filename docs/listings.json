@@ -2,9 +2,8 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/intro-to-bayes/intro_to_bayes.html",
-      "/posts/post-with-code/index.html",
-      "/posts/welcome/index.html"
+      "/posts/welcome/welcome_to_blog.html",
+      "/posts/intro-to-bayes/intro_to_bayes.html"
     ]
   }
 ]
