@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.269">
+<meta name="generator" content="quarto-1.3.324">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,72 +19,9 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
@@ -124,6 +61,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
@@ -139,31 +77,33 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <span class="navbar-title">Bayesian Business by Brandon</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html">
+    <a class="nav-link" href="../../index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html">
+    <a class="nav-link" href="../../about.html" rel="" target="">
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/devscotte"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/devscotte" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/"><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
 </i> 
  <span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -214,16 +154,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The foundation for the Bayesian section of the blog</p>
 <section id="tldr" class="level1">
 <h1>TL;DR</h1>
-<div class="cell" data-execution_count="1">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import libraries</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
 <p>Statistics has long been a subject of great debate because of the way it is implmented. Due to “arbitrary” rules or guidelines that the academic community or business organizations follow in this field, it can be easy to be confused as to why certain numbers matter, if results from experiments actually have genuine impact, and how can we improve of the results we obtained. As well, what do we do when a test results contradicts what a subject matter expert says they expected to happen? Bayesian methods attempt to clear the confusion surrounding statistics. Bayesian methods allow us to incorporate our own knowledge into statistical modeling practices to properly draw conclusions from data. From those conclusions, we can gain direction and insight on what kind of decisions to make to better guide an organization.</p>
 </section>
 <section id="introduction-a-new-place" class="level1">
@@ -231,83 +161,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <center>
 <img src="https://www.metrotransit.org/Data/Sites/1/media/buses/MetroTransit-HybridbusL.jpg">
 </center>
-<p>Suppose you just moved to a new town. In this town, you would like to take advantage of the public bus system to get to work. You look up online information about the nearest station to you and see that the first bus arrives at 7:00am and there should be subsequent buses every 15 minutes. The first day, you decide to get to the bus station a couple minutes before 7:30 to be sure you make the bus. The bus arrives at 7:32am. The next day, you decided to arrive a couple minutes early again. This time, the bus doesn’t arrive until 7:40am. The third day, you decide to show up right at 7:30am and the bus arrives at the same time as you. With all this variation in arrival time from the bus, can you trust the prediction that the bus arrives every 15 minutes?</p>
-<p>In order to solve this problem, you phone a friend who we’ll call Fred. Fred is a statistician so you trust that his insights will help you with determine when would be a good time to arrive at the bus stop given all this variation in data. He tells you that first he’ll need a decent sample size to work with, so that you’ll need to go at least 20 more times to get good data points on the bus arrival time. Then, he would set up what he calls a “hypothesis test” to determine whether or not the true average arrival time of the bus is every 15 minutes. You ask if the hypothesis test will tell him what the true average arrival time would be and Fred says no. It would only tell whether or not it is 15 minutes or not. But, he explains we could use a confidence interval to find a range where 95% of the time the true average would be found.</p>
-<p>You walk away from this conversation a little disappointed. You just don’t have time to sit out and record waiting times for that many buses. You want better judgement on when to arrive at the bus station, but not that much. As you wait for the bus again, you meet a girl named Bailey. You two start chatting and you start talking about how you can best estimate when to arrive at the bus station so you don’t have to wait very long but also won’t miss your bus. She asks if this is your first time riding a bus to work and you explain that in your old town you used to ride their bus system as well. She asks if the old town is similar in size as this new town and you say yes. She then explains that you can just use your “prior” knowledge of how frequently buses arrived and how long you waited to help you in your approximation of bus arrival time, with the new knowledge of the current bus system. Essentially, she explains that you can systematically update your beliefs each day based on new data you experience (when the bus arrives/how long you wait). Thanks to this way of thinking, you can always know a plausible range of values for how long you’ll be waiting and not just an average.</p>
-<p>You explain to her your data points so far (2 mins, 12 mins, 0 mins) and say that at most, in your old town, arriving a couple of minutes before expected arrival time of the bus yielded on averag a wait time of about 6 mins. She explains to you that this will be your benchmark prior, that you expect to wait on average about 6 mins with some amount of variance in wait time. Now, even with just 3 data points, we can update this belief of 6 mins to align it what is actually the average and distribution of wait time for the bus. With waiting 2 mins, we would believe the average to be a little lower than 6 mins. After the 12 mins wait, we could say that we believe the average to be closer to 6-7 mins. With 0 mins, we can update our belief to be less than 6 mins.</p>
-<p>This all sounds very intuitive and easy for you… so you ask if this is even a viable scientific method of measuring averages, variance, and in general quantifying your uncertainty? She says that it is! All thanks to Bayesian inference.</p>
+<p>Suppose you just moved to a new town as a budding new data analyst. You wish to take advantage of the public transit found in said city and want to be on time every day to your new job. You look up the bus times associated with the closest bus stop to your house and see that the bus comes every 15 minutes starting on the hour. Using google maps, it appears that it takes about 45 mins to ride to your work on bus. You decide that you want to arrive at the bus station by no later than 8:15am to make the bus that will get you to your work by 9:00am. Sadly, where you live, the weather is not the best (especially in the morning) so the last thing you want to do is wait at the bus stop longer than necessary.</p>
+<p>Fortunately, analyzing data and interpreting the data to drive actionable insights is your job! This is the perfect situation to apply some statistical methods to approximate accurately when you should arrive at the bus station to minimize the wait time at the bus while maximizing your likelihood of you making the bus. However, you don’t want to take a large sample size of data to confirm your hypothesis of when to arrive at the bus stop. Therefore, is there a way you can make accurate predictions about when to arrive at the bus stop to ensure you make the bus while not waiting forever for it?</p>
+<p>One way to approach the above problem would be to use your prior knowledge of your old bus system. While it obviously is not the exact same as your old town, chances are they are very similar in reliability and frequency. Therefore, you conclude that if this new town’s bus system is similar to your old town’s system, the new bus would arrive about +- 3 minutes from its scheduled arrival time. After coming to this conclusion, you decide to arrive 5 minutes before the scheduled arrival time to ensure you would make the bus. You wait at the bus stop and the bus arrives 1 minute past its scheduled arrival time, meaning you waited there for 6 mins total. From this observation, you decide to arrive 3 minutes before the bus arrives, since perhaps the bus might always be late by 1 minute, but you want to still be sure you make the bus. This time, the bus arrives 1 minute before its scheduled arrival time, meaning you waited at the bus stop for 2 minutes. You repeat this process for a week. After a week, you feel like you have the bus times down. You conclude that 95% of the time the bus arrives within 2 minutes of its scheduled arrival time, so naturally the earliest you have to be at the bus stop is a little more than 2 minutes before its scheduled arrival time to make the bus while also not having to wait a long time.</p>
 </section>
 <section id="bayesian-inference-the-math-behind-updating-beliefs" class="level1">
 <h1>Bayesian Inference: The Math Behind Updating Beliefs</h1>
 <p>The example above is a major simplification of the actual mathematical implementation of Bayesian inference. However, it does capture the idea that there is a way to update our belief in something by drawing on past data (prior belief) and updating that belief with new data that we observe, thus obtaining a a new distribution of uncertainty we use in judgements/calculations. The formula for this kind of thinking is shown below.</p>
 <center>
-<span class="math inline">\(P(H|\theta) = \frac{P(H) P(\theta|H)} {P(\theta)}\)</span>
+<span class="math display">\[\begin{equation}
+P(H|\theta) = \frac{P(\theta|H) P(H)}{P(\theta)}
+\end{equation}\]</span>
 </center>
-<p>We’ll break down the formula as follows.</p>
-<div class="cell" data-execution_count="1">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>np.random.poisson(lam<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-error">
-<pre><code>NameError: name 'np' is not defined</code></pre>
-</div>
-</div>
-<div class="cell" data-execution_count="11">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bus_times <span class="op">=</span> np.random.exponential(<span class="dv">15</span>, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<div class="cell" data-execution_count="44">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plt.hist(bus_times)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plt.axvline(x<span class="op">=</span>bus_times.mean(), color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'dashed'</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>plt.hist(bus_times, cumulative<span class="op">=</span><span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'dashed'</span>, density <span class="op">=</span> <span class="va">True</span>, histtype<span class="op">=</span><span class="st">'step'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-display">
-<p><img src="intro_to_bayes_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-<div class="cell" data-execution_count="39">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plt.hist(bus_times, cumulative<span class="op">=</span><span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'dashed'</span>, density <span class="op">=</span> <span class="va">True</span>, histtype<span class="op">=</span><span class="st">'step'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-display">
-<p><img src="intro_to_bayes_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-<div class="cell" data-execution_count="5">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>np.random.normal(loc<span class="op">=</span><span class="dv">15</span>, scale<span class="op">=</span><span class="dv">5</span>, size<span class="op">=</span><span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-display" data-execution_count="5">
-<pre><code>array([24.70768916, 13.69915225,  7.70262465, 12.50984248, 19.91917384,
-       14.19003404, 14.79596696, 13.94864534, 12.33791079, 16.2093166 ,
-       18.2745666 , 16.28247189, 12.98810549, 13.04995567, 26.59331935,
-       13.77914001,  9.87080984, 11.53593212, 22.25553859, 13.43176546,
-       16.90729668, 15.40166026, 12.28329708, 13.51451858, 19.02199068,
-       25.06411778, 15.83245462, 23.38034683, 17.81872343, 11.74931218])</code></pre>
-</div>
-</div>
-<div class="cell" data-execution_count="7">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bus_times</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-display" data-execution_count="7">
-<pre><code>array([ 9.94780641,  9.49718272, 21.94353187, 14.43235363,  5.53168298,
-        4.56829551, 18.37460275, 19.98077731, 30.07312976,  1.96304858,
-        1.8255759 ,  3.17128401,  0.95175978,  4.88946946,  1.2898627 ,
-       19.80629142,  5.82282514, 16.48227623, 21.57035029,  7.33622781,
-        0.56891505,  0.05800917, 39.49920522, 32.23018656, 51.58192211,
-       18.90982217,  0.71897336, 27.39496168, 46.37839066, 47.90536189])</code></pre>
-</div>
-</div>
+<center>
+<span class="math display">\[\begin{equation} H = \text{Our Hypothesis (prior)} \end{equation}\]</span><br> <span class="math display">\[\begin{equation}\theta = \text{Our Data} \end{equation}\]</span><br> <span class="math display">\[\begin{equation}P(H|\theta) = \text{Probability of observing our hypothesis given the data we've seen (posterior)} \end{equation}\]</span><br> <span class="math display">\[\begin{equation}P(H) = \text{Probability of our hypothesis (prior)} \end{equation}\]</span> <br> <span class="math display">\[\begin{equation}P(\theta|H) = \text{Probability of our data given our hypothesis is true (likelihood)} \end{equation}\]</span> <br> <span class="math display">\[\begin{equation}P(\theta) = \text{Probability of our data} \end{equation}\]</span>
+</center>
+<p>The above formula is the generalized bayes formula used for bayesian statistical inference. To make the formula feel a bit more intuitive, let’s utilize our bus example. Our hypothesis <span class="math inline">\((H)\)</span> was that the bus would arrive within +- 3 minutes of scheduled arrival time. We update this belief by conditioning on the data <span class="math inline">\((\theta)\)</span> we’ve seen. In our bus example, when we went to the bus stop for the first time, arriving 5 minutes early, the bus came within 1 minute of scheduled arrival time (1 minute late to be exact). Therefore, I updated my belief that if this is a normal bus day, this new bus system actually arrives in a closer timeframe than the previous bus system. However, since this was only my first day on the bus, I didn’t want to jump to any firm conclusions quite yet. I decided that I would experiment and try arriving 3 minutes early. From that, I observed that again the bus came within 1 minute of scheduled arrival (1 minute early to be exact).</p>
+<p>This process of constantly updating is what the formula above generalizes. We all have <strong>prior</strong> beliefs/opinions about something, be it a bus system, train system, hospital, etc. that gets updated by new events (data) that we observe. This is the beauty of Bayesian statistics. Bayesian methods allow for <strong>constant updates</strong> rather than strong conclusions that other statistical methods endorse.</p>
+</section>
+<section id="car-accidents-a-bayesian-example" class="level1">
+<h1>Car Accidents: A Bayesian Example</h1>
+<p>Let’s provide another example of the usefulness of Bayes theorem above. Hopefully this example, if the above formula and explanation still confuse you due to the math notation, will provide clarity on what all those symbols mean. Suppose you work for a car insurance company. Your company has three tiers of ages it covers:</p>
+<span class="math display">\[\begin{array}{|c|c|}
+\hline Age &amp; \% clients \\\hline
+Young &amp; 25\% \\
+Middle Age &amp; 50\% \\
+Old &amp; 25\%
+\\\hline
+\end{array}\]</span>
 
 
 </section>
@@ -343,9 +224,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -410,6 +305,92 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
