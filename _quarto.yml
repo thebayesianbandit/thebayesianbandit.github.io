@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Bayesian Business by Brandon"
+  title: "The Bayesian Bandit"
   navbar:
     right:
       - href: index.qmd
