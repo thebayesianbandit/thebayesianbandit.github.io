@@ -11,7 +11,7 @@ website:
       - href: about.qmd
         text: About 
       - icon: github
-        href: https://github.com/devscotte
+        href: https://github.com/thebayesianbandit
       - icon: linkedin
         href: https://www.linkedin.com/in/brandon-scott-5a7139211/
 format:
