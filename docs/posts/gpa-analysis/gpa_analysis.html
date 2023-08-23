@@ -101,7 +101,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -179,7 +179,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#analysis-of-relationship-between-gpa-and-study-hours" id="toc-analysis-of-relationship-between-gpa-and-study-hours" class="nav-link active" data-scroll-target="#analysis-of-relationship-between-gpa-and-study-hours">Analysis of relationship between GPA and # study hours</a>
+  <ul class="collapse">
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#setup-analysis" id="toc-setup-analysis" class="nav-link" data-scroll-target="#setup-analysis">Setup Analysis</a></li>
+  <li><a href="#data-cleaning" id="toc-data-cleaning" class="nav-link" data-scroll-target="#data-cleaning">Data Cleaning</a></li>
+  <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda">EDA</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
 
@@ -188,9 +202,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="analysis-of-relationship-between-gpa-and-study-hours" class="level1">
 <h1>Analysis of relationship between GPA and # study hours</h1>
-<section id="abstract" class="level2">
-<h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
-<p>The hope of this analysis is to demonstratet that there is a quantifiable relationship between GPA and study hours. We recognize that the collected data was self reported and therefore can be dishonest. Nonetheless, our goal is to still find a way to quantify a relationship between GPA and study hours to: 1. Gather inference to determine how GPA changes based on increase study time 2. Predict what a student’s GPA would be based on study time</p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+The hope of this analysis is to demonstratet that there is a quantifiable relationship between GPA and study hours. We recognize that the collected data was self reported and therefore can be dishonest. Nonetheless, our goal is to still find a way to quantify a relationship between GPA and study hours to:
+<ol>
+<li>
+Gather inference to determine how GPA changes based on increase study time
+</li>
+<li>
+Predict what a student’s GPA would be based on study time
+</li>
+</ol>
+<p>Data for this analysis can be found <a href="https://www.kaggle.com/datasets/joebeachcapital/gpa-study-hours">here</a></p>
 </section>
 <section id="setup-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="setup-analysis">Setup Analysis</h2>
@@ -278,9 +301,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>The head result indicates that the data has been read in correctly. In the next section, we will begin to clean the data.</p>
 </section>
 <section id="data-cleaning" class="level2">
 <h2 class="anchored" data-anchor-id="data-cleaning">Data Cleaning</h2>
+<p>We will begin our data cleaning by getting some basic summary statistics from the dataframe.</p>
 <div class="cell" data-tags="[]" data-execution_count="5">
 <details>
 <summary>Code</summary>
@@ -346,6 +371,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>The resulting dataframe shows that we have 193 rows of data where on average the gpa is 3.58 with a standard deviation of .28. Average study hours show 17.47 and standard deviation of 11.4, meaning we have a large spread in the distribution of study hours but not too much in gpa. From the summary statistics, we can easily see that the max value is invalid as the scale we are using for this analysis is 0-4. We will eliminate any rows that fall outside of this range.</p>
 <div class="cell" data-tags="[]" data-execution_count="6">
 <details>
 <summary>Code</summary>
@@ -358,6 +384,7 @@ study_hours    float64
 dtype: object</code></pre>
 </div>
 </div>
+<p>Checking the datatypes of each of the columns, we see that each is of type float. This confirms that all rows in each column are of the same datatype and, in theory, we do not need to clean up any corrupted data/poorly entered data.</p>
 <div class="cell" data-tags="[]" data-execution_count="7">
 <details>
 <summary>Code</summary>
@@ -370,6 +397,7 @@ study_hours    0
 dtype: int64</code></pre>
 </div>
 </div>
+<p>In addition, checking for nulls, we see there are none so we do not need to do anything with those. In the next code chunk, we will eliminate erroneous gpa entries.</p>
 <div class="cell" data-tags="[]" data-execution_count="8">
 <details>
 <summary>Code</summary>
@@ -380,7 +408,7 @@ dtype: int64</code></pre>
 </section>
 <section id="eda" class="level2">
 <h2 class="anchored" data-anchor-id="eda">EDA</h2>
-<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="cell" data-tags="[]" data-execution_count="25">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check distributios of gpa and study hours</span></span>
@@ -396,7 +424,12 @@ dtype: int64</code></pre>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Distributions of GPA and Study Hours"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="gpa_analysis_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
+<div id="fig-dist-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gpa_analysis_files/figure-html/fig-dist-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: Distributions of GPA and Study Hours</figcaption><p></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell" data-execution_count="10">
@@ -409,7 +442,12 @@ dtype: int64</code></pre>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>plt.text(<span class="dv">50</span>, <span class="fl">2.8</span>, <span class="ss">f"Correlation: </span><span class="sc">{</span>corr_coef<span class="sc">:.2f}</span><span class="ss">"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="gpa_analysis_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
+<div id="fig-scatterplot-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gpa_analysis_files/figure-html/fig-scatterplot-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: Scatterplot of GPA by Study Hours</figcaption><p></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell" data-tags="[]" data-execution_count="11">
@@ -492,7 +530,12 @@ dtype: int64</code></pre>
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Distributions of GPA and Study Hours"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="gpa_analysis_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
+<div id="fig-dist-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gpa_analysis_files/figure-html/fig-dist-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: Distributions of GPA and Study Hours (w/o outliers)</figcaption><p></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell" data-tags="[]" data-execution_count="23">
@@ -505,7 +548,12 @@ dtype: int64</code></pre>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>plt.text(<span class="dv">30</span>, <span class="fl">3.1</span>, <span class="ss">f"Correlation: </span><span class="sc">{</span>corr_coef<span class="sc">:.2f}</span><span class="ss">"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="gpa_analysis_files/figure-html/cell-17-output-1.png" class="img-fluid"></p>
+<div id="fig-scatterplot-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gpa_analysis_files/figure-html/fig-scatterplot-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4: Scatterplot of GPA by Study Hours</figcaption><p></p>
+</figure>
+</div>
 </div>
 </div>
 
