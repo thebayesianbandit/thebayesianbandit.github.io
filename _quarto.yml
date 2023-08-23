@@ -21,4 +21,5 @@ format:
      - theme.scss
     include-after-body: footer.html
 
-
+resources:
+  - CNAME
