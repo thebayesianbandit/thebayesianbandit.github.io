@@ -193,11 +193,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#data-cleaning" id="toc-data-cleaning" class="nav-link" data-scroll-target="#data-cleaning">Data Cleaning</a></li>
   <li><a href="#data-viz" id="toc-data-viz" class="nav-link" data-scroll-target="#data-viz">Data Viz</a></li>
   </ul></li>
-  <li><a href="#normal-frequentist-modeling" id="toc-normal-frequentist-modeling" class="nav-link" data-scroll-target="#normal-frequentist-modeling">Normal (Frequentist) Modeling</a>
+  <li><a href="#classical-frequentist-modeling" id="toc-classical-frequentist-modeling" class="nav-link" data-scroll-target="#classical-frequentist-modeling">Classical (Frequentist) Modeling</a>
   <ul class="collapse">
   <li><a href="#linear-regression-framework" id="toc-linear-regression-framework" class="nav-link" data-scroll-target="#linear-regression-framework">Linear Regression Framework</a></li>
   <li><a href="#calculate-beta-values-and-interpret-results" id="toc-calculate-beta-values-and-interpret-results" class="nav-link" data-scroll-target="#calculate-beta-values-and-interpret-results">Calculate beta values and interpret results</a></li>
+  <li><a href="#is-study-hours-a-statistically-significant-variable-in-determining-gpa" id="toc-is-study-hours-a-statistically-significant-variable-in-determining-gpa" class="nav-link" data-scroll-target="#is-study-hours-a-statistically-significant-variable-in-determining-gpa">Is study hours a statistically significant variable in determining GPA?</a></li>
+  <li><a href="#check-assumptions-of-linear-regression-model" id="toc-check-assumptions-of-linear-regression-model" class="nav-link" data-scroll-target="#check-assumptions-of-linear-regression-model">Check assumptions of linear regression model</a></li>
+  <li><a href="#do-students-spend-on-average-9-hours-a-week-studying" id="toc-do-students-spend-on-average-9-hours-a-week-studying" class="nav-link" data-scroll-target="#do-students-spend-on-average-9-hours-a-week-studying">Do students spend on average 9 hours a week studying?</a></li>
   </ul></li>
+  <li><a href="#bayesian-modeling" id="toc-bayesian-modeling" class="nav-link" data-scroll-target="#bayesian-modeling">Bayesian Modeling</a></li>
   </ul>
 </nav>
     </div>
@@ -225,14 +229,13 @@ Predict what a student’s GPA would be based on study time
 <section id="import-data-and-libraries" class="level3">
 <h3 class="anchored" data-anchor-id="import-data-and-libraries">Import data and libraries</h3>
 <p>We begin our analysis by importing the following libraries to create data visualizations as well as properly format and filter our data.</p>
-<div class="cell" data-tags="[]" data-execution_count="19">
+<div class="cell" data-tags="[]" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import libraries</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> opendatasets <span class="im">as</span> od</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We read in our data using pandas and will use the head function to check out the data.</p>
 <div class="cell" data-tags="[]" data-execution_count="4">
@@ -621,25 +624,15 @@ dtype: int64</code></pre>
 <p>In <a href="#fig-transformations">Figure&nbsp;5</a>, we see that our transformations really had not effect on the linear relationship. For the sake of getting on with the modeling, we will use our base dataset and interpret the model accordingly (barring that the other model assumptions hold).</p>
 </section>
 </section>
-<section id="normal-frequentist-modeling" class="level2">
-<h2 class="anchored" data-anchor-id="normal-frequentist-modeling">Normal (Frequentist) Modeling</h2>
-I hesitate to use the word normal here as that term usually denotes a different meaning in the world of statistics, but I want to separate the modeling section into two parts.
-<ol>
-<li>
-Frequentist approaches
-</li>
-<li>
-Bayesian approaches
-</li>
-</ol>
-<p>After all, this is thebayesianbandit, but I like providing frequentist approaches as well to show the differences and similarities between normal statistical modeling (frequentist) and bayesian modeling.</p>
+<section id="classical-frequentist-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="classical-frequentist-modeling">Classical (Frequentist) Modeling</h2>
+<p>This section will be our first attempt at modeling the data, using classical (frequentist) style approaches. Even though this is thebayesianbandit, I like providing frequentist approaches as well to show the differences and similarities between normal statistical modeling (frequentist) and bayesian modeling.</p>
 <section id="linear-regression-framework" class="level3">
 <h3 class="anchored" data-anchor-id="linear-regression-framework">Linear Regression Framework</h3>
 <p>Since we are dealing with “linear” data, it would make sense to attempt to attempt to fit a linear model to the data. Therefore, we will be utilizing a simple linear regression (SLR) model to model the relationship between GPA and study hours (per week). Below is the equation we will use.</p>
 <p><span id="eq-linear-model"><span class="math display">\[
-y = X\beta + \epsilon \\
-\epsilon \sim N(\mu, \sigma^2)
-\tag{1}\]</span></span></p>
+y = X\beta + \epsilon
+\tag{1}\]</span></span> <span class="math display">\[\epsilon \sim N(\mu, \sigma^2)\]</span></p>
 <p><a href="#eq-linear-model">Equation&nbsp;1</a> models our response variable is equal to our matrix of explanatory variables (in this case, just one) multiplied (scaled) by a matrix of betas, plus errors (residuals) that are distributed normally with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span></p>
 <p>In linear algebra/matrix notation, it would look something like this.</p>
 <p><span id="eq-linear-model-matrix"><span class="math display">\[
@@ -687,12 +680,241 @@ RSS = \epsilon^2_1 + ... + \epsilon^2_n
 <section id="calculate-beta-values-and-interpret-results" class="level3">
 <h3 class="anchored" data-anchor-id="calculate-beta-values-and-interpret-results">Calculate beta values and interpret results</h3>
 <p>Now that we have our framework by which we will fit our data, we can use Python libraries to perform the above calculations.</p>
-<div class="cell" data-tags="[]" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">### </span><span class="al">TODO</span><span class="co">: RUN OLS ON DATA </span><span class="al">###</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-tags="[]" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import statsmod and fit SLR model</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df[<span class="st">'gpa'</span>]</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> pd.DataFrame({<span class="st">'intercept'</span>:np.ones(df.shape[<span class="dv">0</span>]), <span class="st">'study_hours'</span>:df[<span class="st">'study_hours'</span>]})</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> sm.OLS(y, X)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-
-
+<div class="cell" data-scrolled="true" data-tags="[]" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Print summary from SLR model</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>results.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>OLS Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>gpa</td>
+<td data-quarto-table-cell-role="th">R-squared:</td>
+<td>0.019</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>OLS</td>
+<td data-quarto-table-cell-role="th">Adj. R-squared:</td>
+<td>0.014</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>Least Squares</td>
+<td data-quarto-table-cell-role="th">F-statistic:</td>
+<td>3.714</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Wed, 06 Sep 2023</td>
+<td data-quarto-table-cell-role="th">Prob (F-statistic):</td>
+<td>0.0555</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>20:33:28</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-27.443</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>193</td>
+<td data-quarto-table-cell-role="th">AIC:</td>
+<td>58.89</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>191</td>
+<td data-quarto-table-cell-role="th">BIC:</td>
+<td>65.41</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>1</td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">t</td>
+<td data-quarto-table-cell-role="th">P&gt;|t|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">intercept</td>
+<td>3.5249</td>
+<td>0.037</td>
+<td>95.292</td>
+<td>0.000</td>
+<td>3.452</td>
+<td>3.598</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">study_hours</td>
+<td>0.0034</td>
+<td>0.002</td>
+<td>1.927</td>
+<td>0.055</td>
+<td>-8.05e-05</td>
+<td>0.007</td>
+</tr>
+</tbody>
+</table>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Omnibus:</td>
+<td>10.671</td>
+<td data-quarto-table-cell-role="th">Durbin-Watson:</td>
+<td>2.385</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Prob(Omnibus):</td>
+<td>0.005</td>
+<td data-quarto-table-cell-role="th">Jarque-Bera (JB):</td>
+<td>11.481</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Skew:</td>
+<td>-0.595</td>
+<td data-quarto-table-cell-role="th">Prob(JB):</td>
+<td>0.00321</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Kurtosis:</td>
+<td>2.897</td>
+<td data-quarto-table-cell-role="th">Cond. No.</td>
+<td>38.3</td>
+</tr>
+</tbody>
+</table>
+<br><br>Notes:<br>[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+</div>
+</div>
+<p>From the summary, we have <span class="math inline">\(\beta_0\)</span> = 3.5249 and <span class="math inline">\(\beta_1\)</span> = .0034, meaning on average someone who studies 0 hours a week would see a GPA value of about 3.5. In addition, on average, for an increase of 1 hour in study time, we would see an increase of about .0034 in GPA. This isn’t too surprising considering the weak linear relationship we observed earlier in <a href="#fig-scatterplot-1">Figure&nbsp;2</a>. Essentially, if I were a student in this class, in order to change a whole letter grade (i.e.&nbsp;go from B to B+) and assuming I was right at B level (3.0), I would need to study 88 extra hours. Essentially, this model says that you’re stuck where you’re at.</p>
+Nevertheless, we can gain confidence in knowing a couple of things.
+<ol>
+<li>
+The data has a fairly weak linear relationship, so using a linear model to fit the data may not tell the most accurate story on how GPA is influenced by study hours.
+</li>
+<li>
+The data could be inaccurate due to self-reporting
+</li>
+</ol>
 </section>
+<section id="is-study-hours-a-statistically-significant-variable-in-determining-gpa" class="level3">
+<h3 class="anchored" data-anchor-id="is-study-hours-a-statistically-significant-variable-in-determining-gpa">Is study hours a statistically significant variable in determining GPA?</h3>
+<p>To determine the answer to the above question, we pose the following hypotheses.</p>
+<p><span class="math display">\[
+H_0: \beta_1 = 0
+\]</span> <span class="math display">\[
+H_a: \beta_1 \neq 0
+\]</span></p>
+<p>The aim of these hypotheses is to determine whether or not <span class="math inline">\(\beta_1\)</span> on average always has some kind of impact on GPA (whether it is an increase or decrease, no one knows in these things). We set our <span class="math inline">\(\alpha\)</span> = .05 to run our hypotheses.</p>
+<p>The p-value we obtain from the summary print out indicates that p-value &gt; <span class="math inline">\(\alpha\)</span>, so we fail to reject <span class="math inline">\(H_0\)</span> and conclude that there isn’t sufficient evidence to reject the null. Essentially, we don’t have enough statistical evidence from the data to prove that study hours, on average, will never have a 0 impact on GPA.</p>
+<p>To confirm this notion, we can view the corresponding 95% confidence interval for <span class="math inline">\(\beta_1\)</span> provided in the summary tab. The values of (-.000085, .007) indicate that 0 is included in the interval and therefore, the average change on GPA based on study hours can be 0.</p>
+</section>
+<section id="check-assumptions-of-linear-regression-model" class="level3">
+<h3 class="anchored" data-anchor-id="check-assumptions-of-linear-regression-model">Check assumptions of linear regression model</h3>
+Even though the <span class="math inline">\(\beta_1\)</span> value proved to not be statistically significant (though very close), we should still verify that the assumptions of our linear model hold with this data set. The assumptions for a linear regression model are listed below.
+<ol>
+<li>
+Linearity
+</li>
+<li>
+Independence
+</li>
+<li>
+Normality
+</li>
+<li>
+Equal Variance
+</li>
+</ol>
+<p>We already verified that there is a weak linear relationship, but still a linear relationship since correlation was not 0. Independence is verified by the fact that each observation in the study was independent of one another, thus making them i.i.d random variables.</p>
+<p>For the normality assumption, we can plot a histogram of the residuals to check that the residuals are approximately normally distributed. Below is the graph.</p>
+<div class="cell" data-tags="[]" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Plot histogram of residuals</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>,<span class="dv">5</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>sns.histplot(results.resid)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="fig-normality" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gpa_analysis_files/figure-html/fig-normality-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6: Histogram of resiudals</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see in <a href="#fig-normality">Figure&nbsp;6</a>, the distribution looks fairly left skewed with a long left tail. For ease of this analysis/exercise, we will say this is “approximately” normal, but this would more than likely fail in the real world.</p>
+<p>To verify equal variance, we will view a scatterplot of the fitted vs residual values to make sure that there appears to be equal variance (good randomness, no trends) in the graph.</p>
+<div class="cell" data-tags="[]" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Plot scatterplot of fitted vs residuals</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>,<span class="dv">5</span>))</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(x<span class="op">=</span>results.fittedvalues,y<span class="op">=</span>results.resid)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="fig-equal-variance" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="gpa_analysis_files/figure-html/fig-equal-variance-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;7: Scatterplot of fitted vs residuals</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In <a href="#fig-equal-variance">Figure&nbsp;7</a>, there appears to be no significant trends in the data (though it does tend to begin to taper as we increase across the x-axis). However, since there is nothing obvious or glaring, we can verify this assumption.</p>
+</section>
+<section id="do-students-spend-on-average-9-hours-a-week-studying" class="level3">
+<h3 class="anchored" data-anchor-id="do-students-spend-on-average-9-hours-a-week-studying">Do students spend on average 9 hours a week studying?</h3>
+<p>From my past university experience, many professors have told me that for every 1 hour of lecture, should be 3 hours of study/homework time. Assuming this class was a 3 credit hour class, most students should be spending about 9 hours studying outside of class. To test this theory, we will use a t-test for the following hypotheses.</p>
+<p><span class="math display">\[H_0: \mu = 9\]</span> <span class="math display">\[H_a: \mu \neq 9\]</span></p>
+<div class="cell" data-tags="[]" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Perform t-test to see if students on average spend 9 hours studying</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> ttest_1samp</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>ttest_1samp(a<span class="op">=</span>df[<span class="st">'study_hours'</span>], popmean<span class="op">=</span><span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="44">
+<pre><code>TtestResult(statistic=10.32185697364204, pvalue=3.767865100544389e-20, df=192)</code></pre>
+</div>
+</div>
+<p>The above result with a super small p-value (less than <span class="math inline">\(\alpha\)</span> = .05) indicates that we can reject the null hypothesis and conclude that students do not study an average of 9 hours for this class. To determine what the range of possible average values are, we will calculate a 95% confidence interval below.</p>
+<div class="cell" data-tags="[]" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate 95% confidence interval</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>ttest_1samp(a<span class="op">=</span>df[<span class="st">'study_hours'</span>], popmean<span class="op">=</span><span class="dv">9</span>).confidence_interval()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="46">
+<pre><code>ConfidenceInterval(low=15.856880282374465, high=19.096487593273206)</code></pre>
+</div>
+</div>
+<p>We are 95% confident that the true average study time spent is between 15.85 to 19.09 hours. So, on average, students are spending a lot more time studying for this class than the hoped benchmark set by this university (assuming this university has set the same benchmark as my other ones).</p>
+</section>
+</section>
+<section id="bayesian-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="bayesian-modeling">Bayesian Modeling</h2>
+<p>Finally, getting into the bayesian part of the analysis! As with our classical approach, we will layout the framework we will use for this section. We will be using the bayesian model (Bayes theorem) shown below.</p>
+<p><span id="eq-bayes-theorem"><span class="math display">\[P(H|\theta) = \frac{P(\theta|H) P(H)}{P(\theta)} \tag{8}\]</span></span></p>
+<p><span class="math display">\[H = \text{Our Hypothesis (prior)}\]</span> <span class="math display">\[\theta = \text{Our Data}\]</span></p>
+
+
 </section>
 
 </main> <!-- /main -->
