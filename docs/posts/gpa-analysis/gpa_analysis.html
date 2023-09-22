@@ -9,7 +9,7 @@
 <meta name="author" content="Brandon Scott">
 <meta name="dcterms.date" content="2022-12-24">
 
-<title>The Bayesian Bandit - Analysis of relationship between GPA and Study Hours</title>
+<title>The Bayesian Bandit - Simple Linear Regression</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -128,6 +128,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../../about.html" rel="" target="">
  <span class="menu-text">About</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/book" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
@@ -149,7 +153,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Analysis of relationship between GPA and Study Hours</h1>
+      <h1 class="title">Simple Linear Regression</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">analysis</div>
                 <div class="quarto-category">bayesian</div>
@@ -186,22 +190,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</a>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">0.1</span> Introduction</a></li>
+  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda"><span class="header-section-number">0.2</span> Exploratory Data Analysis (EDA)</a>
   <ul class="collapse">
-  <li><a href="#import-data-and-libraries" id="toc-import-data-and-libraries" class="nav-link" data-scroll-target="#import-data-and-libraries">Import data and libraries</a></li>
-  <li><a href="#data-cleaning" id="toc-data-cleaning" class="nav-link" data-scroll-target="#data-cleaning">Data Cleaning</a></li>
-  <li><a href="#data-viz" id="toc-data-viz" class="nav-link" data-scroll-target="#data-viz">Data Viz</a></li>
+  <li><a href="#import-data-and-libraries" id="toc-import-data-and-libraries" class="nav-link" data-scroll-target="#import-data-and-libraries"><span class="header-section-number">0.2.1</span> Import data and libraries</a></li>
+  <li><a href="#data-cleaning" id="toc-data-cleaning" class="nav-link" data-scroll-target="#data-cleaning"><span class="header-section-number">0.2.2</span> Data Cleaning</a></li>
   </ul></li>
-  <li><a href="#classical-frequentist-modeling" id="toc-classical-frequentist-modeling" class="nav-link" data-scroll-target="#classical-frequentist-modeling">Classical (Frequentist) Modeling</a>
+  <li><a href="#data-viz" id="toc-data-viz" class="nav-link" data-scroll-target="#data-viz"><span class="header-section-number">0.3</span> Data Viz</a></li>
+  <li><a href="#classical-modeling" id="toc-classical-modeling" class="nav-link" data-scroll-target="#classical-modeling"><span class="header-section-number">0.4</span> Classical Modeling</a>
   <ul class="collapse">
-  <li><a href="#linear-regression-framework" id="toc-linear-regression-framework" class="nav-link" data-scroll-target="#linear-regression-framework">Linear Regression Framework</a></li>
-  <li><a href="#calculate-beta-values-and-interpret-results" id="toc-calculate-beta-values-and-interpret-results" class="nav-link" data-scroll-target="#calculate-beta-values-and-interpret-results">Calculate beta values and interpret results</a></li>
-  <li><a href="#is-study-hours-a-statistically-significant-variable-in-determining-gpa" id="toc-is-study-hours-a-statistically-significant-variable-in-determining-gpa" class="nav-link" data-scroll-target="#is-study-hours-a-statistically-significant-variable-in-determining-gpa">Is study hours a statistically significant variable in determining GPA?</a></li>
-  <li><a href="#check-assumptions-of-linear-regression-model" id="toc-check-assumptions-of-linear-regression-model" class="nav-link" data-scroll-target="#check-assumptions-of-linear-regression-model">Check assumptions of linear regression model</a></li>
-  <li><a href="#do-students-spend-on-average-9-hours-a-week-studying" id="toc-do-students-spend-on-average-9-hours-a-week-studying" class="nav-link" data-scroll-target="#do-students-spend-on-average-9-hours-a-week-studying">Do students spend on average 9 hours a week studying?</a></li>
+  <li><a href="#linear-regression-framework" id="toc-linear-regression-framework" class="nav-link" data-scroll-target="#linear-regression-framework"><span class="header-section-number">0.4.1</span> Linear Regression Framework</a></li>
+  <li><a href="#calculate-beta-values-and-interpret-results" id="toc-calculate-beta-values-and-interpret-results" class="nav-link" data-scroll-target="#calculate-beta-values-and-interpret-results"><span class="header-section-number">0.4.2</span> Calculate beta values and interpret results</a></li>
+  <li><a href="#is-study-hours-a-statistically-significant-variable-in-determining-gpa" id="toc-is-study-hours-a-statistically-significant-variable-in-determining-gpa" class="nav-link" data-scroll-target="#is-study-hours-a-statistically-significant-variable-in-determining-gpa"><span class="header-section-number">0.4.3</span> Is study hours a statistically significant variable in determining GPA?</a></li>
+  <li><a href="#check-assumptions-of-linear-regression-model" id="toc-check-assumptions-of-linear-regression-model" class="nav-link" data-scroll-target="#check-assumptions-of-linear-regression-model"><span class="header-section-number">0.4.4</span> Check assumptions of linear regression model</a></li>
+  <li><a href="#do-students-spend-on-average-9-hours-a-week-studying" id="toc-do-students-spend-on-average-9-hours-a-week-studying" class="nav-link" data-scroll-target="#do-students-spend-on-average-9-hours-a-week-studying"><span class="header-section-number">0.4.5</span> Do students spend on average 9 hours a week studying?</a></li>
   </ul></li>
-  <li><a href="#bayesian-modeling" id="toc-bayesian-modeling" class="nav-link" data-scroll-target="#bayesian-modeling">Bayesian Modeling</a></li>
+  <li><a href="#bayesian-modeling" id="toc-bayesian-modeling" class="nav-link" data-scroll-target="#bayesian-modeling"><span class="header-section-number">0.5</span> Bayesian Modeling</a></li>
   </ul>
 </nav>
     </div>
@@ -211,8 +215,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<section id="introduction" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">0.1</span> Introduction</h2>
 The hope of this analysis is to demonstrate that there is a quantifiable relationship between GPA and study hours. We recognize that the collected data was self reported and therefore can be dishonest. Nonetheless, our goal is to still find a way to quantify a relationship between GPA and study hours to:
 <ol>
 <li>
@@ -224,10 +228,10 @@ Predict what a student’s GPA would be based on study time
 </ol>
 <p>Data for this analysis can be found <a href="https://www.kaggle.com/datasets/joebeachcapital/gpa-study-hours">here</a></p>
 </section>
-<section id="exploratory-data-analysis-eda" class="level2">
-<h2 class="anchored" data-anchor-id="exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</h2>
-<section id="import-data-and-libraries" class="level3">
-<h3 class="anchored" data-anchor-id="import-data-and-libraries">Import data and libraries</h3>
+<section id="exploratory-data-analysis-eda" class="level2" data-number="0.2">
+<h2 data-number="0.2" class="anchored" data-anchor-id="exploratory-data-analysis-eda"><span class="header-section-number">0.2</span> Exploratory Data Analysis (EDA)</h2>
+<section id="import-data-and-libraries" class="level3" data-number="0.2.1">
+<h3 data-number="0.2.1" class="anchored" data-anchor-id="import-data-and-libraries"><span class="header-section-number">0.2.1</span> Import data and libraries</h3>
 <p>We begin our analysis by importing the following libraries to create data visualizations as well as properly format and filter our data.</p>
 <div class="cell" data-tags="[]" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import libraries</span></span>
@@ -287,8 +291,8 @@ Predict what a student’s GPA would be based on study time
 </div>
 <p>The head result indicates that the data has been read in correctly. In the next section, we will begin to clean the data.</p>
 </section>
-<section id="data-cleaning" class="level3">
-<h3 class="anchored" data-anchor-id="data-cleaning">Data Cleaning</h3>
+<section id="data-cleaning" class="level3" data-number="0.2.2">
+<h3 data-number="0.2.2" class="anchored" data-anchor-id="data-cleaning"><span class="header-section-number">0.2.2</span> Data Cleaning</h3>
 <p>We will begin our data cleaning by getting some basic summary statistics from the dataframe.</p>
 <div class="cell" data-tags="[]" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Describe dataset</span></span>
@@ -379,8 +383,9 @@ dtype: int64</code></pre>
 </div>
 <p>In the above chunk, we use the assign function to override the gpa column and change values that are above 4 to just 4 while leaving all others the same.</p>
 </section>
-<section id="data-viz" class="level3">
-<h3 class="anchored" data-anchor-id="data-viz">Data Viz</h3>
+</section>
+<section id="data-viz" class="level2" data-number="0.3">
+<h2 data-number="0.3" class="anchored" data-anchor-id="data-viz"><span class="header-section-number">0.3</span> Data Viz</h2>
 <p>The first visualization we will look at is comparing the distributions of gpa and study hours. We want to get a side by side look so we will use the subplots functionality from matplotlib. As well, we will plot the median of the two respective distributions to know where the 50% percentile lies. The following code produces <a href="#fig-dist-1">Figure&nbsp;1</a>.</p>
 <div class="cell" data-tags="[]" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check distributios of gpa and study hours</span></span>
@@ -623,12 +628,11 @@ dtype: int64</code></pre>
 </div>
 <p>In <a href="#fig-transformations">Figure&nbsp;5</a>, we see that our transformations really had not effect on the linear relationship. For the sake of getting on with the modeling, we will use our base dataset and interpret the model accordingly (barring that the other model assumptions hold).</p>
 </section>
-</section>
-<section id="classical-frequentist-modeling" class="level2">
-<h2 class="anchored" data-anchor-id="classical-frequentist-modeling">Classical (Frequentist) Modeling</h2>
+<section id="classical-modeling" class="level2" data-number="0.4">
+<h2 data-number="0.4" class="anchored" data-anchor-id="classical-modeling"><span class="header-section-number">0.4</span> Classical Modeling</h2>
 <p>This section will be our first attempt at modeling the data, using classical (frequentist) style approaches. Even though this is thebayesianbandit, I like providing frequentist approaches as well to show the differences and similarities between normal statistical modeling (frequentist) and bayesian modeling.</p>
-<section id="linear-regression-framework" class="level3">
-<h3 class="anchored" data-anchor-id="linear-regression-framework">Linear Regression Framework</h3>
+<section id="linear-regression-framework" class="level3" data-number="0.4.1">
+<h3 data-number="0.4.1" class="anchored" data-anchor-id="linear-regression-framework"><span class="header-section-number">0.4.1</span> Linear Regression Framework</h3>
 <p>Since we are dealing with “linear” data, it would make sense to attempt to attempt to fit a linear model to the data. Therefore, we will be utilizing a simple linear regression (SLR) model to model the relationship between GPA and study hours (per week). Below is the equation we will use.</p>
 <p><span id="eq-linear-model"><span class="math display">\[
 y = X\beta + \epsilon
@@ -677,8 +681,8 @@ RSS = \epsilon^2_1 + ... + \epsilon^2_n
 \tag{7}\]</span></span></p>
 <p>Where <span class="math inline">\(\hat{y}\)</span> is our “predicted” value based off our inputs in the matrix of <span class="math inline">\(X\)</span>, scaled/multiplied by <span class="math inline">\(\hat{\beta}\)</span>, our estimated coefficients.</p>
 </section>
-<section id="calculate-beta-values-and-interpret-results" class="level3">
-<h3 class="anchored" data-anchor-id="calculate-beta-values-and-interpret-results">Calculate beta values and interpret results</h3>
+<section id="calculate-beta-values-and-interpret-results" class="level3" data-number="0.4.2">
+<h3 data-number="0.4.2" class="anchored" data-anchor-id="calculate-beta-values-and-interpret-results"><span class="header-section-number">0.4.2</span> Calculate beta values and interpret results</h3>
 <p>Now that we have our framework by which we will fit our data, we can use Python libraries to perform the above calculations.</p>
 <div class="cell" data-tags="[]" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import statsmod and fit SLR model</span></span>
@@ -824,8 +828,8 @@ The data could be inaccurate due to self-reporting
 </li>
 </ol>
 </section>
-<section id="is-study-hours-a-statistically-significant-variable-in-determining-gpa" class="level3">
-<h3 class="anchored" data-anchor-id="is-study-hours-a-statistically-significant-variable-in-determining-gpa">Is study hours a statistically significant variable in determining GPA?</h3>
+<section id="is-study-hours-a-statistically-significant-variable-in-determining-gpa" class="level3" data-number="0.4.3">
+<h3 data-number="0.4.3" class="anchored" data-anchor-id="is-study-hours-a-statistically-significant-variable-in-determining-gpa"><span class="header-section-number">0.4.3</span> Is study hours a statistically significant variable in determining GPA?</h3>
 <p>To determine the answer to the above question, we pose the following hypotheses.</p>
 <p><span class="math display">\[
 H_0: \beta_1 = 0
@@ -836,8 +840,8 @@ H_a: \beta_1 \neq 0
 <p>The p-value we obtain from the summary print out indicates that p-value &gt; <span class="math inline">\(\alpha\)</span>, so we fail to reject <span class="math inline">\(H_0\)</span> and conclude that there isn’t sufficient evidence to reject the null. Essentially, we don’t have enough statistical evidence from the data to prove that study hours, on average, will never have a 0 impact on GPA.</p>
 <p>To confirm this notion, we can view the corresponding 95% confidence interval for <span class="math inline">\(\beta_1\)</span> provided in the summary tab. The values of (-.000085, .007) indicate that 0 is included in the interval and therefore, the average change on GPA based on study hours can be 0.</p>
 </section>
-<section id="check-assumptions-of-linear-regression-model" class="level3">
-<h3 class="anchored" data-anchor-id="check-assumptions-of-linear-regression-model">Check assumptions of linear regression model</h3>
+<section id="check-assumptions-of-linear-regression-model" class="level3" data-number="0.4.4">
+<h3 data-number="0.4.4" class="anchored" data-anchor-id="check-assumptions-of-linear-regression-model"><span class="header-section-number">0.4.4</span> Check assumptions of linear regression model</h3>
 Even though the <span class="math inline">\(\beta_1\)</span> value proved to not be statistically significant (though very close), we should still verify that the assumptions of our linear model hold with this data set. The assumptions for a linear regression model are listed below.
 <ol>
 <li>
@@ -885,8 +889,8 @@ Equal Variance
 </div>
 <p>In <a href="#fig-equal-variance">Figure&nbsp;7</a>, there appears to be no significant trends in the data (though it does tend to begin to taper as we increase across the x-axis). However, since there is nothing obvious or glaring, we can verify this assumption.</p>
 </section>
-<section id="do-students-spend-on-average-9-hours-a-week-studying" class="level3">
-<h3 class="anchored" data-anchor-id="do-students-spend-on-average-9-hours-a-week-studying">Do students spend on average 9 hours a week studying?</h3>
+<section id="do-students-spend-on-average-9-hours-a-week-studying" class="level3" data-number="0.4.5">
+<h3 data-number="0.4.5" class="anchored" data-anchor-id="do-students-spend-on-average-9-hours-a-week-studying"><span class="header-section-number">0.4.5</span> Do students spend on average 9 hours a week studying?</h3>
 <p>From my past university experience, many professors have told me that for every 1 hour of lecture, should be 3 hours of study/homework time. Assuming this class was a 3 credit hour class, most students should be spending about 9 hours studying outside of class. To test this theory, we will use a t-test for the following hypotheses.</p>
 <p><span class="math display">\[H_0: \mu = 9\]</span> <span class="math display">\[H_a: \mu \neq 9\]</span></p>
 <div class="cell" data-tags="[]" data-execution_count="44">
@@ -908,8 +912,8 @@ Equal Variance
 <p>We are 95% confident that the true average study time spent is between 15.85 to 19.09 hours. So, on average, students are spending a lot more time studying for this class than the hoped benchmark set by this university (assuming this university has set the same benchmark as my other ones).</p>
 </section>
 </section>
-<section id="bayesian-modeling" class="level2">
-<h2 class="anchored" data-anchor-id="bayesian-modeling">Bayesian Modeling</h2>
+<section id="bayesian-modeling" class="level2" data-number="0.5">
+<h2 data-number="0.5" class="anchored" data-anchor-id="bayesian-modeling"><span class="header-section-number">0.5</span> Bayesian Modeling</h2>
 <p>Finally, getting into the bayesian part of the analysis! As with our classical approach, we will layout the framework we will use for this section. We will be using the bayesian model (Bayes theorem) shown below.</p>
 <p><span id="eq-bayes-theorem"><span class="math display">\[P(H|\theta) = \frac{P(\theta|H) P(H)}{P(\theta)} \tag{8}\]</span></span></p>
 <p><span class="math display">\[H = \text{Our Hypothesis (prior)}\]</span> <span class="math display">\[\theta = \text{Our Data}\]</span></p>
