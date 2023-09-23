@@ -2,8 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/welcome/welcome_to_blog.html",
-      "/posts/gpa-analysis/gpa_analysis.html"
+      "/posts/welcome/welcome_to_blog.html"
     ]
   }
 ]
