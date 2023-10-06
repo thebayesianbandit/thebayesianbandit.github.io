@@ -25,7 +25,14 @@
     "href": "index.html",
     "title": "The Bayesian Bandit",
     "section": "",
-    "text": "Welcome to my blog!\n\n\n\nwelcome\n\n\nbayesian\n\n\n\n\n\n\n\nBrandon Scott\n\n\nMar 6, 2023\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Bayesian Pricing Algorithm Applications in Mobility Industry\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to my blog!\n\n\n\nwelcome\n\n\nbayesian\n\n\n\n\n\n\n\nBrandon Scott\n\n\nMar 6, 2023\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/bayes-pricing/bayesian_pricing_uber.html",
+    "href": "posts/bayes-pricing/bayesian_pricing_uber.html",
+    "title": "Bayesian Pricing Algorithm Applications in Mobility Industry",
+    "section": "",
+    "text": "Abstract\nBayesian pricing models are important.\n\n#Check dataframe\ndf.head()\n\n\n\n\n\n\n\n\nUnnamed: 0\nkey\nfare_amount\npickup_datetime\npickup_longitude\npickup_latitude\ndropoff_longitude\ndropoff_latitude\npassenger_count\n\n\n\n\n0\n24238194\n2015-05-07 19:52:06.0000003\n7.5\n2015-05-07 19:52:06 UTC\n-73.999817\n40.738354\n-73.999512\n40.723217\n1\n\n\n1\n27835199\n2009-07-17 20:04:56.0000002\n7.7\n2009-07-17 20:04:56 UTC\n-73.994355\n40.728225\n-73.994710\n40.750325\n1\n\n\n2\n44984355\n2009-08-24 21:45:00.00000061\n12.9\n2009-08-24 21:45:00 UTC\n-74.005043\n40.740770\n-73.962565\n40.772647\n1\n\n\n3\n25894730\n2009-06-26 08:22:21.0000001\n5.3\n2009-06-26 08:22:21 UTC\n-73.976124\n40.790844\n-73.965316\n40.803349\n3\n\n\n4\n17610152\n2014-08-28 17:47:00.000000188\n16.0\n2014-08-28 17:47:00 UTC\n-73.925023\n40.744085\n-73.973082\n40.761247\n5\n\n\n\n\n\n\n\n\n#Rename unnamed column\ndf = df.rename(columns={'Unnamed: 0': 'id'})"
   },
   {
     "objectID": "posts/welcome/welcome_to_blog.html",
