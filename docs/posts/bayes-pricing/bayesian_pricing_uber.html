@@ -171,6 +171,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
   </ul>
 </nav>
     </div>
@@ -183,10 +184,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="abstract" class="level1">
 <h1>Abstract</h1>
 <p>Bayesian pricing models are important.</p>
-<div class="cell" data-tags="[]" data-execution_count="6">
+<div class="cell" data-tags="[]" data-execution_count="50">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check dataframe</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="50">
 <div>
 
 
@@ -272,9 +273,177 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename unnamed column</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.rename(columns<span class="op">=</span>{<span class="st">'Unnamed: 0'</span>: <span class="st">'id'</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="52">
+<div class="cell-output cell-output-display" data-execution_count="52">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">id</th>
+<th data-quarto-table-cell-role="th">fare_amount</th>
+<th data-quarto-table-cell-role="th">pickup_longitude</th>
+<th data-quarto-table-cell-role="th">pickup_latitude</th>
+<th data-quarto-table-cell-role="th">dropoff_longitude</th>
+<th data-quarto-table-cell-role="th">dropoff_latitude</th>
+<th data-quarto-table-cell-role="th">passenger_count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>2.000000e+05</td>
+<td>200000.000000</td>
+<td>200000.000000</td>
+<td>200000.000000</td>
+<td>199999.000000</td>
+<td>199999.000000</td>
+<td>200000.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>2.771250e+07</td>
+<td>11.359955</td>
+<td>-72.527638</td>
+<td>39.935885</td>
+<td>-72.525292</td>
+<td>39.923890</td>
+<td>1.684535</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>1.601382e+07</td>
+<td>9.901776</td>
+<td>11.437787</td>
+<td>7.720539</td>
+<td>13.117408</td>
+<td>6.794829</td>
+<td>1.385997</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>1.000000e+00</td>
+<td>-52.000000</td>
+<td>-1340.648410</td>
+<td>-74.015515</td>
+<td>-3356.666300</td>
+<td>-881.985513</td>
+<td>0.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>1.382535e+07</td>
+<td>6.000000</td>
+<td>-73.992065</td>
+<td>40.734796</td>
+<td>-73.991407</td>
+<td>40.733823</td>
+<td>1.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>2.774550e+07</td>
+<td>8.500000</td>
+<td>-73.981823</td>
+<td>40.752592</td>
+<td>-73.980093</td>
+<td>40.753042</td>
+<td>1.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>4.155530e+07</td>
+<td>12.500000</td>
+<td>-73.967154</td>
+<td>40.767158</td>
+<td>-73.963658</td>
+<td>40.768001</td>
+<td>2.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>5.542357e+07</td>
+<td>499.000000</td>
+<td>57.418457</td>
+<td>1644.421482</td>
+<td>1153.572603</td>
+<td>872.697628</td>
+<td>208.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="53">
+<div class="cell-output cell-output-display" data-execution_count="53">
+<pre><code>id                   0
+key                  0
+fare_amount          0
+pickup_datetime      0
+pickup_longitude     0
+pickup_latitude      0
+dropoff_longitude    1
+dropoff_latitude     1
+passenger_count      0
+dtype: int64</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="55">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename timestamp column</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.rename(columns<span class="op">=</span>{<span class="st">'key'</span> : <span class="st">'timestamp'</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="56">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check data types</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df.dtypes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="56">
+<pre><code>id                     int64
+timestamp             object
+fare_amount          float64
+pickup_datetime       object
+pickup_longitude     float64
+pickup_latitude      float64
+dropoff_longitude    float64
+dropoff_latitude     float64
+passenger_count        int64
+dtype: object</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="73">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert timestamp to a timestamp object</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'timestamp'</span>] <span class="op">=</span> (df[<span class="st">'timestamp'</span>].pipe(pd.to_datetime)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                   .dt.strftime(<span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st"> %H:%M:%S'</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                   .pipe(pd.to_datetime))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="74">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'timestamp'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="74">
+<pre><code>0        2015-05-07 19:52:06
+1        2009-07-17 20:04:56
+2        2009-08-24 21:45:00
+3        2009-06-26 08:22:21
+4        2014-08-28 17:47:00
+                 ...        
+199995   2012-10-28 10:49:00
+199996   2014-03-14 01:09:00
+199997   2009-06-29 00:42:00
+199998   2015-05-20 14:56:25
+199999   2010-05-15 04:08:00
+Name: timestamp, Length: 199999, dtype: datetime64[ns]</code></pre>
+</div>
+</div>
+</section>
+<section id="exploratory-data-analysis" class="level1">
+<h1>Exploratory Data Analysis</h1>
+<div class="cell" data-tags="[]" data-execution_count="76">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Look at fare amount change over time</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df.plot(x<span class="op">=</span><span class="st">'timestamp'</span>, y <span class="op">=</span> <span class="st">'fare_amount'</span>, figsize<span class="op">=</span>(<span class="dv">15</span>,<span class="dv">5</span>))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="bayesian_pricing_uber_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
+</div>
 </div>
 
 
