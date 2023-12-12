@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/heart-disease/heart_disease_analysis.html",
       "/posts/welcome/welcome_to_blog.html"
     ]
   }
