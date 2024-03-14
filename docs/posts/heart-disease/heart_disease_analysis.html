@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -96,6 +62,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -177,10 +145,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
-  <li><a href="#model-creation" id="toc-model-creation" class="nav-link" data-scroll-target="#model-creation">Model Creation</a></li>
   <li><a href="#verify-model-assumptions" id="toc-verify-model-assumptions" class="nav-link" data-scroll-target="#verify-model-assumptions">Verify Model Assumptions</a></li>
+  <li><a href="#model-creation" id="toc-model-creation" class="nav-link" data-scroll-target="#model-creation">Model Creation</a></li>
   <li><a href="#model-assessment" id="toc-model-assessment" class="nav-link" data-scroll-target="#model-assessment">Model Assessment</a></li>
+  <li><a href="#bayesian-model-creation" id="toc-bayesian-model-creation" class="nav-link" data-scroll-target="#bayesian-model-creation">Bayesian Model Creation</a></li>
   </ul>
 </nav>
     </div>
@@ -192,7 +162,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="abstract" class="level1">
 <h1>Abstract</h1>
+<p>Using data collected from hospitals in India, we demonstrate the usefulness of logistic regression in classifying patients with cardiovascular disease based on features collected by the hospital. We first present the classic approach to logistic regression (frequentist appraoch) followed by a demonstration of a bayesian approach to binary classification data. Our analysis shows that the given features and proposed inference approach prove viable and accurate methods in detecting cardiovascular disease in the sampled patients.</p>
 <p>Data can be found <a href="https://www.kaggle.com/datasets/jocelyndumlao/cardiovascular-disease-dataset">here</a></p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Tests are widely used in hospitals around the world to increase the effectiveness of preventitve care. Behind these tests are statistical methods that aid doctors and other healthcare professionals in properly administering care by correctly identifying health problems. In this analysis, we analyze a dataset collected from hospitals in India that were looking for ways to identify cardiovascular diseases in their patients. The goal is to provide the hospitals with 2 things: an accurate model that predicts the presence of cardiovascular disease, and a model that helps doctors know what symptoms to watch out for when helping patients, further alerting them to either receive a test for possible cardiovascular disease or dismiss those concerns.</p>
+<p>Below is the first 5 rows of the dataset that we will be analyzing.</p>
 <div class="cell" data-tags="[]" data-execution_count="4">
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
@@ -310,6 +286,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>Of the 14 columns listed above, 1 is our target column (1 for disease and 0 for no disease), 12 features that we will use to gather inference on the target, and 1 column for patientids (unique key). Gender is encoded 1 for male and 0 for female. To ensure our analysis goes smoothly, we should validate that there are no null values. If there are any, we need to construct a strategy for conserving as much information as possible. Output for the number of null values for each column is found below.</p>
 <div class="cell" data-tags="[]" data-execution_count="5">
 <div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>patientid            0
@@ -329,6 +306,7 @@ target               0
 dtype: int64</code></pre>
 </div>
 </div>
+<p>The output shows that there are no null values for any of the columns in our dataset, so we can move onto the next step of data prep which is to verify the datatypes of each column. Essentially, we are verifying that all columns have data values that are to be expected (i.e.&nbsp;integers types for numeric columns). Output for this test is shown below.</p>
 <div class="cell" data-tags="[]" data-execution_count="6">
 <div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>patientid              int64
@@ -348,11 +326,13 @@ target                 int64
 dtype: object</code></pre>
 </div>
 </div>
+<p>There doesn’t appear to be any unexpected datatypes in the dataset, so we can verify this step of data prep. More data prep can always be explored to ensure viable data for data analysis purposes, but for now we shall conclude these 2 steps are sufficient and proceed to our analysis of the data.</p>
 </section>
 <section id="exploratory-data-analysis" class="level1">
 <h1>Exploratory Data Analysis</h1>
-<div class="cell" data-tags="[]" data-execution_count="7">
-<div class="cell-output cell-output-display" data-execution_count="7">
+<p>To begin our analysis, we will perform exploratory data analysis (EDA) to gather more information about how to best model our data. Below is a descriptive statistics table for our columns.</p>
+<div class="cell" data-tags="[]" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -519,338 +499,251 @@ dtype: object</code></pre>
 </div>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="8">
-<div class="cell-output cell-output-display" data-execution_count="8">
-<pre><code>(1000, 14)</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="9">
-<div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
-</div>
-</div>
+<p>Viewing the average for target, we get a value of .58, meaning a little more than half of our dataset contains presence of cardiovascular disease. Returning to the age column, we see that the average age is around 49 years, with the oldest being 80 and the youngest being 20. In addition, most of our dataset is compromised of males (about 77% of the dataset). Further domain knowledge is necessary to identify whether the other features respective statistics are “good” or “bad” values (healthy or not healthy).</p>
+<p>While the tabular statistical information above is valiable, visual representations of the data are valiable to present so that we can quickly digest how our data looks. Below is a bar plot of the target values.</p>
 <div class="cell" data-tags="[]" data-execution_count="10">
 <div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+<div id="fig-target-bar" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-target-bar-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Bar plot of target count using seaborn. As noted from the summary statistics, the dataset contains more 1s than 0s for target, indicating a higher presence of heart disease in the sample.</figcaption><p></p>
+</figure>
 </div>
 </div>
+</div>
+<p>We can now visually see the imbalance of data in our dataset. There appears to be about 150 more 1s than 0s in the dataset. We will demonstrate later in the analysis how logistic regression is a good choice for handling unbalanced datasets. For now, we will continue to explore the dataset. While we clearly see above that there is a difference between the number of patients with and without heart disease, we should discover more information about who pertains to each target value. To do this, we can use a box-and-whisker plot to view the distribution of a variable separated by target value. Below is a box-and-whisker plot of the age distribution for 0 and 1 target values respectively.</p>
 <div class="cell" data-tags="[]" data-execution_count="11">
 <div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-13-output-1.png" class="img-fluid"></p>
+<div id="fig-box-age" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-box-age-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.2: Box-and-whisker plot of the distribution of age between the 2 target values. While the bar plot in <a href="#fig-target-bar">Figure&nbsp;3.1</a> showed a difference in the number of each target value, this plot shows there is no big difference in age distribution between the 2 target values.</figcaption><p></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="20">
+</div>
+<p>The median for each respective target value appears to be 50, with a bit more variance for target value 0 than in target value 1, probably due to a smaller sample size. Nonetheless, we see that the age distribution for those who do not have and do have heart disease appear to be approximately the same.</p>
+<p>To speed up the process of EDA, we can plot several box-and-whisker plots to view distribution of many variables split by target value. <a href="#fig-box-many">Figure&nbsp;3.3</a> shows the distribution of other features in our dataset split by target value.</p>
+<div class="cell" data-tags="[]" data-execution_count="12">
 <div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
+<div id="fig-box-many" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-box-many-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.3: A 4x2 grid of box-and-whisker plots to speed up EDA ingestion. There are a few features that appear to show differing distributions between target values, such as level of chest pain and resting BP.</figcaption><p></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="34">
+</div>
+<p>Viewing a grid of box-and-whisker plots allows us to quickly review the distributions for each target value for each feature specified. There appears to be a few features that have differing distributions, such as chestpain, restingBP, and fastingbloodsugar. Clearly delineated differences between target values will be useful for our logistic regression model in identifying patients with heart disease.</p>
+<p>Using the information from <a href="#fig-box-many">Figure&nbsp;3.3</a>, we can create a scatterplot to explore more in-depth the relationship between these features with differing distributions. Below in <a href="#fig-scatterplot">Figure&nbsp;3.4</a>, we show a 1x2 grid scatterplot. The left hand panel is maxheartrate by serumcholestrol and the right hand panel is restingBP by serumcholestrol.</p>
+<div class="cell" data-tags="[]" data-execution_count="13">
 <div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="49">
-<div class="cell-output cell-output-display" data-execution_count="49">
-<div>
-
-
-<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">age</th>
-<th data-quarto-table-cell-role="th">gender</th>
-<th data-quarto-table-cell-role="th">chestpain</th>
-<th data-quarto-table-cell-role="th">restingBP</th>
-<th data-quarto-table-cell-role="th">serumcholestrol</th>
-<th data-quarto-table-cell-role="th">fastingbloodsugar</th>
-<th data-quarto-table-cell-role="th">restingrelectro</th>
-<th data-quarto-table-cell-role="th">maxheartrate</th>
-<th data-quarto-table-cell-role="th">exerciseangia</th>
-<th data-quarto-table-cell-role="th">oldpeak</th>
-<th data-quarto-table-cell-role="th">slope</th>
-<th data-quarto-table-cell-role="th">noofmajorvessels</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">age</td>
-<td>1.000000</td>
-<td>-0.024717</td>
-<td>0.037731</td>
-<td>-0.016126</td>
-<td>0.035439</td>
-<td>0.049732</td>
-<td>0.067736</td>
-<td>-0.040092</td>
-<td>-0.037581</td>
-<td>-0.026020</td>
-<td>-0.015334</td>
-<td>0.025407</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">gender</td>
-<td>-0.024717</td>
-<td>1.000000</td>
-<td>0.035402</td>
-<td>-0.069727</td>
-<td>-0.120759</td>
-<td>0.023560</td>
-<td>-0.046634</td>
-<td>0.064606</td>
-<td>-0.051746</td>
-<td>0.331457</td>
-<td>-0.051957</td>
-<td>0.029376</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">chestpain</td>
-<td>0.037731</td>
-<td>0.035402</td>
-<td>1.000000</td>
-<td>0.222267</td>
-<td>0.174731</td>
-<td>0.232059</td>
-<td>0.256316</td>
-<td>0.114496</td>
-<td>-0.027376</td>
-<td>0.101345</td>
-<td>0.472731</td>
-<td>0.285156</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">restingBP</td>
-<td>-0.016126</td>
-<td>-0.069727</td>
-<td>0.222267</td>
-<td>1.000000</td>
-<td>0.126523</td>
-<td>0.192063</td>
-<td>0.219887</td>
-<td>0.095569</td>
-<td>-0.046545</td>
-<td>-0.004225</td>
-<td>0.376711</td>
-<td>0.263194</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">serumcholestrol</td>
-<td>0.035439</td>
-<td>-0.120759</td>
-<td>0.174731</td>
-<td>0.126523</td>
-<td>1.000000</td>
-<td>0.278337</td>
-<td>0.101767</td>
-<td>0.038967</td>
-<td>0.029422</td>
-<td>-0.025910</td>
-<td>0.165569</td>
-<td>0.132419</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">fastingbloodsugar</td>
-<td>0.049732</td>
-<td>0.023560</td>
-<td>0.232059</td>
-<td>0.192063</td>
-<td>0.278337</td>
-<td>1.000000</td>
-<td>0.143982</td>
-<td>0.096528</td>
-<td>0.011356</td>
-<td>0.015311</td>
-<td>0.242734</td>
-<td>0.182246</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">restingrelectro</td>
-<td>0.067736</td>
-<td>-0.046634</td>
-<td>0.256316</td>
-<td>0.219887</td>
-<td>0.101767</td>
-<td>0.143982</td>
-<td>1.000000</td>
-<td>0.099991</td>
-<td>-0.032489</td>
-<td>0.040291</td>
-<td>0.343280</td>
-<td>0.204684</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">maxheartrate</td>
-<td>-0.040092</td>
-<td>0.064606</td>
-<td>0.114496</td>
-<td>0.095569</td>
-<td>0.038967</td>
-<td>0.096528</td>
-<td>0.099991</td>
-<td>1.000000</td>
-<td>0.015536</td>
-<td>0.044614</td>
-<td>0.201515</td>
-<td>0.122763</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">exerciseangia</td>
-<td>-0.037581</td>
-<td>-0.051746</td>
-<td>-0.027376</td>
-<td>-0.046545</td>
-<td>0.029422</td>
-<td>0.011356</td>
-<td>-0.032489</td>
-<td>0.015536</td>
-<td>1.000000</td>
-<td>-0.003296</td>
-<td>-0.017783</td>
-<td>-0.017513</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">oldpeak</td>
-<td>-0.026020</td>
-<td>0.331457</td>
-<td>0.101345</td>
-<td>-0.004225</td>
-<td>-0.025910</td>
-<td>0.015311</td>
-<td>0.040291</td>
-<td>0.044614</td>
-<td>-0.003296</td>
-<td>1.000000</td>
-<td>0.208789</td>
-<td>0.086992</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">slope</td>
-<td>-0.015334</td>
-<td>-0.051957</td>
-<td>0.472731</td>
-<td>0.376711</td>
-<td>0.165569</td>
-<td>0.242734</td>
-<td>0.343280</td>
-<td>0.201515</td>
-<td>-0.017783</td>
-<td>0.208789</td>
-<td>1.000000</td>
-<td>0.526536</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">noofmajorvessels</td>
-<td>0.025407</td>
-<td>0.029376</td>
-<td>0.285156</td>
-<td>0.263194</td>
-<td>0.132419</td>
-<td>0.182246</td>
-<td>0.204684</td>
-<td>0.122763</td>
-<td>-0.017513</td>
-<td>0.086992</td>
-<td>0.526536</td>
-<td>1.000000</td>
-</tr>
-</tbody>
-</table>
-
+<div id="fig-scatterplot" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-scatterplot-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.4: Scatterplots showing 2 quantitative variables, colored by target and symbolized by gender. The left hand panel shows maxheartrate by serumcholestrol and the right hand panel shows restingBP by serumcholestrol.</figcaption><p></p>
+</figure>
 </div>
 </div>
 </div>
+<p>Looking at the left hand panel, we see that most of the 1 target values (heart disease) are either 0-100 or above 380ish. Most 0 values fall between 150-350ish on serumcholestrol. There does not appear to be any significant differenec between genders as they both appear to be intermixed fairly well. For the right hand panel, we see a more delineated difference for restingBP. There appears to be very few 0 values in the range of 140-200 restingBP. As well, Those above 140 restingBP and above 350 serumcholestrol appear to have a higher concentration of 1 target values. Additionally, there appears to be more males within the range of 140-180 restingBP who have target value of 1 whereas females who have a target value of 1 have a higher restingBP, more towards the range of 180-200 restingBP.</p>
+<p>To explore the relationship of presence of heart disease and chestpain and noofmajorvessels, we can use countplots split by target value for each resepective level of chestpain and noofmajorvessels.</p>
+<div class="cell" data-tags="[]" data-execution_count="14">
+<div class="cell-output cell-output-display">
+<div id="fig-count-plot" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-count-plot-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.5: A 1x2 grid of countplots. The left hand panel shows the counts for each bucket of chestpain split by target value. The right hand panel shows the counts for each bucket of noofmajorvessels split by target value.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In the left hand panel of <a href="#fig-count-plot">Figure&nbsp;3.5</a>, we see that as the level of chest pain increases, the proportion of those who have heart disease increase. Additionally, in the right hand panel, as we increase in noofmajorvessels, there is a greater proprotion of those who have heart disease.</p>
+</section>
+<section id="verify-model-assumptions" class="level1">
+<h1>Verify Model Assumptions</h1>
+<p>In order to properly model this data using logistic regression, we need to verify a few assumptions. First, we need to verify that our observations are independent of one another, that is that no observation mathematically influences any other observation. Thinking logically, we can verify this assumption that someone’s restingBP does not affect any other restingBP, and so forth for every feature found in the dataset. Therefore, we can model our dataset as shown in <a href="#eq-bern">Equation&nbsp;4.1</a>.</p>
+<p><span id="eq-bern"><span class="math display">\[
+X_1, ... ,X_n \sim \text{ i.i.d. Bernoulli(p)}
+\tag{4.1}\]</span></span></p>
+<p>The second assumption we should verify is that of multicollinearity. Multicollinearity occurs when features of a dataset are highly correlated with one another. This results in variance inflation which throws off the standard errors used in statistical modeling calculations. Below are the respective VIF scores for each feature in the dataset.</p>
+<div class="cell" data-tags="[]" data-execution_count="17">
+<div class="cell-output cell-output-stdout">
+<pre><code>    vif_factor           features
+0     7.407596                age
+1     4.817933             gender
+2     2.769973          chestpain
+3    19.558195          restingBP
+4     6.841284    serumcholestrol
+5     1.631514  fastingbloodsugar
+6     2.275207    restingrelectro
+7    15.313735       maxheartrate
+8     1.957391      exerciseangia
+9     4.107705            oldpeak
+10    6.588688              slope
+11    3.622189   noofmajorvessels</code></pre>
+</div>
+</div>
+<p>A general rule of thumb is that VIF scores above 10 should be eliminated. Therefore, we will remove restingBP and maxheartrate from the dataset in order to verify the assumption of multicollinearity.</p>
+<div class="cell" data-tags="[]" data-execution_count="18">
+<div class="cell-output cell-output-stdout">
+<pre><code>   vif_factor           features
+0    5.686277                age
+1    4.227614             gender
+2    2.769430          chestpain
+3    5.649147    serumcholestrol
+4    1.629010  fastingbloodsugar
+5    2.247908    restingrelectro
+6    1.883431      exerciseangia
+7    4.075928            oldpeak
+8    6.053960              slope
+9    3.597850   noofmajorvessels</code></pre>
+</div>
+</div>
+<p>As we can see above in the new VIF scores, none of the scores are above 10 so we will accept these features as passed for the multicollinearity assumption.</p>
+<p>The last assumption we will verify for our logistic regression model is the linearity assumption, or better said, the monotonicity assumption. We assume that each feature has a monotonic relationship with the target (response) variable. Below, we view this relationship in <a href="#fig-mono-plot">Figure&nbsp;4.1</a></p>
+<div class="cell" data-tags="[]" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div id="fig-mono-plot" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-mono-plot-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: A 2x5 grid of logistic regression plots, modeling the relationship between a given feature and the target variable. Each feature should have an approximate monotonic relationship with the target variable in order to verify the assumption of monotonicity.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-mono-plot">Figure&nbsp;4.1</a>, we see that each plot demonstrates a monotonic-esque relationship. Therefore, we can verify the monotonicity assumption.</p>
 </section>
 <section id="model-creation" class="level1">
 <h1>Model Creation</h1>
-<div class="cell" data-tags="[]" data-execution_count="98">
+<p>Using <a href="#eq-bern">Equation&nbsp;4.1</a>, we can model our data using the <em>logit</em> function to create a linear relationship with the betas and features and the log-odds of the data. This relationship is shown in <a href="#eq-log-model">Equation&nbsp;5.1</a>.</p>
+<p><span id="eq-log-model"><span class="math display">\[
+\text{log}(\frac{p(X)}{1-p(X)}) = \beta_0 + \beta_1x_1 ... + \beta_px_p
+\tag{5.1}\]</span></span></p>
+<p>After fitting <a href="#eq-log-model">Equation&nbsp;5.1</a> to our data, we obtain the below results.</p>
+<div class="cell" data-tags="[]" data-execution_count="22">
 <div class="cell-output cell-output-stdout">
 <pre><code>                 Generalized Linear Model Regression Results                  
 ==============================================================================
 Dep. Variable:                 target   No. Observations:                  750
-Model:                            GLM   Df Residuals:                      738
-Model Family:                Binomial   Df Model:                           11
+Model:                            GLM   Df Residuals:                      739
+Model Family:                Binomial   Df Model:                           10
 Link Function:                  Logit   Scale:                          1.0000
-Method:                          IRLS   Log-Likelihood:                -115.01
-Date:                Mon, 11 Dec 2023   Deviance:                       230.03
-Time:                        20:20:23   Pearson chi2:                     362.
-No. Iterations:                     8   Pseudo R-squ. (CS):             0.6505
+Method:                          IRLS   Log-Likelihood:                -78.442
+Date:                Fri, 12 Jan 2024   Deviance:                       156.88
+Time:                        12:38:31   Pearson chi2:                     349.
+No. Iterations:                     9   Pseudo R-squ. (CS):             0.6830
 Covariance Type:            nonrobust                                         
 =====================================================================================
                         coef    std err          z      P&gt;|z|      [0.025      0.975]
 -------------------------------------------------------------------------------------
-age                  -0.0341      0.009     -3.650      0.000      -0.052      -0.016
-gender                0.9944      0.419      2.375      0.018       0.174       1.815
-chestpain             1.3521      0.225      6.017      0.000       0.912       1.793
-restingBP            -0.0197      0.006     -3.503      0.000      -0.031      -0.009
-serumcholestrol      -0.0027      0.001     -1.960      0.050      -0.005   -4.33e-07
-fastingbloodsugar     0.9807      0.411      2.384      0.017       0.174       1.787
-restingrelectro       1.0904      0.257      4.238      0.000       0.586       1.595
-maxheartrate         -0.0161      0.005     -3.429      0.001      -0.025      -0.007
-exerciseangia        -0.7035      0.352     -2.000      0.046      -1.393      -0.014
-oldpeak              -0.9641      0.152     -6.335      0.000      -1.262      -0.666
-slope                 5.9580      0.627      9.496      0.000       4.728       7.188
-noofmajorvessels      0.2087      0.193      1.080      0.280      -0.170       0.587
+const               -10.4812      1.364     -7.682      0.000     -13.156      -7.807
+age                  -0.0008      0.012     -0.066      0.947      -0.025       0.023
+gender                2.4959      0.565      4.418      0.000       1.389       3.603
+chestpain             1.2328      0.255      4.836      0.000       0.733       1.733
+serumcholestrol       0.0012      0.002      0.696      0.487      -0.002       0.004
+fastingbloodsugar     0.8571      0.506      1.695      0.090      -0.134       1.848
+restingrelectro       1.2382      0.316      3.920      0.000       0.619       1.857
+exerciseangia        -0.3699      0.435     -0.849      0.396      -1.223       0.484
+oldpeak              -1.1640      0.208     -5.589      0.000      -1.572      -0.756
+slope                 7.1061      0.840      8.460      0.000       5.460       8.752
+noofmajorvessels      0.1789      0.232      0.770      0.441      -0.276       0.634
 =====================================================================================</code></pre>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="99">
-<div class="cell-output cell-output-display" data-execution_count="99">
-<pre><code>age                  0.491479
-gender               0.729955
-chestpain            0.794481
-restingBP            0.495078
-serumcholestrol      0.499325
-fastingbloodsugar    0.727242
-restingrelectro      0.748466
-maxheartrate         0.495965
-exerciseangia        0.331043
-oldpeak              0.276065
-slope                0.997422
-noofmajorvessels     0.551982
+<p>In the results above, of the features in the dataset fitted to the model, 5 of them are statistically significant (gender, chestpain, restingelectro, oldpeak, and slope). Of those 5 stat sig. features, only 1 of them has an average negative log-odds effect on classification of heart-disease (oldpeak).</p>
+<p>While viewing these betas in their log-odds form is helpful to indicate whether a feature positively or negatively influence the classification of heart-disease, transforming these values into probabilities may be easier to interpret. Below, we transform the betas to probabilities.</p>
+<div class="cell" data-tags="[]" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>const                0.000028
+age                  0.499799
+gender               0.923852
+chestpain            0.774311
+serumcholestrol      0.500289
+fastingbloodsugar    0.702057
+restingrelectro      0.775258
+exerciseangia        0.408566
+oldpeak              0.237940
+slope                0.999181
+noofmajorvessels     0.544604
 dtype: float64</code></pre>
 </div>
 </div>
-</section>
-<section id="verify-model-assumptions" class="level1">
-<h1>Verify Model Assumptions</h1>
-<div class="cell" data-tags="[]" data-execution_count="164">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">### </span><span class="al">TODO</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For example, on average, an increase of 1 in slope results in a .99 factor increase of having heart disease, holding all else constant. It appears that slope and gender have the highest probability factor increase in having heart disease. Let us use these factors to see what the model would predict for the following mock data set: male, age 25, no chest pain, 100 serum cholestrol, 0 fasting blood sugar, resting electro 0, exerciseangia 0, oldpeak 1, slope 0, and noofmajorvessels 0.</p>
+<div class="cell" data-tags="[]" data-execution_count="24">
+<div class="cell-output cell-output-stdout">
+<pre><code>Log-odds:  0.000117
+Odds-ratio:  1.000117
+Probability:  0.500029</code></pre>
 </div>
+</div>
+<p>The results above show that our model precicts, on average, that a person with the above characteristics would have an odds-ratio of about 1, or a probability of about 50% of having heart disease. Some may be confused by this result, as the above parameters show increases in probability that should result in a value closer than 1 for an additive model. However, one must remember that it is an additive model by logit (see <a href="#eq-log-model">Equation&nbsp;5.1</a>). To obtain probabilities, we have to inverse the logit function to isolate <span class="math inline">\(p(X)\)</span>, as shown in <a href="#eq-log-prob">Equation&nbsp;5.2</a>.</p>
+<p><span id="eq-log-prob"><span class="math display">\[
+p(X) = \frac{e^{\beta_0 + \beta_1x_1 ... + \beta_px_p}}{1 + e^{\beta_0 + \beta_1x_1 ... + \beta_px_p}}
+\tag{5.2}\]</span></span></p>
 </section>
 <section id="model-assessment" class="level1">
 <h1>Model Assessment</h1>
-<div class="cell" data-tags="[]" data-execution_count="101">
+<p>As shown above, our logistic regression model now has predictive capabilties after being fit to the data. In order to gather a general idea of how well it does on testing data, we will perform a validation test set approach, where we withhold 25% of the data to be our test set and 75% of our data will be used as training data for the model. Afterwards, we can evaluate the predictive capability of our model by assessing its roc curve and auc score. These can be found in <a href="#fig-roc-plot">Figure&nbsp;6.1</a></p>
+<div class="cell" data-tags="[]" data-execution_count="26">
 <div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
+<div id="fig-roc-plot" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-roc-plot-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6.1: ROC curve showing how the logistic regression model performed on the test set, with corresponding auc score in bottom right-hand corner of plot.</figcaption><p></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="106">
+</div>
+<p>Our ROC curve in <a href="#fig-roc-plot">Figure&nbsp;6.1</a> shows a nice elbow feature, indicating that our model performs very well at indicating true positives. In addition, our AUC score of .99 shows that our model performs very well at distinguishing between the true positives and false positives, meaning we have very good predictive performance in our logistic regression model. Using these metrics, we can find the optimal classification threshold that maximizes the true positive rate and minimizes that false positive rate. Below is our optimal threshold.</p>
+<div class="cell" data-tags="[]" data-execution_count="27">
 <div class="cell-output cell-output-stdout">
-<pre><code>0.6309263284100989</code></pre>
+<pre><code>0.6519052347690012</code></pre>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="126">
+<p>Our optimal threshold of approximately .65 indicates that we would classify anyone with a probability of heart disease above 65% as 1 (having heart disease) and anyone below 65% probability will be classified as 0 (no heart disease). We can use this value on our test set to create a confusion matrix and see the exact number of true positives and false positives. We can then utilize those numbers to calculate other metrics for model assessment such as sensitivity and specificity. The confusion matrix is found in <a href="#fig-conf-mat">Figure&nbsp;6.2</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="29">
 <div class="cell-output cell-output-display">
-<p><img src="heart_disease_analysis_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
+<div id="fig-conf-mat" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="heart_disease_analysis_files/figure-html/fig-conf-mat-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6.2: Confusion matrix for our logistic regression model. The y axis indicates the true labels of the data and the x axis indicate the predicted label from our model.</figcaption><p></p>
+</figure>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="163">
+</div>
+<p>As we can see in the confusion matrix, our model does a great job at predicting true positives and true negatives. The model only mispredicted 1 true negative (generated 1 false negative) and mispredicted 7 true positives (generated 7 false positives). As mentioned above, we can use these numbers to view just how well our model does at identifying true positives and true negatives. Below are the metrics we calculated.</p>
+<div class="cell" data-tags="[]" data-execution_count="30">
 <div class="cell-output cell-output-stdout">
-<pre><code>Accuracy:  0.932
-Sensitivity:  0.9296
-Specificity:  0.9352
-PPV:  0.9496
-NPV:  0.9099</code></pre>
+<pre><code>Accuracy:  0.968
+Sensitivity:  0.9507
+Specificity:  0.9907
+PPV:  0.9926
+NPV:  0.9386</code></pre>
 </div>
 </div>
+<p>As shown above, even in our inbalanced data set, we achieved an accuracy of about 97%. Additionally, our sensitivity shows our model is very good at identifying true positives, scoring about 95%. Our specificity score was even better, scoring a 99%, meaning our model is almost perfect at identifying those who do not have the disease (true negatives). Positive predictive value and negative predictive value also prove to be very good, with 99% and 93% respectively. For PPV, this means the probability someone has the disease, given that they tested positive (classified as a 1), is 99%. For NPV, this means the probability someone doesn’t have the disease, given they tested negative (classified as a 0), is 93%.</p>
+<p>This numbers, when we take into account our threshold value (.65), makes sense since we classify people with heart disease if and only if they are above 65% probability. Otherwise, they are classified as not having heart disease. For reference on how we calculated the above values, see <a href="#eq-conf-met">Equation&nbsp;6.1</a>.</p>
+<p><span class="math display">\[
+Sensitivity = \frac{TP}{TP+FN}
+\]</span></p>
+<p><span class="math display">\[
+Specificity = \frac{TN}{TN+FP}
+\]</span></p>
+<p><span class="math display">\[
+PPV = \frac{TP}{TP+FP}
+\]</span></p>
+<p><span id="eq-conf-met"><span class="math display">\[
+NPV = \frac{TN}{TN+FN}
+\tag{6.1}\]</span></span></p>
+</section>
+<section id="bayesian-model-creation" class="level1">
+<h1>Bayesian Model Creation</h1>
 
 
 </section>
 
 </main> <!-- /main -->
-<div>
-	<iframe src="https://embeds.beehiiv.com/8dcdbb8c-72a5-41f4-aecb-68828c82779e" data-test-id="beehiiv-embed" width="100%" height="320" frameborder="0" scrolling="no" style="border-radius: 4px; border: 2px solid #e5e7eb; margin: 0; background-color: transparent;"></iframe>
-</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
