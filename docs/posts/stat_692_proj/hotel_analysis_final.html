@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>The Bayesian Bandit - An Analysis of TA-MU Hotel Booking Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">An Analysis of TA-MU Hotel Booking Data</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#background-on-data" id="toc-background-on-data" class="nav-link" data-scroll-target="#background-on-data">Background on Data</a></li>
+  <li><a href="#overview-of-ta-mu-hotels-business-performance" id="toc-overview-of-ta-mu-hotels-business-performance" class="nav-link" data-scroll-target="#overview-of-ta-mu-hotels-business-performance">Overview of TA-MU Hotels Business Performance</a>
+  <ul class="collapse">
+  <li><a href="#revenue-generation" id="toc-revenue-generation" class="nav-link" data-scroll-target="#revenue-generation">Revenue Generation</a></li>
+  <li><a href="#client-demographics" id="toc-client-demographics" class="nav-link" data-scroll-target="#client-demographics">Client Demographics</a></li>
+  <li><a href="#lost-revenue" id="toc-lost-revenue" class="nav-link" data-scroll-target="#lost-revenue">Lost Revenue</a></li>
+  <li><a href="#canceled-bookings-detail" id="toc-canceled-bookings-detail" class="nav-link" data-scroll-target="#canceled-bookings-detail">Canceled Bookings Detail</a></li>
+  </ul></li>
+  <li><a href="#proposed-strategy" id="toc-proposed-strategy" class="nav-link" data-scroll-target="#proposed-strategy">Proposed Strategy</a>
+  <ul class="collapse">
+  <li><a href="#target-market" id="toc-target-market" class="nav-link" data-scroll-target="#target-market">Target Market</a></li>
+  </ul></li>
+  <li><a href="#predictive-model-for-cancelations-primary-demographic-only" id="toc-predictive-model-for-cancelations-primary-demographic-only" class="nav-link" data-scroll-target="#predictive-model-for-cancelations-primary-demographic-only">Predictive Model for Cancelations (primary demographic only)</a>
+  <ul class="collapse">
+  <li><a href="#data-setup" id="toc-data-setup" class="nav-link" data-scroll-target="#data-setup">Data Setup</a></li>
+  <li><a href="#model-selection" id="toc-model-selection" class="nav-link" data-scroll-target="#model-selection">Model Selection</a>
+  <ul class="collapse">
+  <li><a href="#additional-features" id="toc-additional-features" class="nav-link" data-scroll-target="#additional-features">Additional Features</a></li>
+  </ul></li>
+  <li><a href="#model-comparisons" id="toc-model-comparisons" class="nav-link" data-scroll-target="#model-comparisons">Model Comparisons</a>
+  <ul class="collapse">
+  <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression">Logistic Regression</a></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest">Random Forest</a></li>
+  <li><a href="#xgboost" id="toc-xgboost" class="nav-link" data-scroll-target="#xgboost">XGBoost</a></li>
+  <li><a href="#bayesian-logistic-regression" id="toc-bayesian-logistic-regression" class="nav-link" data-scroll-target="#bayesian-logistic-regression">Bayesian Logistic Regression</a></li>
+  </ul></li>
+  <li><a href="#model-decision" id="toc-model-decision" class="nav-link" data-scroll-target="#model-decision">Model Decision</a></li>
+  </ul></li>
+  <li><a href="#example-business-impact" id="toc-example-business-impact" class="nav-link" data-scroll-target="#example-business-impact">Example Business Impact</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>TA-MU Hotels is a small, privately owned hotel business. Currently, TA-MU Hotels owns two hotels: One in the heart of Manhattan, NYC and another in Cancun, Mexico. TA-MU Hotels is looking to grow its business and hired us (TheBayesianBandit LLC) to look into how their respective hotels are performing. Specifically, our goal is to generate more profit for TA-MU Hotels by identifying profitable opportunities from their hotel booking data.</p>
+</section>
+<section id="background-on-data" class="level1">
+<h1>Background on Data</h1>
+<p>The dataset supplied to us contained a total of 119,390 rows with 37 columns. Columns ranged from information containing arrival information of guests, number of guests (adults, children, babies), to marketing information such as lead time and distribution channel. The data was generally clean with the exception of a few incorrect data types. Additionally, there were a few rows of observation that were extreme outliers (ie 50+ guests for a single booking) that did not pertain to the general business model of TA-MU Hotels, so they were eventually removed during the analysis for more accurate analysis of guest booking data.</p>
+<p>The analysis of this report was done with Python. The creation of this report was done with Quarto. The raw data for this report can be found <a href="https://www.kaggle.com/datasets/mojtaba142/hotel-booking">here</a>.</p>
+</section>
+<section id="overview-of-ta-mu-hotels-business-performance" class="level1">
+<h1>Overview of TA-MU Hotels Business Performance</h1>
+<section id="revenue-generation" class="level2">
+<h2 class="anchored" data-anchor-id="revenue-generation">Revenue Generation</h2>
+<p>As noted in the introduction, TA-MU Hotels currently has two operating hotels. <a href="#fig-adr-1">Figure&nbsp;3.1</a> shows the current revenue generation by TA-MU Hotels on a daily level. The top panel indicates the total revenue of both hotels while the bottom panel shows the amount of revenue generated by each hotel.</p>
+<div class="cell" data-outputid="ac8c3d0c-cb5b-4b08-bd7b-d719e7943c47" data-tags="[]" data-execution_count="16">
+<div class="cell-output cell-output-display">
+<div id="fig-adr-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-adr-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Time series plot of daily revenue generation of TA-MU Hotels. Top panel shows combined revenue whereas bottom panel shows revenue split by hotel location.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-adr-1">Figure&nbsp;3.1</a> shows a general trend of increasing revenue for the company. There also appears to be indications of seasonality in the total company revenue as revenue slows during the winter months and rises again in the spring and summer. Viewing the revenue splits by hotel types, generally the city hotel generates more revenue throughout the year. The resort hotel appears to have large spikes in revenue during the holiday season (December-January). In general, revenue for TA-MU Hotels appears to be gradually increasing over time.</p>
+<p>While the city hotel generally brings in the most revenue per day, <a href="#fig-adr-2">Figure&nbsp;3.2</a> shows that the resort hotel during peak times has more money generated per guest. There appears to be a recurring trend of high spending guests between the months of July-September at the resort hotel.</p>
+<div class="cell" data-outputid="786b9bed-3671-4e8b-d285-762befd35186" data-tags="[]" data-execution_count="17">
+<div class="cell-output cell-output-display">
+<div id="fig-adr-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-adr-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.2: Time series plot of average revenue per guest on a daily scale.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>While <a href="#fig-adr-1">Figure&nbsp;3.1</a> and <a href="#fig-adr-2">Figure&nbsp;3.2</a> show the daily revenue generation, we were also curious to see if the amount of money spent by guests differed by their respective length of stay. <a href="#fig-adr-3">Figure&nbsp;3.3</a> breaks down the average amount of money spent per night by the length of stay for each booking.</p>
+<div class="cell" data-outputid="ff6f904a-cb76-4034-fc21-34f28a6e7f8a" data-tags="[]" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div id="fig-adr-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-adr-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.3: Box plot of average amount of revenue spent per night stay.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-adr-3">Figure&nbsp;3.3</a>, we see that there is no major difference between the average amount of money spent per night by the length of stay. Customers who only stay one night spend about the same on average per night as those who stay three nights. This result is again seen in <a href="#fig-adr-4">Figure&nbsp;3.4</a> when we take at each hotel’s average customer expenditure per night.</p>
+<div class="cell" data-outputid="7bb9b0ca-e4f8-41ae-a277-aa21ddfa5dc7" data-tags="[]" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div id="fig-adr-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-adr-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.4: Box plot of average amount of revenue spent per night stay by each hotel.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="client-demographics" class="level2">
+<h2 class="anchored" data-anchor-id="client-demographics">Client Demographics</h2>
+<p>Identifying who are our clients generating revenue for our business is the first step in understanding how we strategize to generate more revenue. <a href="#fig-client-1">Figure&nbsp;3.5</a> shows the daily average number of people per booking at each hotel.</p>
+<div class="cell" data-outputid="7fbfee9d-6009-4da0-9e46-45b08f6694f8" data-tags="[]" data-execution_count="21">
+<div class="cell-output cell-output-display">
+<div id="fig-client-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-client-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.5: Time series plot of average number of people per booking, split by hotel type.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It appears that on average, the lines for both hotels hover mostly in the two people per booking area. There are a few highs and lows indicating that the average at times could be close to one guest per booking or three guests per booking. <a href="#tbl-client-1">Table&nbsp;3.1</a> goes into more detail by looking into specific demographic details and the percent of bookings each demographic represents.</p>
+<div id="tbl-client-1" class="anchored">
+<table class="table">
+<caption>Table&nbsp;3.1: Client Demographics</caption>
+<colgroup>
+<col style="width: 12%">
+<col style="width: 31%">
+<col style="width: 10%">
+<col style="width: 25%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Hotel</th>
+<th>Number of Adults</th>
+<th>Kids in Booking</th>
+<th>Customer Type</th>
+<th>% Bookings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>City Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient</td>
+<td>33%</td>
+</tr>
+<tr class="even">
+<td>Resort Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient</td>
+<td>18%</td>
+</tr>
+<tr class="odd">
+<td>City Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient-Party</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>City Hotel</td>
+<td>1</td>
+<td>No</td>
+<td>Transient</td>
+<td>9%</td>
+</tr>
+<tr class="odd">
+<td>Resort Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient-Party</td>
+<td>4%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a href="#tbl-client-1">Table&nbsp;3.1</a> shows the top five demographics based on percent of bookings. From the table, we see that our biggest client demographic is two adults of customer type transient (when the booking is not part of a group or contract and is not associated with another transient booking) and no kids in the booking. Both the city hotel and resort hotel have this demographic as their most popular client demographic, with over 50% of total company bookings from this demographic alone. Additionally, in 3rd and 5th place respectively are two adult parties as well but of transient party (booked with a connection to at least one other transient booking).</p>
+</section>
+<section id="lost-revenue" class="level2">
+<h2 class="anchored" data-anchor-id="lost-revenue">Lost Revenue</h2>
+<p><b>Important Note</b>: For the column “is_canceled”, it is a binary classification for canceled = 1 and not canceled = 0.</p>
+<p>Now that we have identified TA-MU Hotels’ current revenue generation trends and their primary clients, we will identify areas of improvement based on lost revenue. Lost revenue primarily comes from canceled bookings. We see in <a href="#fig-lost-rev-1">Figure&nbsp;3.6</a> that the city hotel, while generating the most bookings overall, also has a larger proportion of canceled bookings than the resort hotel.</p>
+<div class="cell" data-outputid="cd818394-f19a-4b9a-b073-f6a18c02b843" data-tags="[]" data-execution_count="23">
+<div class="cell-output cell-output-display">
+<div id="fig-lost-rev-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-lost-rev-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.6: Bar plot of number of not-canceled/canceled bookings broken up by hotel type.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In order to quantify the impact of these cancelations, <a href="#fig-lost-rev-2">Figure&nbsp;3.7</a> shows the daily gain of non-canceled bookings vs the daily loss of canceled bookings for each hotel.</p>
+<div class="cell" data-outputid="de3600ae-402e-4c68-c605-8255acbd6ca0" data-tags="[]" data-execution_count="24">
+<div class="cell-output cell-output-display">
+<div id="fig-lost-rev-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-lost-rev-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.7: Top panel shows time series plot of daily revenue gained vs daily revenue lost based on non-canceled/canceled bookings in city hotel. Bottom panel shows time series plot of daily revenue gained vs daily revenue lost based on non-canceled/canceled bookings in resort hotel.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see in <a href="#fig-lost-rev-2">Figure&nbsp;3.7</a>, the city hotel has quite a few times where lost revenue overtakes revenue gained. Several times we see large spikes in canceled bookings and subsequently large spikes in lost revenue. In contrast, it appears the resort hotel rarely has any days where lost revenue overtakes revenue gained. To further dive into the details of all this lost revenue, we can view <a href="#tbl-lost-rev-1">Table&nbsp;3.2</a> to see how many cancelations occur from our top five client demographics.</p>
+<div id="tbl-lost-rev-1" class="anchored">
+<table class="table">
+<caption>Table&nbsp;3.2: Client Demographics w/ Cancelations</caption>
+<colgroup>
+<col style="width: 8%">
+<col style="width: 22%">
+<col style="width: 7%">
+<col style="width: 18%">
+<col style="width: 15%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Hotel</th>
+<th>Number of Adults</th>
+<th>Kids in Booking</th>
+<th>Customer Type</th>
+<th>% Bookings</th>
+<th>% Bookings Canceled</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>City Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient</td>
+<td>33%</td>
+<td>48%</td>
+</tr>
+<tr class="even">
+<td>Resort Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient</td>
+<td>18%</td>
+<td>33%</td>
+</tr>
+<tr class="odd">
+<td>City Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient-Party</td>
+<td>10%</td>
+<td>32%</td>
+</tr>
+<tr class="even">
+<td>City Hotel</td>
+<td>1</td>
+<td>No</td>
+<td>Transient</td>
+<td>9%</td>
+<td>42%</td>
+</tr>
+<tr class="odd">
+<td>Resort Hotel</td>
+<td>2</td>
+<td>No</td>
+<td>Transient-Party</td>
+<td>4%</td>
+<td>22%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a href="#tbl-lost-rev-1">Table&nbsp;3.2</a> reveals a troubling finding for our top five client demographics. Our number one demographic currently has canceled about 48% of bookings! Our number two demographic, of the same type but at the resort hotel, also boasts a very high 33% canceled bookings. Identifying the reasons behind these cancelations are paramount in helping TA-MU Hotels increase their profitability.</p>
+</section>
+<section id="canceled-bookings-detail" class="level2">
+<h2 class="anchored" data-anchor-id="canceled-bookings-detail">Canceled Bookings Detail</h2>
+<p>To further investigate the reasons behind these cancelations for our top demographics, we first investigate the relationship between lead time (time from when booking first entered system to arrival date) and cancelations. <a href="#fig-canceled-det-1">Figure&nbsp;3.8</a> shows the average lead time between non-canceled bookings and canceled bookings (split by hotel type).</p>
+<div class="cell" data-outputid="105c6731-74cc-4eb8-982f-161c9a525a6d" data-tags="[]" data-execution_count="27">
+<div class="cell-output cell-output-display">
+<div id="fig-canceled-det-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-canceled-det-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.8: Bar plot of average lead time split by hotel type and booking status</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-canceled-det-1">Figure&nbsp;3.8</a>, we see that there is a large discrepancy between average lead time between non-canceled and canceled bookings. Particulary, in the city hotel, the canceled bookings nearly have double the lead time on average compared to non-canceled bookings. To further dive into the details of the relationship between canceled bookings and lead time, <a href="#fig-canceled-det-2">Figure&nbsp;3.9</a> shows the average lead time broken down by how the booking was created (through what marketing channel) split by hotel type and booking status.</p>
+<div class="cell" data-outputid="09694dc9-7cdc-4cac-fc38-9f103130e045" data-tags="[]" data-execution_count="28">
+<div class="cell-output cell-output-display">
+<div id="fig-canceled-det-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-canceled-det-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.9: Bar plot of average lead time split by hotel type, distribution channel, and booking status.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The barplots marked with 0s are bookings that were non-canceled and the barplots with 1s are bookings that were canceled (ie (City Hotel, 0) is average lead time for bookings that were not canceled). As we can see there are still large discrepancies between not canceled and canceled bookings, especially for the city hotel. The TA/TO distribution channel appears to generate the largest lead times for canceled bookings in both the city hotel and the resort hotel.</p>
+</section>
+</section>
+<section id="proposed-strategy" class="level1">
+<h1>Proposed Strategy</h1>
+<p>To aid TA-MU Hotels reach greater profitability, we propose that we attack the problem of canceled bookings by following a common approach in the airline business: overbooking hotels by predicting cancelations/no-shows. We will approach this problem by first identifying our target market for this approach and later elaborate and demonstrate the effectiveness of a predictive model to implement this strategy.</p>
+<section id="target-market" class="level2">
+<h2 class="anchored" data-anchor-id="target-market">Target Market</h2>
+<p>As noted in <a href="#tbl-lost-rev-1">Table&nbsp;3.2</a> and <a href="#tbl-client-1">Table&nbsp;3.1</a>, over 50% of TA-MU bookings are generated by a single demographic: two adults, transient, no kids. To help TA-MU Hotels become more profitable, we propose that we priortize this demographic for the remainder of the report with the goal of minimizing the effects of canceled bookings and maximizing profits from this primary demographic.</p>
+<p>To confirm our findings from the canceled bookings detail section, we run the same analyses performed in that section but just on our focused demographic. <a href="#fig-target-1">Figure&nbsp;4.1</a> shows the average lead time split by hotel type for non-canceled and canceled bookings, focused on our primary demographic.</p>
+<div class="cell" data-outputid="54497860-b30a-4dd3-d8fd-e642873e8aa3" data-tags="[]" data-execution_count="29">
+<div class="cell-output cell-output-display">
+<div id="fig-target-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-target-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Bar plot of average lead time split by hotel type and booking status.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see in <a href="#fig-target-1">Figure&nbsp;4.1</a>, we confirm that the discrepancies between lead time of non-canceled and canceled bookings exist for our primary demographic. To get a further detailed view of where our primary demographic cancels their bookings, we plot in <a href="#fig-target-2">Figure&nbsp;4.2</a> the percent of canceled bookings split by distribution channel and hotel type.</p>
+<div class="cell" data-outputid="83543bb0-bfd5-4c42-ce0d-ff9ad6332115" data-tags="[]" data-execution_count="31">
+<div class="cell-output cell-output-display">
+<div id="fig-target-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-target-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Bar plot of % bookings canceled split by hotel type and marketin distribution channel.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It appears that for our primary demographic (two adults, transient, no kids in booking), the highest percentage of cancellations for the city hotel are bookings made through the TA/TO channel. For the resort hotel, the highest percentage of cancellations are bookings made through the corporate channel.</p>
+</section>
+</section>
+<section id="predictive-model-for-cancelations-primary-demographic-only" class="level1">
+<h1>Predictive Model for Cancelations (primary demographic only)</h1>
+<p>To aid TA-MU Hotels in their quest to reach greater profitability, we propose creating a model that predicts whether a booking will be canceled or not. This model will aid in helping management know whether or not hotels are booked to capacity and if they can continue to take reservations to increase the likelihood of generating revenue for non-canceled bookings.</p>
+<section id="data-setup" class="level2">
+<h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
+<p>We begin the process of creating a good predictive model by ensuring that the data we feed the model is accurate and useful. To do this, we dropped irrelevant columns to our analysis and filter it to include only data pertaining to our primary demographic. Additionally, we create dummy variable columns in order to account for factors in our model (i.e.&nbsp;distribution channel). The result of our data cleaning and feature engineering is a change from raw data of 119390 rows of data and 37 columns to training data of 61024 rows and 24 columns of data.</p>
+<p>To help our model more accurately predict cancelations, we use a standard scaler to standardize each column of data. This will help the model recognize each feature as a normally distributed variable. Furthermore, to help determine the predictive capability of our model, we use a train-test split of 75% training and 25% test data. This allocation is randomly done by the train_test_split function provided in scikit-learn.</p>
+</section>
+<section id="model-selection" class="level2">
+<h2 class="anchored" data-anchor-id="model-selection">Model Selection</h2>
+<p>In order to determine whether or not we should use the full dataset of 24 features for our model or if a subset of these features would be adequate, we perform forward stepwise selection using a logistic regression model. The results of our model selection procedure are found below.</p>
+<div class="cell" data-outputid="09794b97-61ca-4dab-f308-1a057ea9553c" data-tags="[]" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="38">
+<pre><code>Index(['lead_time', 'stays_in_weekend_nights', 'previous_cancellations',
+       'previous_bookings_not_canceled', 'booking_changes',
+       'required_car_parking_spaces', 'distribution_channel_TA/TO',
+       'reserved_room_type_E', 'deposit_type_Non Refund',
+       'deposit_type_Refundable', 'hotel_Resort Hotel'],
+      dtype='object')</code></pre>
+</div>
+</div>
+<p>These 11 features, according to forward stepwise selection, are the features that provide the greatest additional improvement to the model. To test this theory, we compared a logistic regression model with these 11 features against a logistic regression model with all 24 features. The results show that the models performed equally as well at predictive accuracy (both around 75%). We determine that using less features is more computationally efficient for similar predictive accuracy so we will use the 11 features that we found with the forward stepwise selection for the remainder of the iterative process of building a predictive model.</p>
+<section id="additional-features" class="level3">
+<h3 class="anchored" data-anchor-id="additional-features">Additional Features</h3>
+<p>As noted previously in the report, there could be interactions between some of these features. For example, the effect that lead time has on the probability of a cancelation might change based on the kind of distribution channel the lead came from. Therefore, we will add two extra features to current subset of 11 features for our predictive model: interaction between distribution channel and lead time, and interaction between distribution channel and hotel type.</p>
+</section>
+</section>
+<section id="model-comparisons" class="level2">
+<h2 class="anchored" data-anchor-id="model-comparisons">Model Comparisons</h2>
+<section id="logistic-regression" class="level3">
+<h3 class="anchored" data-anchor-id="logistic-regression">Logistic Regression</h3>
+<p>We begin with logistic regression to see if this kind of model performs well at predicting cancelations. After fitting our training data to our logistic regression model, we obtainthe following results.</p>
+<div class="cell" data-outputid="6aed4fb0-e05d-4bad-dd72-e6d069736902" data-scrolled="true" data-tags="[]" data-execution_count="48">
+<div class="cell-output cell-output-display" data-execution_count="48">
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Generalized Linear Model Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>is_canceled</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>45768</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>GLM</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>45754</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Model Family:</td>
+<td>Binomial</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>13</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Link Function:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Scale:</td>
+<td>1.0000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>IRLS</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-21165.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Thu, 25 Apr 2024</td>
+<td data-quarto-table-cell-role="th">Deviance:</td>
+<td>42330.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>13:11:47</td>
+<td data-quarto-table-cell-role="th">Pearson chi2:</td>
+<td>3.81e+07</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">No. Iterations:</td>
+<td>28</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ. (CS):</td>
+<td>0.3573</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">const</td>
+<td>2.5268</td>
+<td>3333.240</td>
+<td>0.001</td>
+<td>0.999</td>
+<td>-6530.503</td>
+<td>6535.557</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x1</td>
+<td>0.5459</td>
+<td>0.016</td>
+<td>33.679</td>
+<td>0.000</td>
+<td>0.514</td>
+<td>0.578</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">x2</td>
+<td>-0.0389</td>
+<td>0.012</td>
+<td>-3.250</td>
+<td>0.001</td>
+<td>-0.062</td>
+<td>-0.015</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x3</td>
+<td>1.9948</td>
+<td>0.127</td>
+<td>15.751</td>
+<td>0.000</td>
+<td>1.747</td>
+<td>2.243</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">x4</td>
+<td>-0.6542</td>
+<td>0.061</td>
+<td>-10.808</td>
+<td>0.000</td>
+<td>-0.773</td>
+<td>-0.536</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x5</td>
+<td>-0.1151</td>
+<td>0.013</td>
+<td>-8.943</td>
+<td>0.000</td>
+<td>-0.140</td>
+<td>-0.090</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">x6</td>
+<td>-7.3338</td>
+<td>6598.810</td>
+<td>-0.001</td>
+<td>0.999</td>
+<td>-1.29e+04</td>
+<td>1.29e+04</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x7</td>
+<td>0.2570</td>
+<td>0.016</td>
+<td>16.150</td>
+<td>0.000</td>
+<td>0.226</td>
+<td>0.288</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">x8</td>
+<td>0.0512</td>
+<td>0.012</td>
+<td>4.387</td>
+<td>0.000</td>
+<td>0.028</td>
+<td>0.074</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x9</td>
+<td>11.0061</td>
+<td>6281.574</td>
+<td>0.002</td>
+<td>0.999</td>
+<td>-1.23e+04</td>
+<td>1.23e+04</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">x10</td>
+<td>0.4591</td>
+<td>6533.082</td>
+<td>7.03e-05</td>
+<td>1.000</td>
+<td>-1.28e+04</td>
+<td>1.28e+04</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x11</td>
+<td>-0.0209</td>
+<td>0.013</td>
+<td>-1.658</td>
+<td>0.097</td>
+<td>-0.046</td>
+<td>0.004</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">x12</td>
+<td>0.0620</td>
+<td>0.019</td>
+<td>3.326</td>
+<td>0.001</td>
+<td>0.025</td>
+<td>0.099</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">x13</td>
+<td>-0.0320</td>
+<td>0.013</td>
+<td>-2.467</td>
+<td>0.014</td>
+<td>-0.057</td>
+<td>-0.007</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Features x1, x3, x7, x8, and x12 (lead time, previous cancellations, distribution channel TA/TO, reserved room type E, interaction between lead time and distribution channel TA/TO) show an increase in the log-odds of a cancelation and appear to be statistically significant (alpha = 0.05). Conversely, x2, x4, x5, and x13 (stays in weekend nights, previous bookings not canceled, booking changes, and interaction between distribution channel TA/TO and hotel type) show a decrease in the log-odds of a cancelation.</p>
+<p>Using this fitted logistic regression model, we can generate predictions and see how the model does at predicting cancelations using our test data. One metric to test the predictive capability of a classification type model is using a ROC curve and computing the AUC score from it. <a href="#fig-log-model-1">Figure&nbsp;5.1</a> shows the corresponding ROC curve and AUC score.</p>
+<div class="cell" data-outputid="d897a9bf-fea4-4d02-b361-684e55a940c1" data-tags="[]" data-execution_count="50">
+<div class="cell-output cell-output-display">
+<div id="fig-log-model-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-log-model-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.1: ROC curve for logistic regression model.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The ROC curve in <a href="#fig-log-model-1">Figure&nbsp;5.1</a> shows that the model achieves an AUC score of about .82, indicating that the model does a pretty good job at distinguishing between a canceled booking and a non-canceled booking. Using this graph, we can extract the optimal threshold that minimizes our false positive rate while still achieveing a max true positive rate. Using this threshold, we can construct a confusion matrix to gain further inference on how the model performs on discovering cancelations. <a href="#fig-log-model-2">Figure&nbsp;5.2</a> shows the resulting confusion matrix.</p>
+<div class="cell" data-outputid="566d0a35-90c2-447e-fa66-79ee395e9d24" data-tags="[]" data-execution_count="53">
+<div class="cell-output cell-output-display">
+<div id="fig-log-model-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-log-model-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.2: Confusion matrix for logistic regression model.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From the confusion matrix, we see that the logistic regression model does a very good job at identifying non-canceled bookings, but does not perform as well at identifying canceled bookings. However, while the performance does drop significantly between canceled and non-canceled booking classification, the majority of the time the model does predict the correct label for canceled bookings. To view more specific metrics from the confusion table, we can view <a href="#tbl-log-mod-1">Table&nbsp;5.1</a>.</p>
+<div id="tbl-log-mod-1" class="anchored">
+<table class="table">
+<caption>Table&nbsp;5.1: Logistic Regression Metrics</caption>
+<thead>
+<tr class="header">
+<th>Metric Name</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Accuracy</td>
+<td>75%</td>
+</tr>
+<tr class="even">
+<td>Sensitivity</td>
+<td>55%</td>
+</tr>
+<tr class="odd">
+<td>Specificity</td>
+<td>89%</td>
+</tr>
+<tr class="even">
+<td>PPV</td>
+<td>80%</td>
+</tr>
+<tr class="odd">
+<td>NPV</td>
+<td>72%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>From <a href="#tbl-log-mod-1">Table&nbsp;5.1</a>, we see that our logistic regression model performed well in every category except sensitivity. Even then, the sensitivity score is an acceptable one since the majority of the time it correctly labels a cancelation.</p>
+</section>
+<section id="random-forest" class="level3">
+<h3 class="anchored" data-anchor-id="random-forest">Random Forest</h3>
+<p>We now compare a tree based method approach to logistic regression by using a random forest. As we performed above, we will fit a random forest with the same training data and gather predictive metrics (AUC score, confusion matrix metrics) by using the same test set as the logistic regression model. <a href="#fig-rf-mod-1">Figure&nbsp;5.3</a> shows the ROC curve and corresponding AUC score for the random forest model.</p>
+<div class="cell" data-outputid="d20a379e-5b6b-445b-e3ba-5a2d0abda5b8" data-tags="[]" data-execution_count="57">
+<div class="cell-output cell-output-display">
+<div id="fig-rf-mod-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-rf-mod-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.3: ROC curve and AUC score for random forest model.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-rf-mod-1">Figure&nbsp;5.3</a>, we see that the random forest model yielded a worse AUC score than the logistic regression model. We will check the resulting confusion matrix metrics for further comparison. <a href="#fig-rf-mod-2">Figure&nbsp;5.4</a> contains the confusion matrix and <a href="#tbl-panel-rf">Table&nbsp;5.2</a> shows the resulting metrics from the confusion matrix.</p>
+<div class="cell" data-outputid="dc32cc5c-8460-4715-8329-bae178d1972c" data-tags="[]" data-execution_count="58">
+<div class="cell-output cell-output-display">
+<div id="fig-rf-mod-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-rf-mod-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.4: Confusion matrix for random forest model.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="tbl-panel-rf" class="tbl-parent quarto-layout-panel anchored">
+<div class="panel-caption table-caption">
+<p>Table&nbsp;5.2: Random Forest Model vs Logistic Regression Model</p>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="tbl-rf-mod-1" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-panel-rf" style="flex-basis: 50.0%;justify-content: center;">
+<table class="table">
+<caption>(a) Random Forest Metrics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accuracy</td>
+<td style="text-align: left;">75%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity</td>
+<td style="text-align: left;">60%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity</td>
+<td style="text-align: left;">86%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PPV</td>
+<td style="text-align: left;">76%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NPV</td>
+<td style="text-align: left;">74%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tbl-log-mod-2" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-panel-rf" style="flex-basis: 50.0%;justify-content: center;">
+<table class="table">
+<caption>(b) Logistic Regression Metrics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accuracy</td>
+<td style="text-align: left;">75%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity</td>
+<td style="text-align: left;">55%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity</td>
+<td style="text-align: left;">89%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PPV</td>
+<td style="text-align: left;">80%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NPV</td>
+<td style="text-align: left;">72%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>From <a href="#tbl-rf-mod-1">Table&nbsp;5.2 (a)</a> and comparing these values to <a href="#tbl-log-mod-2">Table&nbsp;5.2 (b)</a>, the random forest model performed very similarily to the logistic regression model. The random forest model achieved a higher sensitivity score while dropping in the specificity score. Additionally, the random forest model dropped in PPV but gained in NPV.</p>
+</section>
+<section id="xgboost" class="level3">
+<h3 class="anchored" data-anchor-id="xgboost">XGBoost</h3>
+<p>Since the random forest model did not appear to beat out the performance of the logistic regression model, we will now perform a comparison between XGBoost classification and the logistic regression model. We will perform the same procedures as done with the logistic regression model and the random forest model. <a href="#fig-xg-mod-1">Figure&nbsp;5.5</a> shows the resulting ROC curve and corresponding AUC score.</p>
+<div class="cell" data-outputid="a6086250-8bfc-4530-f34e-9175dde44e15" data-tags="[]" data-execution_count="62">
+<div class="cell-output cell-output-display">
+<div id="fig-xg-mod-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-xg-mod-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.5: ROC curve and AUC score for XGBoost model</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The AUC score for the XGBoost model appears to be very similar to the random forest model, and consequently is much lower than the logistic regression model AUC. <a href="#fig-xg-mod-2">Figure&nbsp;5.6</a> and <a href="#tbl-panel-xg">Table&nbsp;5.3</a> show the resulting confusion matrix and corresponding metrics.</p>
+<div class="cell" data-outputid="8a570728-686d-4f76-a24d-2f3197f43e2c" data-tags="[]" data-execution_count="63">
+<div class="cell-output cell-output-display">
+<div id="fig-xg-mod-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-xg-mod-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.6: Confusion matrix for XGBoost model.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="tbl-panel-xg" class="tbl-parent quarto-layout-panel anchored">
+<div class="panel-caption table-caption">
+<p>Table&nbsp;5.3: XGBoost vs Logistic Regression Model</p>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="tbl-xg-mod-1" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-panel-xg" style="flex-basis: 50.0%;justify-content: center;">
+<table class="table">
+<caption>(a) XGBoost Metrics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accuracy</td>
+<td style="text-align: left;">75%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity</td>
+<td style="text-align: left;">50%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity</td>
+<td style="text-align: left;">95%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PPV</td>
+<td style="text-align: left;">88%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NPV</td>
+<td style="text-align: left;">71%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tbl-log-mod-3" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-panel-xg" style="flex-basis: 50.0%;justify-content: center;">
+<table class="table">
+<caption>(b) Logistic Regression Metrics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accuracy</td>
+<td style="text-align: left;">75%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity</td>
+<td style="text-align: left;">55%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity</td>
+<td style="text-align: left;">89%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PPV</td>
+<td style="text-align: left;">80%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NPV</td>
+<td style="text-align: left;">72%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>From <a href="#tbl-panel-xg">Table&nbsp;5.3</a>, we see that XGBoost improves in specificity over the logistic regression model, but decreases at almost the same degree in sensitivity. There is also a large jump in PPV and a slight decline in NPV for XGBoost over logistic regression.</p>
+</section>
+<section id="bayesian-logistic-regression" class="level3">
+<h3 class="anchored" data-anchor-id="bayesian-logistic-regression">Bayesian Logistic Regression</h3>
+<p>Thus far we have attempted to compare the logistic regression model to more ensemble-esque methods. We now attempt to demonstrate a different approach to the logistic regression model by incorporating priors on each feature. That is, we will perform a bayesian logistic regression to compare to the normal logistic regression method.</p>
+<p>Due to our limited subject matter expertise in the hotel industry, we will use uninformative priors for each feature. We will assume that each feature is drawn from a normal distribution with mean = <span class="math inline">\(\mu\)</span> and standard deviation = <span class="math inline">\(\sigma\)</span>. For each <span class="math inline">\(\mu\)</span>, we will place a prior of a normal distribution with <span class="math inline">\(\mu\)</span> = 0 and <span class="math inline">\(\sigma\)</span> = 2. For each <span class="math inline">\(\sigma\)</span>, we will place a prior of a inverse gamma distribution with <span class="math inline">\(\alpha\)</span> = 1 and <span class="math inline">\(\beta\)</span> = 1.</p>
+<p>For our sampler, we will use a Hamiltonian Monte Carlo with Energy Conserving Sampling. This is chosen due to the size of our dataset and the lack of sufficient computational power to perform a more precise sampling with sampler such as the No-U Turn sampler. After fitting our bayesian logistic regression model, we obtain the following results in <a href="#fig-bay-mod-1">Figure&nbsp;5.7</a>.</p>
+<div class="cell" data-outputid="3bb24107-ddf7-4327-ba2e-f0d6ff7db58f" data-tags="[]" data-execution_count="74">
+<div class="cell-output cell-output-display">
+<div id="fig-bay-mod-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-bay-mod-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.7: Posterior distributions for each feature.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A benefit of performing a bayesian model is the viewable uncertainty around parameters of interest. In our case, we can see the distributions of each beta value from our model. For example, the change in log-odds on booking status by lead time is likely to be around .7, but can be anywhere between .65 and .75, according to our model. Additionally, our predictions can also have this kind of uncertainty around them. For example, below is information pertaining to a booking that ended up canceling.</p>
+<div class="cell" data-outputid="7862f0b5-2547-4d6f-e542-a0ff141c503d" data-execution_count="77">
+<div class="cell-output cell-output-display" data-execution_count="77">
+<pre><code>lead_time                         110.0
+stays_in_weekend_nights             0.0
+previous_cancellations              0.0
+previous_bookings_not_canceled      0.0
+booking_changes                     0.0
+required_car_parking_spaces         0.0
+distribution_channel_TA/TO          1.0
+reserved_room_type_E                0.0
+deposit_type_Non Refund             0.0
+deposit_type_Refundable             0.0
+hotel_Resort Hotel                  0.0
+Name: 10000, dtype: float64</code></pre>
+</div>
+</div>
+<p>We see that there were 110 days between lead entered into system and arrival date, that they were staying in the city hotel (hotel_resort = 0) and that they booked throuh TA/TO. Using our bayesian model, we can view the uncertainty around this prediction, as shown in <a href="#fig-bay-mod-2">Figure&nbsp;5.8</a>.</p>
+<div class="cell" data-outputid="1253c13a-e95c-4131-acd5-81e49ce9fcfa" data-execution_count="80">
+<div class="cell-output cell-output-display">
+<div id="fig-bay-mod-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-bay-mod-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.8: Posterior Predictive Distribution for the described canceled booking.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-bay-mod-2">Figure&nbsp;5.8</a>, we see that the most likely value from the distribution is around .42 to .43. According to the distribution, the probability that somebody with this kind of booking information (from our primary demographic) cancels is around .41 to .44.</p>
+<p>While the world of bayesian modeling is fascinating and can be powerful, the goal remains the same of providing a model that could be of use to us in identifying where we need to double book rooms in order to maximize profit for TA-MU Hotels. Just like in the other sections, we will compare the AUC score and derived confusion matrix metrics. <a href="#fig-bay-mod-3">Figure&nbsp;5.9</a> shows the ROC curve for our bayesian model.</p>
+<div class="cell" data-outputid="e1844092-183d-41ef-96d8-b706d5e1fdd9" data-tags="[]" data-execution_count="82">
+<div class="cell-output cell-output-display">
+<div id="fig-bay-mod-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-bay-mod-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.9: ROC curve and corresponding AUC score for bayesian logistic regression model.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-bay-mod-3">Figure&nbsp;5.9</a>, we see that the AUC score is very similar to the original logistic regression model. <a href="#fig-bay-mod-4">Figure&nbsp;5.10</a> shows the corresponding confusion matrix and <a href="#tbl-panel-bay">Table&nbsp;5.4</a> show the comparison between the bayesian logistic regression model and the regular logistic regression model.</p>
+<div class="cell" data-outputid="2b33c4ad-693e-4d5d-e0b9-8cf04e23f496" data-tags="[]" data-execution_count="85">
+<div class="cell-output cell-output-display">
+<div id="fig-bay-mod-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-bay-mod-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.10: Confusion matrix for bayesian logistic regression model</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="tbl-panel-bay" class="tbl-parent quarto-layout-panel anchored">
+<div class="panel-caption table-caption">
+<p>Table&nbsp;5.4: Bayesian Logistic Regression Model vs Logistic Regression Model</p>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="tbl-bay-mod-1" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-panel-bay" style="flex-basis: 50.0%;justify-content: center;">
+<table class="table">
+<caption>(a) Bayesian Logistic Regression Metrics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accuracy</td>
+<td style="text-align: left;">75%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity</td>
+<td style="text-align: left;">53%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity</td>
+<td style="text-align: left;">92%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PPV</td>
+<td style="text-align: left;">84%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NPV</td>
+<td style="text-align: left;">72%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tbl-log-mod-4" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-panel-bay" style="flex-basis: 50.0%;justify-content: center;">
+<table class="table">
+<caption>(b) Logistic Regression Metrics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accuracy</td>
+<td style="text-align: left;">75%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity</td>
+<td style="text-align: left;">55%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity</td>
+<td style="text-align: left;">89%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PPV</td>
+<td style="text-align: left;">80%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NPV</td>
+<td style="text-align: left;">72%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>From <a href="#tbl-panel-bay">Table&nbsp;5.4</a>, we see that the two models are very similar. The bayesian model shows a slight increase in specificity and a small decrease in sensitivity. The bayesian model also shows an increase in PPV while keeping NPV the same as the regular logistic regression model.</p>
+</section>
+</section>
+<section id="model-decision" class="level2">
+<h2 class="anchored" data-anchor-id="model-decision">Model Decision</h2>
+<p>While all 4fourmodels proved to be viable models worthy of use in our system, the two logistic regression models had higher AUC scores and were more balanced in the sensitivity-specificity trade-off. To decide which logistic regression model to use, we look at the confusion matrix metrics and AUC scores. Both models have similar confusion matrix metrics and AUC scores. However, the bayesian logistic regression model has a particular advantage over the regular logistic regression model due to its inherit ability at including uncertainty around parameter estimates and predictions. Therefore, we recommend that we continue with the bayesian logistic regression model as our initial cancelation predictive model.</p>
+<p>The full model for our bayesian logistic regression model is shown in <a href="#eq-full-mod-1">Equation&nbsp;5.1</a></p>
+<p><span class="math display">\[
+\text{log}(\frac{p(Y)}{1-p(Y)}) = \beta_0 + \beta_1x_1 ... + \beta_{m}x_m
+\]</span></p>
+<p><span class="math display">\[
+\text{Y}_1 ... \text{Y}_n \overset{\text{i.i.d.}}{\sim} \text{Bernoulli}(p)
+\]</span></p>
+<p><span class="math display">\[
+\beta \sim N(\mu, \sigma)
+\]</span></p>
+<p><span class="math display">\[
+\mu \sim N(0, 2)
+\]</span></p>
+<p><span id="eq-full-mod-1"><span class="math display">\[
+\sigma \sim IG(1, 1)
+\tag{5.1}\]</span></span></p>
+<p><a href="#eq-full-mod-1">Equation&nbsp;5.1</a> states that the log-odds of booking status (1 being cancelation and 0 being non-cancelation) is a linear function of <span class="math inline">\(m\)</span> predictors (our 11 features and two interaction terms) weighted by <span class="math inline">\(m+1\)</span> betas (13 for the features and one intercept beta). Our response variable <span class="math inline">\(Y\)</span> is a collection of n number of i.i.d. Bernoulli random variables with probability <span class="math inline">\(p\)</span>. Our betas are assumed to be normally distributed with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>. All <span class="math inline">\(\mu\)</span> values have a normal prior distribution with mean = 0 and standard deviation = 2. All <span class="math inline">\(\sigma\)</span> values have an inverse gamma prior distribution with shape = 1 and scale = 1.</p>
+</section>
+</section>
+<section id="example-business-impact" class="level1">
+<h1>Example Business Impact</h1>
+<p>As discussed earlier in the report, the goal of this analysis and resulting predictive model from the analysis is to help TA-MU Hotels reach higher profitability. To do this, we will use the predictive model to determine which future bookings will most likely be canceled and therefore can still be booked, helping TA-MU Hotels become more profitable by having less vacant rooms per day.</p>
+<p>To demonstrate the potential business impact this model can have, consider the following dataset for the city hotel of guests (from our primary demographic) who are supposed to arrive on 06-12-2017. On this date, there are 98 bookings for our primary demographic. Of the 98 bookings, 43 of them canceled. We will use the predictive capability of our model to see how close we can get to this number.</p>
+<p>Using just the maximum a posteriori from each posterior predictive distribution, we predicted that 30 of the bookings would have canceled! Additionally, of the 98 bookings, the model got 77 of the 98 booking statuses correct (matched canceled to canceled and non-canceled to non-canceled correctly). While the model is not perfect at predicting every label correctly, because the model underpredicted the number of cancelations, we would still have open rooms to move people to if we ended up double-booking a particular room. While we acknowledge this may have an effect on customer experience, the saved revenue by filling 30 extra rooms is worth the price. As well, with the additional revenue, we can invest some of the increased revenue in helping improve the customer experience.</p>
+<p>From our simple business case, <a href="#fig-bus-imp-1">Figure&nbsp;6.1</a> shows the revenue generated that day vs potential revenue added if we were to have filled the 30 extra rooms.</p>
+<div class="cell" data-outputid="b800cb5a-f3e0-41d6-8aff-0ba227c29fae" data-tags="[]" data-execution_count="97">
+<div class="cell-output cell-output-display">
+<div id="fig-bus-imp-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="hotel_analysis_final_files/figure-html/fig-bus-imp-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6.1: Stacked bar plot showing the revenue generated on 06-12-2017 vs the potential added revenue had we filled the 30 extra rooms predicted by the model. This forecast assumes added revenue is about the average revenue per guest for this day.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-bus-imp-1">Figure&nbsp;6.1</a> shows that for this particular day in June, we could have seen an additional $3,981 of revenue. This would be approximately a 31% increase in revenue for this one day. While these calculations assume the added revenue would be at least the average of the revenue generated per customer this scenario nonetheless would yield higher profits in the long run for TA-MU Hotels.</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>This report demonstrated that TA-MU Hotels is a profitable hotel business operation. We identified how much revenue is generated daily by both hotels, who the main clients are in each, and how much TA-MU Hotels is losing due to canceled bookings and unfilled hotel rooms. We created a predictive model that has the capacity to identify which bookings will be canceled or not canceled, allowing TA-MU Hotels to overbook rooms to generate more revenue.</p>
+<p>Next steps include implementing the model into the TA-MU systems to begin the strategic approach of “overbooking” rooms. As well, more refinement can be made with the bayesian logistic regression model, namely: testing new model selection methods to find “better” variables for the model, adjusting criteria for predicting cancelation (i.e.&nbsp;swap to a 95% credible interval range for cancelation labeling), and possibly adding more models to our system to enhance the customer experience (predict repeat bookings, gather inference on customer churn, etc).</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
