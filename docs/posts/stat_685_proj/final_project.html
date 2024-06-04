@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2024-05-23">
+
+<title>The Bayesian Bandit - Forecasting Enrollment Size by Class at TAMU</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Forecasting Enrollment Size by Class at TAMU</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">analysis</div>
+                <div class="quarto-category">bayesian</div>
+                <div class="quarto-category">python</div>
+                <div class="quarto-category">forecasting</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 23, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda">EDA</a>
+  <ul class="collapse">
+  <li><a href="#feature-engineering-and-data-preprocessing" id="toc-feature-engineering-and-data-preprocessing" class="nav-link" data-scroll-target="#feature-engineering-and-data-preprocessing">Feature Engineering and Data Preprocessing</a></li>
+  </ul></li>
+  <li><a href="#forecasting-possibilities" id="toc-forecasting-possibilities" class="nav-link" data-scroll-target="#forecasting-possibilities">Forecasting Possibilities</a></li>
+  <li><a href="#bayesian-modeling" id="toc-bayesian-modeling" class="nav-link" data-scroll-target="#bayesian-modeling">Bayesian Modeling</a>
+  <ul class="collapse">
+  <li><a href="#model-1-overall-pct_change-in-enrollment" id="toc-model-1-overall-pct_change-in-enrollment" class="nav-link" data-scroll-target="#model-1-overall-pct_change-in-enrollment">Model 1: Overall pct_change in Enrollment</a></li>
+  <li><a href="#posterior-predictive-distribution-change-in-enrollment" id="toc-posterior-predictive-distribution-change-in-enrollment" class="nav-link" data-scroll-target="#posterior-predictive-distribution-change-in-enrollment">Posterior Predictive Distribution (% Change in Enrollment)</a></li>
+  <li><a href="#more-exploration-for-enhanced-bayesian-modeling" id="toc-more-exploration-for-enhanced-bayesian-modeling" class="nav-link" data-scroll-target="#more-exploration-for-enhanced-bayesian-modeling">More exploration (For enhanced Bayesian Modeling)</a></li>
+  <li><a href="#model-2-bayesian-hierarchical-model-class-size" id="toc-model-2-bayesian-hierarchical-model-class-size" class="nav-link" data-scroll-target="#model-2-bayesian-hierarchical-model-class-size">Model 2: Bayesian Hierarchical Model (class size)</a>
+  <ul class="collapse">
+  <li><a href="#posterior-predictive-distribution-hierarchical-model" id="toc-posterior-predictive-distribution-hierarchical-model" class="nav-link" data-scroll-target="#posterior-predictive-distribution-hierarchical-model">Posterior Predictive Distribution (Hierarchical Model)</a></li>
+  </ul></li>
+  <li><a href="#model-3-bayesian-hierarchical-linear-model-college-and-class-size" id="toc-model-3-bayesian-hierarchical-linear-model-college-and-class-size" class="nav-link" data-scroll-target="#model-3-bayesian-hierarchical-linear-model-college-and-class-size">Model 3: Bayesian Hierarchical Linear Model (college and class size)</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Forecasting enrollment for individual classes is important for departments and colleges at universities. It allows them to properly prepare adequate resources for students, such as: hiring the right number of TAs, offering the correct number of sections for classes, and assigning classes to the proper lecture halls. Needless to say, forecasting accurately the number of students signing up for a particular class is of high interest and need. Additionally, if possible, understanding the driving factors behind why certain classes are more popular or which classes are the most variable semester-to-semester is of particular interest.</p>
+<p>We demonstrate in this post the power of Bayesian forecasting, utilizing a two-part model. The first part forecasts the percent change in enrollment for the upcoming semester compared to the previous semester. The second part forecasts the percent change in percent share of total enrollment at Texas A&amp;M University.</p>
+</section>
+<section id="eda" class="level1">
+<h1>EDA</h1>
+<p>We begin our analysis by viewing the scope of the data we will be working with. Below is a print out of all dataframes offered to us.</p>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="cell-output cell-output-stdout">
+<pre><code>dataframe: grades_all (1060795, 9)
+dataframe: UIN_dta (154081, 30)
+dataframe: admits_co (12, 7)
+dataframe: admits_mj (22, 7)
+dataframe: target_co_FR (12, 2)
+dataframe: target_co_TR (9, 2)
+dataframe: target_mj_AT_FR (42, 2)
+dataframe: target_mj_AT_TR (42, 2)
+dataframe: major_college (186, 3)
+dataframe: course_college (278, 2)</code></pre>
+</div>
+</div>
+<p>The above output shows we have 10 dataframes to possibly work with, with the first two containing a fairly large amount of data. From this, we can gather that a lot of data preparation and cleaning may be necessary before proceeding with analysis and model creation. A good way to approach this is by viewing the dataframes individually and gaining an understanding of what each contains. Below is a <code>head</code> method call on the grades_all dataframe.</p>
+<div class="cell" data-tags="[]" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">UIN</th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">Quality_Points</th>
+<th data-quarto-table-cell-role="th">Course_Credits</th>
+<th data-quarto-table-cell-role="th">Final_Grade</th>
+<th data-quarto-table-cell-role="th">Course_Section</th>
+<th data-quarto-table-cell-role="th">Status</th>
+<th data-quarto-table-cell-role="th">TERM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>EHRD</td>
+<td>374.0</td>
+<td>12.0</td>
+<td>3.0</td>
+<td>A</td>
+<td>599</td>
+<td>RW</td>
+<td>20213.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>EHRD</td>
+<td>477.0</td>
+<td>12.0</td>
+<td>3.0</td>
+<td>A</td>
+<td>599</td>
+<td>RW</td>
+<td>20213.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2</td>
+<td>MKTG</td>
+<td>409.0</td>
+<td>9.0</td>
+<td>3.0</td>
+<td>B</td>
+<td>599</td>
+<td>RW</td>
+<td>20213.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>3</td>
+<td>POLS</td>
+<td>206.0</td>
+<td>12.0</td>
+<td>3.0</td>
+<td>A</td>
+<td>510</td>
+<td>RW</td>
+<td>20213.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>3</td>
+<td>AGLS</td>
+<td>235.0</td>
+<td>12.0</td>
+<td>3.0</td>
+<td>A</td>
+<td>599</td>
+<td>RW</td>
+<td>20213.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>From the above output, we see that there are 9 columns of data. UIN is a unique identifier for each student on campus (annonymized). Each of the other columns appear to be self-explanatory. TERM refers to the year the class was taken and the last digit (furthest left before the decimal) is the indicator of fall or spring term (3 being fall and 1 being spring).</p>
+<p>To get a better idea of how many grades we have by term, we can use the <code>groupby</code> method. The result is shown below.</p>
+<div class="cell" data-scrolled="true" data-tags="[]" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>TERM     Final_Grade
+20213.0  A              122510
+         B               68995
+         C               30641
+         D                6734
+         F                4389
+         I                 858
+         Q               10932
+         S               16483
+         U                 457
+         W                2869
+         X                1721
+20221.0  A              114925
+         B               62317
+         C               28265
+         D                6157
+         F                3728
+         I                 543
+         NG                  6
+         Q                9584
+         S                9831
+         U                 297
+         W                2103
+         X                 236
+20223.0  A              132700
+         B               69269
+         C               29699
+         D                6589
+         F                3870
+         I                 606
+         IP                  1
+         NG                 17
+         Q                9447
+         S               16248
+         U                 533
+         W                2109
+         X                  93
+20231.0  A                1305
+         B                 261
+         C                  51
+         D                   5
+         F                  18
+         I                   1
+         Q                  49
+         S                  95
+         U                   1
+         X                   4
+20233.0  A                 112
+         B                   6
+         F                   1
+         IP             282307
+         Q                 596
+         W                 197
+         X                  24
+dtype: int64</code></pre>
+</div>
+</div>
+<p>Taking a quick glance at the data, there appears to be a steady number of grades by term up till 2023. Spring 2023 appears to have very few grades in comparison to other terms. Fall 2023 picks back up with the number of grades, but most of them are IP (in progress).</p>
+<p>We can proceed to viewing more of the dataframes, like the UIN_dta. The <code>head</code> method on the UIN_dta dataframe yields the below result.</p>
+<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">UIN</th>
+<th data-quarto-table-cell-role="th">PROG_CURR</th>
+<th data-quarto-table-cell-role="th">COLL_CURR</th>
+<th data-quarto-table-cell-role="th">PROG_ADM</th>
+<th data-quarto-table-cell-role="th">COLL_ADM</th>
+<th data-quarto-table-cell-role="th">TERM_LAST</th>
+<th data-quarto-table-cell-role="th">TERM_ADM</th>
+<th data-quarto-table-cell-role="th">TERM_CHG</th>
+<th data-quarto-table-cell-role="th">ADM</th>
+<th data-quarto-table-cell-role="th">DEG_CURR</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">CM_ADM</th>
+<th data-quarto-table-cell-role="th">YEAR_CHG</th>
+<th data-quarto-table-cell-role="th">SEM_CHG</th>
+<th data-quarto-table-cell-role="th">CM_CHG</th>
+<th data-quarto-table-cell-role="th">FLAG</th>
+<th data-quarto-table-cell-role="th">TERM_TOCS</th>
+<th data-quarto-table-cell-role="th">YEAR_TOCS</th>
+<th data-quarto-table-cell-role="th">SEM_TOCS</th>
+<th data-quarto-table-cell-role="th">MAJOR_TOCS</th>
+<th data-quarto-table-cell-role="th">TO_CS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1.0</td>
+<td>BS-HRDV</td>
+<td>ED</td>
+<td>BS-HRDL</td>
+<td>ED</td>
+<td>202231.0</td>
+<td>201831.0</td>
+<td>201911.0</td>
+<td>TR</td>
+<td>BS</td>
+<td>...</td>
+<td>1.0</td>
+<td>2019.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td></td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>89768.0</td>
+<td>BS-VISL</td>
+<td>PV</td>
+<td>BS-VISL</td>
+<td>PV</td>
+<td>202031.0</td>
+<td>202031.0</td>
+<td>202031.0</td>
+<td>FR</td>
+<td>BS</td>
+<td>...</td>
+<td>1.0</td>
+<td>2020.0</td>
+<td>3.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td></td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>89769.0</td>
+<td>BS-RLEM-RMO</td>
+<td>AG</td>
+<td>BS-RLEM</td>
+<td>AG</td>
+<td>202031.0</td>
+<td>201911.0</td>
+<td>201911.0</td>
+<td>TR</td>
+<td>BS</td>
+<td>...</td>
+<td>1.0</td>
+<td>2019.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td></td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>3.0</td>
+<td>BA-USLA-SEL</td>
+<td>AT</td>
+<td>BA-USLA-SEL</td>
+<td>AT</td>
+<td>202331.0</td>
+<td>202111.0</td>
+<td>202111.0</td>
+<td>FR</td>
+<td>BA</td>
+<td>...</td>
+<td>1.0</td>
+<td>2021.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td></td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>89770.0</td>
+<td>BBA-MISY</td>
+<td>BA</td>
+<td>BS-AGBL</td>
+<td>AG</td>
+<td>202111.0</td>
+<td>201731.0</td>
+<td>201911.0</td>
+<td>FR</td>
+<td>BBA</td>
+<td>...</td>
+<td>1.0</td>
+<td>2019.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td></td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+
+<p>5 rows × 30 columns</p>
+</div>
+</div>
+</div>
+<p>The UIN_dta dataframe contains 30 columns of data. This dataframe, like the grades_all dataframe, contains a UIN column (perhaps will be useful for mapping data points). Additionally, this dataframe contains many other useful additional features about students.</p>
+<p>To get a general idea if enrollment is growing by semester, we can plot out a time series plot to see the change over time of new admits for each term. Below in <a href="#fig-enroll-1">Figure&nbsp;2.1</a> we see this result.</p>
+<div class="cell" data-tags="[]" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div id="fig-enroll-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-enroll-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.1: Number of new students admitted (and enrolled) by term</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The spikes appear to be during the fall terms, which makes sense since most students begin their college career in the fall. We can continue to investigate this area further in the analysis.</p>
+<p>Proceeding with exploring the various dataframes, we can list out how many unique subjects there are from our grades_all dataframe. The results are shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>array(['EHRD', 'MKTG', 'POLS', 'AGLS', 'COMM', 'ITAL', 'MATH', 'FYEX',
+       'CHEM', 'BIMS', 'CHIN', 'HIST', 'SPMT', 'MGMT', 'BUSN', 'PHYS',
+       'CSCE', 'MEEN', 'ENGL', 'JAPN', 'PERF', 'SOCI', 'MMET', 'MSEN',
+       'STAT', 'PBSI', 'WGST', 'ATMO', 'ENGR', 'FINC', 'TCMG', 'WFSC',
+       'ECEN', 'ISEN', 'ENTO', 'HLTH', 'ARCH', 'URPN', 'GEOG', 'MUSC',
+       'ECON', 'NUTR', 'BIOL', 'FSTC', 'ACCT', 'PHIL', 'KINE', 'ANTH',
+       'SOMS', 'AGSC', 'ANSC', 'ESSM', 'RPTS', 'GEOL', 'COSC', 'PHLT',
+       'GENE', 'AGEC', 'AERO', 'ARTS', 'SCSC', 'NUEN', 'POSC', 'ALED',
+       'INTS', 'FILM', 'CVEN', 'BICH', 'NRSC', 'SCMT', 'NVSC', 'VIBS',
+       'ISTM', 'SCEN', 'VTPB', 'FREN', 'HORT', 'ASCC', 'RDNG', 'INST',
+       'MASC', 'CLEN', 'RELS', 'AFST', 'IDIS', 'ESET', 'JOUR', 'LING',
+       'OCNG', 'ASTR', 'EPSY', 'RUSS', 'PLPA', 'VIST', 'BMEN', 'OCEN',
+       'NURS', 'TEFB', 'TEED', 'SPAN', 'CLSC', 'CHEN', 'AGSM', 'CLAS',
+       'AREN', 'EDCI', 'BESC', 'AGCJ', 'ECMT', 'MXET', 'GERM', 'SENG',
+       'LAND', 'ENTC', 'HISP', 'PETE', 'MEFB', 'CARC', 'GEOS', 'AERS',
+       'RENR', 'BAEN', 'VTPP', 'ALEC', 'MLSC', 'MTDE', 'MEPS', 'DCED',
+       'GEOP', 'FIVS', 'PSAA', 'ITDE', 'IBUS', 'UGST', 'KNFB', 'EVEN',
+       'ASIA', 'ENDS', 'EPFB', 'SPED', 'ATTR', 'DDHS', 'HEFB', 'MODL',
+       'INTA', 'LMAS', 'ARAB', 'BEFB', 'BUSH', 'SEFB', 'LBAR', 'EDHP',
+       'EURO', 'MUST', 'VSCS', 'BESL', 'SYEX', 'VLCS', 'CLGE', 'CYBR',
+       'HHUM', 'HCPI', 'SSEN', 'MEMA', 'DHUM', 'RWFM', 'LDEV', 'PLAN',
+       'VIZA', 'MSCI', 'ECCB', 'ARSC', 'ITSV', 'HMGT', 'SABR', 'CLBA',
+       'NSEB'], dtype=object)</code></pre>
+</div>
+</div>
+<p>Additionally, we can view the most popular courses by semester. Below, we list the top 10 courses from each term and subsequently rank them by largest to smallest over the entire time frame of our dataset.</p>
+<div class="cell" data-scrolled="true" data-tags="[]" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TERM</th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4097</td>
+<td>20233.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>5470</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2857</td>
+<td>20223.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>5433</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">416</td>
+<td>20213.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>4963</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4207</td>
+<td>20233.0</td>
+<td>FYEX</td>
+<td>101.0</td>
+<td>4904</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2968</td>
+<td>20223.0</td>
+<td>FYEX</td>
+<td>101.0</td>
+<td>4827</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3385</td>
+<td>20223.0</td>
+<td>POLS</td>
+<td>207.0</td>
+<td>4602</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">531</td>
+<td>20213.0</td>
+<td>FYEX</td>
+<td>101.0</td>
+<td>4511</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">948</td>
+<td>20213.0</td>
+<td>POLS</td>
+<td>207.0</td>
+<td>4464</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4419</td>
+<td>20233.0</td>
+<td>MATH</td>
+<td>140.0</td>
+<td>4394</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4634</td>
+<td>20233.0</td>
+<td>POLS</td>
+<td>207.0</td>
+<td>4167</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1907</td>
+<td>20221.0</td>
+<td>KINE</td>
+<td>199.0</td>
+<td>4124</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3134</td>
+<td>20223.0</td>
+<td>KINE</td>
+<td>199.0</td>
+<td>3982</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">702</td>
+<td>20213.0</td>
+<td>KINE</td>
+<td>199.0</td>
+<td>3952</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2158</td>
+<td>20221.0</td>
+<td>POLS</td>
+<td>207.0</td>
+<td>3895</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3935</td>
+<td>20233.0</td>
+<td>CHEM</td>
+<td>119.0</td>
+<td>3789</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4390</td>
+<td>20233.0</td>
+<td>KINE</td>
+<td>199.0</td>
+<td>3757</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">262</td>
+<td>20213.0</td>
+<td>CHEM</td>
+<td>119.0</td>
+<td>3600</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">734</td>
+<td>20213.0</td>
+<td>MATH</td>
+<td>140.0</td>
+<td>3594</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3168</td>
+<td>20223.0</td>
+<td>MATH</td>
+<td>140.0</td>
+<td>3553</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2691</td>
+<td>20223.0</td>
+<td>CHEM</td>
+<td>119.0</td>
+<td>3481</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2145</td>
+<td>20221.0</td>
+<td>PHYS</td>
+<td>216.0</td>
+<td>3362</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3169</td>
+<td>20223.0</td>
+<td>MATH</td>
+<td>151.0</td>
+<td>2923</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3893</td>
+<td>20233.0</td>
+<td>BIOL</td>
+<td>111.0</td>
+<td>2852</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1468</td>
+<td>20221.0</td>
+<td>CHEM</td>
+<td>120.0</td>
+<td>2824</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4420</td>
+<td>20233.0</td>
+<td>MATH</td>
+<td>151.0</td>
+<td>2761</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>From the table above, we can see that ENGR 102 appears to be the most popular course over all time and even continues to have a growth. FYEX is a first year experience course so it appears that many freshmen take the course.</p>
+<p>The information above can be utilized even further, by seeing if there were ever any large discrepancies in the number of students between two semesters. Due to the large amount of data, we will focus on one subject to view. Below in <a href="#fig-diff-enroll">Figure&nbsp;2.2</a>, we see the difference over time between two semesters (current semester class enrollment - past semester class enrollment).</p>
+<div class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display">
+<div id="fig-diff-enroll" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-diff-enroll-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.2: Difference in enrollment of current vs previous semester for ENGR classes</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Such a large difference between two semesters, as shown in <a href="#fig-diff-enroll">Figure&nbsp;2.2</a>, definitely merits a closer look to ensure that our graph properly calculated such a difference. Below is a tabular view of what we see above for ENGR 102.</p>
+<div class="cell" data-tags="[]" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TERM</th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">diff_term</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">949</td>
+<td>20213.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>4963</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3460</td>
+<td>20221.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>353</td>
+<td>-4610.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6098</td>
+<td>20223.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>5433</td>
+<td>5080.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">8706</td>
+<td>20233.0</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>5470</td>
+<td>37.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>For some reason, in spring 2022, there was a huge drop in enrollment for ENGR 102. One possible reason is that most of the people interested in such a course already took it in the fall to prepare for the next class that is only offered in the spring. We assume this hypothesis due to the elimination of ENGR 102 in the following spring. Perhaps this was noticed by university administration and to properly allocate resources, decided to drop the spring offering of ENGR 102.</p>
+<p>This also presents a possible new challenge with our data. Assuming our above hypothesis is true, classes can be dropped from university offering due to lack of interest. We will need to account for this possible phenemenon in our model when we begin that process.</p>
+<p><a href="#fig-diff-enroll">Figure&nbsp;2.2</a> shows that for the most part, most classes are fairly consistent in their enrollment numbers (at least in ENGR), with exception to ENGR 102. ENGR 102, as we noted above, is consistently one of the largest classes on campus and thus we would have a larger amount of variation compared to smaller classes found in ENGR. We can generalize this approach of viewing variance of subjects by calculating the most variable classes based on their respective diff_term calculation that we performed above. The result of this is shown below in <a href="#fig-var-enroll">Figure&nbsp;2.3</a></p>
+<div class="cell" data-tags="[]" data-execution_count="17">
+<div class="cell-output cell-output-display">
+<div id="fig-var-enroll" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-var-enroll-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.3: Left-hand panel shows variance across all diff_term calculations. The histogram shows that most classes have minimum variation but that there are large variances found in the data. The right-hand panel shows the top 10 variances in diff_term.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The left-hand panel in <a href="#fig-var-enroll">Figure&nbsp;2.3</a> shows that the great majority of courses have the same variance (relatively speaking) with the exception to some very large variance outliers. These large outliers are probably from other large classes (like ENGR 102). The right-hand panel shows us which subjects are the highest ones. It is not suprising, once again, that many of these subjects were also part of the largest classes table.</p>
+<section id="feature-engineering-and-data-preprocessing" class="level2">
+<h2 class="anchored" data-anchor-id="feature-engineering-and-data-preprocessing">Feature Engineering and Data Preprocessing</h2>
+<p>Now that we are somewhat familiar with the data we are working with and the possibilities of how the data can be modeled, we begin compiling the data into one large dataframe. Below is a beginning result of our mergers between dataframes.</p>
+<div class="cell" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TERM</th>
+<th data-quarto-table-cell-role="th">College</th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">is_fall</th>
+<th data-quarto-table-cell-role="th">count_students</th>
+<th data-quarto-table-cell-role="th">count_freshmen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">950</td>
+<td>20213.0</td>
+<td>EN</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>True</td>
+<td>4549</td>
+<td>4549</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2475</td>
+<td>20221.0</td>
+<td>EN</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>False</td>
+<td>278</td>
+<td>81</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4351</td>
+<td>20223.0</td>
+<td>EN</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>True</td>
+<td>4993</td>
+<td>4945</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6583</td>
+<td>20233.0</td>
+<td>EN</td>
+<td>ENGR</td>
+<td>102.0</td>
+<td>True</td>
+<td>4925</td>
+<td>4869</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>From our sample taken from our newly merged dataframe, we have successfully important data points down to a class and term specific level. We will continue to modify this by adding and removing variables as we see fit. Please refer to the complete code found in the <code>github</code> repo for full information on how the complete data cleaning process was completed.</p>
+</section>
+</section>
+<section id="forecasting-possibilities" class="level1">
+<h1>Forecasting Possibilities</h1>
+<p>As mentioned earlier in the analysis, the ultimate goal of this project is to accurately forecast to the enrollment of the next semester, down to the class level. To tackle this problem, we will first attempt to forecast for the entire university enrollment for the next term. The idea is that if we are confident in our ability to forecast for the entire university, we can continue to specify the model down to the class level. Essentially, we attempt a “simpler” forecasting problem first and will tackle the more complex one later. <a href="#fig-forecast-1">Figure&nbsp;3.1</a> shows the total number of university enrollment over time.</p>
+<div class="cell" data-execution_count="40">
+<div class="cell-output cell-output-display">
+<div id="fig-forecast-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-forecast-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Total number of enrolled students at TAMU over time</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There appears to be a weird dip in the spring term of 2022 and then enrollment numbers return back to normal and then shows growth. As we can see, this forecasting problem will not be as straight forward due to the little amount of data we have (only 4 points of data). Additionally, this point at the beginning of spring 2022 seems to be an “outlier” in terms of the natural trend and growth of the university. Generally speaking, university enrollment grows (even if at a small rate) or at least remains fairly consistent (at least at large and well-known universities such as TAMU).</p>
+<p>In forecasting problems such as this one, it is best to use datasets that are consistent and evenly spaced. Due to the irregular nature of the decrease in spring term of 2022, we will eliminate this point from the dataset and consequently, remove other data points associated with spring term. While the act of removing data points is risky due to the value of the information, to remain consistent and to simplify our model a bit, we will proceed with only forecasting for fall term enrollment. An example dataframe with these data points are provided below.</p>
+<div class="cell" data-tags="[]" data-execution_count="43">
+<div class="cell-output cell-output-display" data-execution_count="43">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TERM</th>
+<th data-quarto-table-cell-role="th">count</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">term_edited</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2021-01-01</td>
+<td>20213.0</td>
+<td>55400</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2021-02-01</td>
+<td>20223.0</td>
+<td>56222</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2021-03-01</td>
+<td>20233.0</td>
+<td>58933</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Ignoring the term_edited column (created for ease of modeling), we see that we have 3 fall terms to use for our model. If we were to perform a train-test split on this data, this would mean that we would be left with 2 data points to train and 1 to predict. This is a fairly small training size to use and to have great confidence in what our next fall semester enrollment number would be.</p>
+<p>To demonstrate this, we fit an ARIMA(0,0,0) model to predict 2023 fall enrollment using 2021 and 2022 as training data. Below are the results of our model.</p>
+<div class="cell" data-tags="[]" data-execution_count="46">
+<div class="cell-output cell-output-stdout">
+<pre><code>                               SARIMAX Results                                
+==============================================================================
+Dep. Variable:                  count   No. Observations:                    2
+Model:                          ARIMA   Log Likelihood                 -14.875
+Date:                Fri, 31 May 2024   AIC                             33.750
+Time:                        21:04:42   BIC                             31.136
+Sample:                             0   HQIC                            28.284
+                                  - 2                                         
+Covariance Type:                  opg                                         
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const       5.581e+04    291.391    191.533      0.000    5.52e+04    5.64e+04
+sigma2      1.694e+05   9.06e+07      0.002      0.999   -1.77e+08    1.78e+08
+===================================================================================
+Ljung-Box (L1) (Q):                   2.00   Jarque-Bera (JB):                 0.33
+Prob(Q):                              0.16   Prob(JB):                         0.85
+Heteroskedasticity (H):                nan   Skew:                             0.00
+Prob(H) (two-sided):                   nan   Kurtosis:                         1.00
+===================================================================================
+
+Warnings:
+[1] Covariance matrix calculated using the outer product of gradients (complex-step).</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="47">
+<div class="cell-output cell-output-stdout">
+<pre><code>Predicted number of students for fall 2023: 55811
+Actual number of students for fall 2023: 58933</code></pre>
+</div>
+</div>
+<p>The model, all things considered, performed fairly well at prediction! In the grand scheme of college enrollment, being off by approximately 3000 students is not bad. However, this model is a very simplified approach to our problem. We still need a model to predict the enrollment down to specific class level.</p>
+<p>One possible way we can enhance our model is to go from tackling the problem head on to viewing it from a different perspective. Instead of forecasting the exact number of students on campus and then figuring out how to forecast enrollment for each class, we can predict the <b>rate of change</b> between semesters. While this approach would reduce our training data in half due to needing to calculate rate of change between semesters, this approach allows us a more flexible model because we can incorporate prior data. Essentially, this approach allows for a more natural Bayesian workflow to solving this problem.</p>
+<p>Below is a table that shows the percent change in enrollment between semesters. We see that from 2021-2022, TAMU saw about a 1.5% increase in enrollment and from 2022-2023, TAMU saw about a 4.8% increase in enrollment. Do we believe this trend will continue? What do we believe to be a viable estimate for percent change between semesters? Tackling this problem using Bayesian methodology allows us gather good inference and possibly have more accurate predictions by using prior information and updating it with our data.</p>
+<div class="cell" data-tags="[]" data-execution_count="53">
+<div class="cell-output cell-output-display" data-execution_count="53">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">temp_year</th>
+<th data-quarto-table-cell-role="th">total_enroll</th>
+<th data-quarto-table-cell-role="th">is_fall_2</th>
+<th data-quarto-table-cell-role="th">pct_change_enroll</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2021.0</td>
+<td>55400</td>
+<td>True</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2022.0</td>
+<td>56222</td>
+<td>True</td>
+<td>1.483755</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2023.0</td>
+<td>58933</td>
+<td>True</td>
+<td>4.821956</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="bayesian-modeling" class="level1">
+<h1>Bayesian Modeling</h1>
+<p>To continue with our analysis, we add a Bayesian twist to it by deciding on a prior belief of percent change in enrollment. For our analysis (and from a brief Google search), we say that the percent change in enrollment between semesters is likely to be normally distributed with some mean <span class="math inline">\(\mu\)</span> and some variance <span class="math inline">\(\sigma^{2}\)</span>. Normally, in frequentist approaches, we would set <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^{2}\)</span> by finding the MLE of each from our data and proposing that as our findings. In our Bayesian approach, we place uncertainty on these parameters by assigning each a prior distribution to express our beliefs of each parameter. For our analysis, we will assume the following distributions for <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^{2}\)</span>.</p>
+<p><span class="math display">\[
+\mu \sim N(0.03, 0.02)
+\]</span></p>
+<p><span class="math display">\[
+\sigma \sim HN(0.02)
+\]</span></p>
+<p>We propose that <span class="math inline">\(\mu\)</span> is normally distributed with mean = 0.03 and sd = 0.02 with our <span class="math inline">\(\sigma\)</span> being distributed in a half-normal distribution with parameter 0.02. With these priors, we believe that on average, the percent change in enrollment increases about 3% YoY. However, to express our uncertainty about this value, we use a wider sd of 0.02. Utilizing priors allow us to incorporate more data into our model while also allowing the model to vary due to our uncertainty of our prior beliefs.</p>
+<p>Now that we have set our priors, we setup our Bayesian model using <a href="https://num.pyro.ai/en/stable/getting_started.html">numpyro</a> to perform our analysis. We use a NUTS sampler with 100 burn-in samples and 3000 MC samples. Below are the results of our sampling.</p>
+<section id="model-1-overall-pct_change-in-enrollment" class="level2">
+<h2 class="anchored" data-anchor-id="model-1-overall-pct_change-in-enrollment">Model 1: Overall pct_change in Enrollment</h2>
+<div class="cell" data-tags="[]" data-execution_count="58">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                mean       std    median      5.0%     95.0%     n_eff     r_hat
+        mu      0.02      0.01      0.02      0.00      0.04    682.95      1.00
+     sigma      0.01      0.01      0.01      0.00      0.03    596.88      1.00
+
+Number of divergences: 62</code></pre>
+</div>
+</div>
+<p>Training our model on just the percent change between 2021-2022 fall terms, we see our model has shifted the mean of our parameter <span class="math inline">\(\mu\)</span> from 0.03 to 0.02. Additionally, our sd shrunk as well from 0.02 to 0.01. Our r_hat values of 1.00 and high n_eff scores are good indicators that our model achieved stationarity and good mixing. To continue to confirm that our model has good MCMC diagnostics, we view the trace plots for each of our parameters of interest (see <a href="#fig-trace-1">Figure&nbsp;4.1</a>).</p>
+<div class="cell" data-tags="[]" data-execution_count="59">
+<div class="cell-output cell-output-display">
+<div id="fig-trace-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-trace-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Trace plots for mu and sigma</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-trace-1">Figure&nbsp;4.1</a> shows that our sampler mixed well and converged well, as both plots don’t appear to get stuck in any one particular region for too long.</p>
+<p><a href="#fig-post-1">Figure&nbsp;4.2</a> below shows how our prior has been updated using the MAP estimates from our sampler. We see visually what we noticed in the table above, that our posterior became more peaked and shifted left about the x axis.</p>
+<div class="cell" data-tags="[]" data-execution_count="60">
+<div class="cell-output cell-output-display">
+<div id="fig-post-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-post-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Prior and posterior distributions based on MAP values</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>While <a href="#fig-post-1">Figure&nbsp;4.2</a> is informative in showing how the MAP values update our prior, the power of Bayesian analysis comes from viewing the entire distribution of each parameter of interest and subsequently using those distributions to provide a predictive distribution, or posterior predictive distribution from which we can gather inference and make forecasts. Below in <a href="#fig-post-2">Figure&nbsp;4.3</a> we see the complete distributions for each parameter of interest.</p>
+<div class="cell" data-tags="[]" data-execution_count="62">
+<div class="cell-output cell-output-display">
+<div id="fig-post-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-post-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.3: Posterior distributions of mu and sigma</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-post-2">Figure&nbsp;4.3</a> shows that our mu distribution still appears to be approximately normal, centered around 0.02. Our posterior of sigma is less peaked (almost bimodal) but is generally centered around 0.01. Our mu distribution shows that while it is most likely that we have an increase of student enrollment around 2% for this upcoming year, it is within reasonable probability that we could see no increase (eg 0% change). We can use 95% credible intervals to demonstrate what plausible values are within 95% probability for each parameter or interest.</p>
+<div class="cell" data-tags="[]" data-execution_count="63">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% CI for mu: (-0.001442579022841527, 0.046437517087906624)</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="64">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% CI for sigma: (0.0015739109367132187, 0.04049663208425045)</code></pre>
+</div>
+</div>
+<p>Our 95% CI for mu shows that within our 95% probability range, we could possibly see a decrease in student enrollment (be it a small one), but that the majority of our 95% CI includes positive values, meaning we would more than likely see some kind of increase for the next fall term.</p>
+</section>
+<section id="posterior-predictive-distribution-change-in-enrollment" class="level2">
+<h2 class="anchored" data-anchor-id="posterior-predictive-distribution-change-in-enrollment">Posterior Predictive Distribution (% Change in Enrollment)</h2>
+<p>As mentioned previously, we can now make predictions utilizing our posterior distributions. This is done by integrating out all of our parameters of interest (see <a href="#eq-pred-1">Equation&nbsp;4.1</a>).</p>
+<p><span id="eq-pred-1"><span class="math display">\[
+p(\overset{\sim}{y}|y_{1}...y_{n}) = \int_{\Theta} p(\overset{\sim}{y}|\theta)p(\theta|y)
+\tag{4.1}\]</span></span></p>
+<p>What <a href="#eq-pred-1">Equation&nbsp;4.1</a> says is that in order for us to derive the posterior predictive distribution, integrate across all possible parameters of interest (in our case, mu and sigma) to derive a single distribution, conditioned upon our observed data. Our resulting posterior predictive distribution is found in <a href="#fig-post-pred-1">Figure&nbsp;4.4</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="69">
+<div class="cell-output cell-output-display">
+<div id="fig-post-pred-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-post-pred-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.4: Posterior predictive distribution for predicting percent change in enrollment</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="70">
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean of PPD: 0.019076179713010788</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="71">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% CI of PPD: (-0.023650801740586758 , 0.07064365874975921)</code></pre>
+</div>
+</div>
+<p>Our posterior predictive distribution is centered around 2% still but appears to be a wider distribution. This is because of our wider interval with our sigma distribution. Nonetheless, it is still an approximately normal distribution centered around 2% with corresponding 95% CI (or PI in this case) stating that with 95% probability the percent change in enrollment for the upcoming fall term will be between -2% and 7%. While this interval may be wider than desired, for utilizing only one training point of data and our weakly informative prior, it is a sufficient resource in predicting our fall enrollment for TAMU.</p>
+<p>To make specific predictions using this distribution, we can utilize the MAP for a point estimate and the 95% CI for a range of predictions. Those results are shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="72">
+<div class="cell-output cell-output-stdout">
+<pre><code>Bayesian Prediction of Enrollment: 57346
+Actual Enrollment: 58933</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="73">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% Prediction Interval for Enrollment: (55098, 60158)</code></pre>
+</div>
+</div>
+<p>As we can see, our Bayesian prediction performed much better than our ARIMA model (granted it was a (0,0,0) model). Additionally, our 95% PI captures the actual value for fall 2023 enrollment at TAMU. As our model continues to receive more data, it will be able to shrink its PI range and have more precise predictions for our forecasts. Nonetheless, we have a viable first model at predicting enrollment at TAMU.</p>
+</section>
+<section id="more-exploration-for-enhanced-bayesian-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="more-exploration-for-enhanced-bayesian-modeling">More exploration (For enhanced Bayesian Modeling)</h2>
+<p>While the above model successfully performed better than our “frequentist” approach, it still has not accomplished our ultimate goal of forecasting down to the classroom level. How can we utilize our first model as a viable resource to build a second model that can forecast down to the classroom level?</p>
+<p>The question to explore now is “do we believe that the percent share of enrollment by class varies or is relatively constant?”. Essentially, if we discover that classes are generally consistent in how much percent of enrollment they take each fall term, then we can build a model that forecasts from our first model and utilizes class specific information to predict its percent share of enrollment. For example, suppose we have an intro level math class that for 3 fall terms had percent share of enrollment of: 2%, 3%, 4%. Utilizing our first model that predicts the entire university enrollment, we can generate a posterior predictive distribution that can predict the percent change in percent share of enrollment and multiply that change in value by the first predicted value (total university enrollment) to get a class specific enrollment value. <a href="#eq-mod-1">Equation&nbsp;4.2</a> shows the more pretty math behind this intuition.</p>
+<p><span id="eq-mod-1"><span class="math display">\[
+\text{class level enrollment} = (\text{LY } \% \text{ enrollment} * (1 + \% \text{ change in enrollment})) * (\text{forecasted enrollment})
+\tag{4.2}\]</span></span></p>
+<p>Below is an example table of the data we will utilize to forecast percent share of total enrollment by class.</p>
+<div class="cell" data-scrolled="true" data-tags="[]" data-execution_count="76">
+<div class="cell-output cell-output-display" data-execution_count="76">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">is_fall</th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">count_students</th>
+<th data-quarto-table-cell-role="th">pct_of_enroll</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">815</td>
+<td>AERS</td>
+<td>101.0</td>
+<td>True</td>
+<td>2021</td>
+<td>250</td>
+<td>0.004513</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5784</td>
+<td>AERS</td>
+<td>101.0</td>
+<td>True</td>
+<td>2022</td>
+<td>293</td>
+<td>0.005211</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8394</td>
+<td>AERS</td>
+<td>101.0</td>
+<td>True</td>
+<td>2023</td>
+<td>339</td>
+<td>0.005752</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">821</td>
+<td>AERS</td>
+<td>105.0</td>
+<td>True</td>
+<td>2021</td>
+<td>607</td>
+<td>0.010957</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5790</td>
+<td>AERS</td>
+<td>105.0</td>
+<td>True</td>
+<td>2022</td>
+<td>589</td>
+<td>0.010476</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We can build out our formula from <a href="#eq-mod-1">Equation&nbsp;4.2</a> by creating a new column in our full dataframe to calculate the percent change in percent share of enrollment. Below is an example of this using an intro math class (MATH 140) at TAMU (see last column).</p>
+<div class="cell" data-tags="[]" data-execution_count="78">
+<div class="cell-output cell-output-display" data-execution_count="78">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">College</th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">is_fall</th>
+<th data-quarto-table-cell-role="th">count_students</th>
+<th data-quarto-table-cell-role="th">count_freshmen</th>
+<th data-quarto-table-cell-role="th">count_sophomore</th>
+<th data-quarto-table-cell-role="th">count_junior</th>
+<th data-quarto-table-cell-role="th">count_senior</th>
+<th data-quarto-table-cell-role="th">target_fresh_adm</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">con_over_target</th>
+<th data-quarto-table-cell-role="th">con_over_count_fresh</th>
+<th data-quarto-table-cell-role="th">year_adm</th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">yr_count</th>
+<th data-quarto-table-cell-role="th">pct_share</th>
+<th data-quarto-table-cell-role="th">pct_class_share</th>
+<th data-quarto-table-cell-role="th">total_enroll</th>
+<th data-quarto-table-cell-role="th">pct_of_enroll</th>
+<th data-quarto-table-cell-role="th">pct_enroll_yoy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">107</td>
+<td>AT</td>
+<td>MATH</td>
+<td>140.0</td>
+<td>True</td>
+<td>3594</td>
+<td>3190</td>
+<td>294</td>
+<td>72</td>
+<td>38</td>
+<td>2650</td>
+<td>...</td>
+<td>0.953962</td>
+<td>0.792476</td>
+<td>2021</td>
+<td>4158</td>
+<td>16207</td>
+<td>0.256556</td>
+<td>0.196829</td>
+<td>55400</td>
+<td>0.064874</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5049</td>
+<td>AT</td>
+<td>MATH</td>
+<td>140.0</td>
+<td>True</td>
+<td>3552</td>
+<td>2975</td>
+<td>412</td>
+<td>114</td>
+<td>51</td>
+<td>2650</td>
+<td>...</td>
+<td>0.909057</td>
+<td>0.809748</td>
+<td>2022</td>
+<td>3924</td>
+<td>15956</td>
+<td>0.245926</td>
+<td>0.186450</td>
+<td>56222</td>
+<td>0.063178</td>
+<td>-0.026136</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7656</td>
+<td>AT</td>
+<td>MATH</td>
+<td>140.0</td>
+<td>True</td>
+<td>4392</td>
+<td>3744</td>
+<td>456</td>
+<td>139</td>
+<td>53</td>
+<td>2650</td>
+<td>...</td>
+<td>0.961887</td>
+<td>0.680823</td>
+<td>2023</td>
+<td>4076</td>
+<td>17415</td>
+<td>0.234051</td>
+<td>0.214987</td>
+<td>58933</td>
+<td>0.074525</td>
+<td>0.179606</td>
+</tr>
+</tbody>
+</table>
+
+<p>3 rows × 26 columns</p>
+</div>
+</div>
+</div>
+<p>And another example of an intro aerospace course (AERS 101).</p>
+<div class="cell" data-tags="[]" data-execution_count="79">
+<div class="cell-output cell-output-display" data-execution_count="79">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">College</th>
+<th data-quarto-table-cell-role="th">Subject</th>
+<th data-quarto-table-cell-role="th">Course_Number</th>
+<th data-quarto-table-cell-role="th">is_fall</th>
+<th data-quarto-table-cell-role="th">count_students</th>
+<th data-quarto-table-cell-role="th">count_freshmen</th>
+<th data-quarto-table-cell-role="th">count_sophomore</th>
+<th data-quarto-table-cell-role="th">count_junior</th>
+<th data-quarto-table-cell-role="th">count_senior</th>
+<th data-quarto-table-cell-role="th">target_fresh_adm</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">con_over_target</th>
+<th data-quarto-table-cell-role="th">con_over_count_fresh</th>
+<th data-quarto-table-cell-role="th">year_adm</th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">yr_count</th>
+<th data-quarto-table-cell-role="th">pct_share</th>
+<th data-quarto-table-cell-role="th">pct_class_share</th>
+<th data-quarto-table-cell-role="th">total_enroll</th>
+<th data-quarto-table-cell-role="th">pct_of_enroll</th>
+<th data-quarto-table-cell-role="th">pct_enroll_yoy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">815</td>
+<td>EN</td>
+<td>AERS</td>
+<td>101.0</td>
+<td>True</td>
+<td>250</td>
+<td>243</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>3250</td>
+<td>...</td>
+<td>0.920000</td>
+<td>12.304527</td>
+<td>2021</td>
+<td>4871</td>
+<td>16207</td>
+<td>0.300549</td>
+<td>0.014994</td>
+<td>55400</td>
+<td>0.004513</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5784</td>
+<td>EN</td>
+<td>AERS</td>
+<td>101.0</td>
+<td>True</td>
+<td>293</td>
+<td>286</td>
+<td>7</td>
+<td>0</td>
+<td>0</td>
+<td>3250</td>
+<td>...</td>
+<td>1.110154</td>
+<td>12.615385</td>
+<td>2022</td>
+<td>5240</td>
+<td>15956</td>
+<td>0.328403</td>
+<td>0.017924</td>
+<td>56222</td>
+<td>0.005211</td>
+<td>0.154865</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8394</td>
+<td>EN</td>
+<td>AERS</td>
+<td>101.0</td>
+<td>True</td>
+<td>339</td>
+<td>329</td>
+<td>9</td>
+<td>0</td>
+<td>1</td>
+<td>3250</td>
+<td>...</td>
+<td>1.052000</td>
+<td>10.392097</td>
+<td>2023</td>
+<td>5263</td>
+<td>17415</td>
+<td>0.302211</td>
+<td>0.018892</td>
+<td>58933</td>
+<td>0.005752</td>
+<td>0.103773</td>
+</tr>
+</tbody>
+</table>
+
+<p>3 rows × 26 columns</p>
+</div>
+</div>
+</div>
+<p>Another thing we notice about these classes is an obvious one: they’re different sizes! However, we know that they aren’t all unique in their own size. We can bucket these classes into arbitrary sizes (small, medium, large, etc.) to aid our model in identifying more specifically how certain class sizes vary on their percent change in percent share of enrollment. Below in <a href="#fig-hist-1">Figure&nbsp;4.5</a> shows a distribution of count of students for classes.</p>
+<div class="cell" data-tags="[]" data-execution_count="80">
+<div class="cell-output cell-output-display">
+<div id="fig-hist-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-hist-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.5: Histogram of count of students in classes</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see, the great majority of class sizes are found below 1000 students. We will need to take this into account when deciding how to divide our class size lines. While there are different ways of performing this in a more analytical way (i.e.&nbsp;segmentation analysis), we will arbitrarily decide on these buckets based on our EDA (see github repo for full EDA code).</p>
+<p>One plot that we will include in this post is found in <a href="#fig-dist-1">Figure&nbsp;4.6</a>. This figure shows the distribution for percent change in percent share of enrollment for each of our arbitrarily selected class sizes.</p>
+<div class="cell" data-tags="[]" data-execution_count="91">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-dist-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.6: 2x4 grid of histograms showing the distribution of percent change in percent share of enrollment for each class size</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-dist-1">Figure&nbsp;4.6</a> is telling in many ways. First, x-small classes are generally non-variable with a few large outliers (this also is acceptable because a x-small class can double in size fairly easily). Small, medium, and large classes are approximately normal in their distribution because these are the class sizes with the most observations (kind of like a fun way of seeing the CLT). All other larger classes appear almost uniform in their distributions due to their small respective sample sizes.</p>
+</section>
+<section id="model-2-bayesian-hierarchical-model-class-size" class="level2">
+<h2 class="anchored" data-anchor-id="model-2-bayesian-hierarchical-model-class-size">Model 2: Bayesian Hierarchical Model (class size)</h2>
+<p>As noted in some of the EDA above, the effects of each class size vary. While they are different, they aren’t completely different (as noted in <a href="#fig-dist-1">Figure&nbsp;4.6</a>). To account for each class size effect individually, we utilize a hierarchical model to allow each class size to pull from a common distribution but to allow their respective effects to take update our prior beliefs. Below is the mathematical representation of our hierarchical model.</p>
+<p><span class="math display">\[
+\theta \sim N(\mu_{j}, \sigma_{j})
+\]</span></p>
+<p><span class="math display">\[
+\mu_{j} \sim N(0, 0.2)
+\]</span></p>
+<p><span class="math display">\[
+\sigma_{j} \sim HN(0.2)
+\]</span></p>
+<p>Modeling it this way essentially allows our parameter of interest, <span class="math inline">\(\theta\)</span> to account for between-group variability based on the <span class="math inline">\(\mu_{j}\)</span> and <span class="math inline">\(\sigma_{j}\)</span> values while each respective <span class="math inline">\(\mu{j}\)</span> and <span class="math inline">\(\sigma_{j}\)</span> accounts for the within-group variability. This kind of flexibility will allow our model to predict down to specific classes based on the corresponding class size. After fitting our model to the data, we obtain the below results.</p>
+<div class="cell" data-tags="[]" data-execution_count="107">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                    mean       std    median      5.0%     95.0%     n_eff     r_hat
+   class_mu[0]      0.13      0.02      0.13      0.09      0.17   3864.53      1.00
+   class_mu[1]      0.12      0.02      0.12      0.09      0.16   4569.29      1.00
+   class_mu[2]      0.09      0.01      0.09      0.07      0.12   5660.38      1.00
+   class_mu[3]      0.11      0.02      0.11      0.07      0.15   5829.37      1.00
+   class_mu[4]      0.08      0.04      0.08      0.01      0.15   2455.60      1.00
+   class_mu[5]      0.02      0.02      0.02     -0.01      0.05   3977.78      1.00
+   class_mu[6]     -0.03      0.04     -0.03     -0.09      0.03   1414.55      1.00
+   class_mu[7]      0.01      0.05      0.01     -0.06      0.09   2553.92      1.00
+class_sigma[0]      1.22      0.02      1.22      1.19      1.25   5456.28      1.00
+class_sigma[1]      0.55      0.02      0.55      0.53      0.58   2663.55      1.00
+class_sigma[2]      0.44      0.01      0.44      0.42      0.46   3291.40      1.00
+class_sigma[3]      0.36      0.02      0.36      0.33      0.38   2453.18      1.00
+class_sigma[4]      0.24      0.03      0.23      0.19      0.28   2273.90      1.00
+class_sigma[5]      0.07      0.01      0.07      0.05      0.09   2460.03      1.00
+class_sigma[6]      0.08      0.04      0.07      0.03      0.13    965.08      1.00
+class_sigma[7]      0.13      0.05      0.12      0.07      0.19   2506.08      1.00
+            mu      0.05      0.11      0.05     -0.13      0.23   3127.97      1.00
+         sigma      0.37      0.06      0.36      0.27      0.46   2508.96      1.00
+
+Number of divergences: 0</code></pre>
+</div>
+</div>
+<p>class_mu[0] represents the distribution for class size x-small while class_mu[7] represents class size giant. All other class sizes are between these ranges in ascending order (x-small to giant). Additionally, our n_eff and r_hat scores show that our sampler performed very well and that each distribution achieved sufficient stationarity and good mixing. To confirm our results using visuals, we can look at <a href="#fig-trace-2">Figure&nbsp;4.7</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="109">
+<div class="cell-output cell-output-display">
+<div id="fig-trace-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-trace-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.7: 2x8 trace plots of each class size. Top row are mu trace plots and bottom row are sigma trace plots</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-trace-2">Figure&nbsp;4.7</a>, we see that each mu and sigma trace plot per class appear to have good mixing and acceptable stationarity. Now that we have checked our MCMC diagnostics, we can begin exploring the generated posteriors from our model. <a href="#fig-dist-3">Figure&nbsp;4.8</a> shows respective distributions for class size’s mu parameter.</p>
+<div class="cell" data-tags="[]" data-execution_count="112">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-dist-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.8: 2x4 grid of posterior distributions for each class size for parameter mu</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-dist-3">Figure&nbsp;4.8</a> shows each class size mu parameter is approximately normally distributed. It is interesting to note where each distribution is centered. X-small is centered around .13 whereas larger classes like xxx-large are more centered around 0. It appears the there is a higher chance for smaller classes to have an increase in percent change in percent share of enrollment, whereas larger classes don’t vary as much. Larger classes seem to stay most constant term by term, which is not too surprising. A similar plot for class size sigma parameter is found in <a href="#fig-dist-4">Figure&nbsp;4.9</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="113">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-dist-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.9: 2x4 grid of posterior distributions for each class size for parameter sigma</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Once again, we notice that as the class size increases, the variability in sigma decreases.</p>
+<section id="posterior-predictive-distribution-hierarchical-model" class="level3">
+<h3 class="anchored" data-anchor-id="posterior-predictive-distribution-hierarchical-model">Posterior Predictive Distribution (Hierarchical Model)</h3>
+<p>Just as we performed in the first model of this analysis, we will generate a posterior predictive distribution to make class specific predictions. Since we built a hierarchical model, we will generate 8 separate PPDs for each class size. <a href="#fig-post-pred-2">Figure&nbsp;4.10</a> shows the respective PPD for each class size.</p>
+<div class="cell" data-tags="[]" data-execution_count="117">
+<div class="cell-output cell-output-display">
+<div id="fig-post-pred-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-post-pred-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.10: 2x4 grid of posterior predictive distributions for each class size</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-post-pred-2">Figure&nbsp;4.10</a> shows just how variable the smaller classes can be. While the x-small through medium classes are all relatively centered around 0 (possibly due to scale of x axis), the variation in their predictions are fairly wide, especially in x-small classes. However, this should not be too problematic as an x-small class of size 10, even doubling in size, would only be 20. More than likely 1 professor and 1 TA would still be sufficient for this class.</p>
+<p>In contrast, we see that our larger classes do not have nearly as much predicted variability (a repeated theme we have mentioned a lot). This is good to know since these classes require the most resources. Since they appear to be reliably consistent, we can “trust” more in the predictions and know they will not be too far off from the usual.</p>
+<p>For example, take the class MATH 140 at TAMU. It is considered an intro level math course that many students must take in order to progress in their respective majors. It is considered a xxx-large class due to its popularity. Below is a point prediction for this class.</p>
+<div class="cell" data-execution_count="118">
+<div class="cell-output cell-output-stdout">
+<pre><code>Bayes Prediction for % change in pct_enroll: -0.027
+True Value for % change in pct_enroll: 0.180</code></pre>
+</div>
+</div>
+<p>The model, due to its MAP, incorretly predicted the percent change in percent share of enrollment. However, point estimates in continuous predictions are rarely ever correct and thus require an interval prediction to ensure that our model at least captures the value within the interval. Below is a 95% PI for MATH 140.</p>
+<div class="cell" data-tags="[]" data-execution_count="119">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% Prediction Interval for % change in pct_enroll: (-0.229, 0.179)</code></pre>
+</div>
+</div>
+<p>As we can see, our interval would include the actual value (even if it is on the farthest outside). This indicates that the true value that occured is in fact a possibel anomaly. That is, it is a plausible value but is just not very likely. Nonetheless, because we used a Bayesian approach, we can probabilistically say that it is a possible value in the range of 95% probability.</p>
+<p>In order to properly predict the actual count of student enrollment by class, as mentioned previously, we use <a href="#eq-mod-1">Equation&nbsp;4.2</a>. Below is the predicted number of students, both point estimate and 95% PI.</p>
+<div class="cell" data-tags="[]" data-execution_count="120">
+<div class="cell-output cell-output-stdout">
+<pre><code>Point Estimate for MATH 140: 3527
+Actual Value for MATH 140: 4392</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="121">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% Prediction Interval for MATH 140: (2794, 4271)</code></pre>
+</div>
+</div>
+<p>As we can see, the 95% prediction interval is not far off from the actual value. The missing values would be trivial in such a large class forecast (at least for allocating university resources). While this test case has been informative, we should test another class to ensure our model is not always facing possible anomalies. To do this, we will look at MATH 308. Below is the point prediction for MATH 308.</p>
+<div class="cell" data-tags="[]" data-execution_count="123">
+<div class="cell-output cell-output-stdout">
+<pre><code>Bayes Prediction for % change in pct_enroll: 0.105
+True Value for % change in pct_enroll: 0.051</code></pre>
+</div>
+</div>
+<p>As we can see, this time our model is over estimating the point estimate for percent change in percent share of enrollment. Our model predicts about a 10% increase in percent share of enrollment when the actual 2023 value was about 5%. While the point estimate is incorrect, it is not too far off in terms of practical prediction. Below is the corresponding 95% PI and resulting predictions from the point estimate and the PI.</p>
+<div class="cell" data-tags="[]" data-execution_count="124">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% Prediction Interval for % change in pct_enroll: (-0.610, 0.832)</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="125">
+<div class="cell-output cell-output-stdout">
+<pre><code>Point Estimate for MATH 308: 990
+Actual Value for MATH 308: 967</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="126">
+<div class="cell-output cell-output-stdout">
+<pre><code>95% Prediction Interval for MATH 308: (349, 1640)</code></pre>
+</div>
+</div>
+<p>As mentioned above, our point estimate from a practical point of view is not too far from the actual value and would not have any major ramifications from a resource allocation point of view. Our 95% PI though, it quite wide. While it is slightly narrower than our 95% PI for MATH 140, it is still a very large range that would not be too useful for forecasting. Nonetheless, this model has proven to be very useful in predicting (especially from a practical point of view) the percent change in percent share of enrollment. Combined with the first model, we have created a system for forecasting class enrollment down to specific class levels.</p>
+</section>
+</section>
+<section id="model-3-bayesian-hierarchical-linear-model-college-and-class-size" class="level2">
+<h2 class="anchored" data-anchor-id="model-3-bayesian-hierarchical-linear-model-college-and-class-size">Model 3: Bayesian Hierarchical Linear Model (college and class size)</h2>
+<p>While our Bayesian hierarchical model proved to be a useful model in our system for forecasting class enrollment, we believe we can do better given the amount of information we have. Another useful piece of information that we can utilize is college. Specifying to which college each class size pertains can help our model distinguish more clearly the percent change in percent share of enrollment for a specific class. Our model will then be an additive model, where we have two covariates (college and class size) predicting our response (% change in % share of enrollment). Below is the mathematical form of our model.</p>
+<p><span class="math display">\[
+Y_{ijk} = X_{ijk}\beta_{jk} + \epsilon_{ijk}
+\]</span></p>
+<p><span class="math display">\[
+\epsilon_{ijk} \sim N(0, \sigma^{2})
+\]</span></p>
+<p><span class="math display">\[
+Y_{jk} \sim MVN(X_{jk}\beta_{jk}, \sigma^{2}I)
+\]</span></p>
+<p><span class="math display">\[
+\beta_{j} \sim N(\mu_{m},\sigma_{m}^{2})  
+\]</span></p>
+<p><span class="math display">\[
+\beta_{k} \sim N(\mu_{t}, \sigma_{t}^{2})
+\]</span></p>
+<p><span class="math display">\[
+\mu_{m} \sim N(0, 0.5)
+\]</span></p>
+<p><span class="math display">\[
+\sigma_{m} \sim HN(0.5)
+\]</span></p>
+<p><span class="math display">\[
+\mu_{t} \sim N(0, 0.5)
+\]</span></p>
+<p><span class="math display">\[
+\sigma_{t} \sim HN(0.5)
+\]</span></p>
+<p>After fitting our model to the data and using a NUTS sampler w/ 500 warmup and 5000 samples, we achieve the below results.</p>
+<div class="cell" data-tags="[]" data-execution_count="131">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                     mean       std    median      5.0%     95.0%     n_eff     r_hat
+  class_beta[0]      0.03      0.04      0.03     -0.03      0.10   1825.25      1.00
+  class_beta[1]      0.05      0.04      0.04     -0.01      0.10    688.67      1.00
+  class_beta[2]      0.04      0.03      0.03     -0.01      0.07    752.82      1.00
+  class_beta[3]      0.03      0.02      0.03     -0.01      0.07   1153.19      1.00
+  class_beta[4]      0.03      0.03      0.03     -0.02      0.07   1733.09      1.00
+  class_beta[5]      0.02      0.03      0.02     -0.03      0.07   1545.40      1.00
+  class_beta[6]      0.02      0.03      0.02     -0.03      0.08   1703.07      1.00
+  class_beta[7]      0.02      0.03      0.02     -0.03      0.07   1596.52      1.00
+   class_int[0]      0.03      0.02      0.03     -0.00      0.07    517.34      1.00
+   class_int[1]      0.02      0.02      0.02     -0.01      0.05   1396.59      1.00
+   class_int[2]      0.01      0.02      0.01     -0.02      0.04   2576.21      1.00
+   class_int[3]      0.01      0.02      0.01     -0.02      0.04   2259.81      1.00
+   class_int[4]      0.01      0.02      0.01     -0.02      0.04   2348.81      1.00
+   class_int[5]      0.01      0.02      0.01     -0.02      0.04   2704.20      1.00
+   class_int[6]      0.01      0.02      0.01     -0.02      0.04   2207.97      1.00
+   class_int[7]      0.01      0.02      0.01     -0.02      0.04   1860.08      1.00
+college_beta[0]      0.02      0.01      0.02      0.01      0.03    711.33      1.00
+college_beta[1]      0.01      0.01      0.01     -0.01      0.03   1322.16      1.00
+college_beta[2]      0.00      0.01      0.00     -0.02      0.02    647.16      1.00
+college_beta[3]      0.01      0.02      0.01     -0.02      0.03   1262.88      1.00
+college_beta[4]      0.00      0.02      0.01     -0.03      0.04   1269.12      1.00
+college_beta[5]      0.00      0.03      0.01     -0.04      0.04   1430.99      1.00
+college_beta[6]      0.00      0.03      0.01     -0.04      0.05   1733.26      1.00
+college_beta[7]      0.00      0.03      0.01     -0.04      0.04   1146.67      1.00
+college_beta[8]      0.01      0.03      0.01     -0.03      0.05   2263.37      1.00
+college_beta[9]      0.01      0.03      0.01     -0.04      0.04   2195.16      1.00
+       mu_class      0.03      0.02      0.03     -0.01      0.07    844.81      1.00
+     mu_college      0.01      0.01      0.01     -0.02      0.03    915.74      1.00
+         mu_int      0.01      0.01      0.01     -0.00      0.03   1558.78      1.00
+          sigma      0.96      0.01      0.96      0.95      0.98   3696.71      1.00
+    sigma_class      0.03      0.02      0.02      0.00      0.06    456.18      1.00
+  sigma_college      0.02      0.02      0.01      0.00      0.04    407.22      1.00
+      sigma_int      0.01      0.01      0.01      0.00      0.03    348.40      1.00
+
+Number of divergences: 131</code></pre>
+</div>
+</div>
+<p>Our output for each beta appears to indicate that we have acheived stationarity and good mixing. To verify this visually, we can look at <a href="#fig-trace-3">Figure&nbsp;4.11</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="132">
+<div class="cell-output cell-output-display">
+<div id="fig-trace-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-trace-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.11: 2x4 grid of trace plots for each class size</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The betas for each class size level appear to be well mixed and stationary. To verify the betas for each college, we can look at <a href="#fig-trace-4">Figure&nbsp;4.12</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="133">
+<div class="cell-output cell-output-display">
+<div id="fig-trace-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-trace-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.12: 2x4 grid of trace plots for each college</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Just as with <a href="#fig-trace-3">Figure&nbsp;4.11</a>, we can see that each college appears to have reached appropriate stationarity and mixing. Now that we have verified that our sampler functioned well, we can begin investigating the posterior distributions. <a href="#fig-dist-5">Figure&nbsp;4.13</a> shows the posterior distributions of each class size and <a href="#fig-dist-6">Figure&nbsp;4.14</a> shows the posterior distributions for each college.</p>
+<div class="cell" data-tags="[]" data-execution_count="135">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-5" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-dist-5-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.13: Posterior distributions of each class size beta</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="136">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-6" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="final_project_files/figure-html/fig-dist-6-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.14: Posterior distributions of each college beta</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It is interesting to note that in both <a href="#fig-dist-5">Figure&nbsp;4.13</a> and <a href="#fig-dist-6">Figure&nbsp;4.14</a>, we see that most of the distributions are relatively centered around the point. The distinguishing feature for each distribution is the respective spread.</p>
+<p>Just as we performed for our first hierarchical model, we can perform predictions by generating a posterior predictive distribution (see <a href="#eq-pred-1">Equation&nbsp;4.1</a>). We will first explore the predictions with this model for MATH 308 and compare it to our predictions from our first hierarchical model. The results are shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="139">
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean of pred_lm: 0.0403
+95% PI of pred_lm: (-0.0108, 0.0907)
+True value of pct_enroll_yoy: 0.0507
+Predicted Number of Students: 932
+95% PI of Number of Students: (886, 977)
+True Number of Students: 967</code></pre>
+</div>
+</div>
+<p>The very notable change in our prediction from our hierarchical linear model is that our PI range has shrunk significantly. Instead of the upper limit being close to .8, our upper limit of our 95% PI is approximately .09. That is a significant improvement! Our new hierarchical model also still contains the true value of percent change in percent share of enrollment. As we can see from above, our 95% PI for the predicted number of students is significantly better than before and would be of much better use practically for forecasting. We can perform this exercise again with predictions for MATH 140. Below are our results.</p>
+<div class="cell" data-tags="[]" data-execution_count="141">
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean of pred_lm: 0.0354
+95% PI of pred_lm: (-0.0483, 0.1073)
+True value of pct_enroll_yoy: 0.1796
+Predicted Number of Students: 3751
+95% PI of Number of Students: (3448, 4012)
+True Number of Students: 4392</code></pre>
+</div>
+</div>
+<p>We once again see a shrunken PI interval for this class. However, because the true percent change in percent enrollment was a large anomaly, our newly shrunken 95% PI does not capture our true percent change in percent share of enrollment. Nonetheless, the 95% PI can still be of practical use as it is not too far off from the true number of predicted students.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Our analysis showed that a good way to forecast student enrollment to a class specific level is well done using a Bayesian hierarchical linear model. Utilizing the information of class size and college provided the model a good way of approximating the percent change in percent share of enrollment. By approaching this forecasting problem from a percent change perspective, we demonstrated that these changes approximately follow a normal distribution, depending on the class size and college mixture. Additional data points should be investigated to determine if they would be viable additions to our model, as well as more thorough investigations on how to set priors and delineate between class sizes. Overall, we have proven that it is possible to forecast student enrollment down to the class level using Bayesian methods.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
