@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2024-05-23">
 
-<title>The Bayesian Bandit - Bayesian Pricing Algorithm Applications in Mobility Industry</title>
+<title>The Bayesian Bandit - An analysis of Uber fares</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,40 +21,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -96,6 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -145,14 +115,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Bayesian Pricing Algorithm Applications in Mobility Industry</h1>
-                      </div>
+      <h1 class="title">An analysis of Uber fares</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">analysis</div>
+                <div class="quarto-category">bayesian</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
   </div>
     
   
   <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 23, 2024</p>
+      </div>
+    </div>
     
       
     </div>
@@ -166,8 +153,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
-  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a>
+  <ul class="collapse">
+  <li><a href="#investigating-relationships-with-fare-amount" id="toc-investigating-relationships-with-fare-amount" class="nav-link" data-scroll-target="#investigating-relationships-with-fare-amount">Investigating Relationships with Fare Amount</a></li>
+  <li><a href="#check-for-differences-in-number-of-rides-by-hour" id="toc-check-for-differences-in-number-of-rides-by-hour" class="nav-link" data-scroll-target="#check-for-differences-in-number-of-rides-by-hour">Check for Differences in Number of Rides by Hour</a></li>
+  <li><a href="#fare-amount-by-time-of-day-and-season" id="toc-fare-amount-by-time-of-day-and-season" class="nav-link" data-scroll-target="#fare-amount-by-time-of-day-and-season">Fare Amount by Time of Day and Season</a></li>
+  </ul></li>
+  <li><a href="#bayesian-modeling" id="toc-bayesian-modeling" class="nav-link" data-scroll-target="#bayesian-modeling">Bayesian Modeling</a>
+  <ul class="collapse">
+  <li><a href="#simple-prediction-demonstration" id="toc-simple-prediction-demonstration" class="nav-link" data-scroll-target="#simple-prediction-demonstration">Simple Prediction Demonstration</a></li>
+  </ul></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a></li>
   </ul>
 </nav>
     </div>
@@ -177,13 +174,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="abstract" class="level1">
-<h1>Abstract</h1>
-<p>Bayesian pricing models are important.</p>
-<div class="cell" data-tags="[]" data-execution_count="50">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check dataframe</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="50">
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Uber is the current leader in the rideshare market. With millions of people using the platform everyday, the company must prioritize resources to understanding their customer base and how to price their product effectively. This analysis is a simple illustration of the power of bayesian pricing methods for rideshare companies. Specifically, we demonstrate the effectiveness of a basic bayesian linear model at predicting the price of an Uber ride based on our supplied data. Data for this analysis can be found <a href="https://www.kaggle.com/datasets/yasserh/uber-fares-dataset">here</a>.</p>
+</section>
+<section id="exploratory-data-analysis" class="level1">
+<h1>Exploratory Data Analysis</h1>
+<p>We begin our analysis by viewing the dataset that we will be working with. Below is a simple <code>head</code> method call on our data frame.</p>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -269,8 +268,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="52">
-<div class="cell-output cell-output-display" data-execution_count="52">
+<p>Each row is given a unique ID found in the unnamed column. Additionally, we have timestamp information on when the pickup occurred, the pick up coordinates, the dropoff coordinates, and the number of passengers in the ride. All of this information is then given a fare amount. To continue our initial findings, we will call the <code>describe</code> method on the dataframe to see some simple summary stats.</p>
+<div class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
 
@@ -374,73 +374,269 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="53">
-<div class="cell-output cell-output-display" data-execution_count="53">
-<pre><code>id                   0
-key                  0
-fare_amount          0
-pickup_datetime      0
-pickup_longitude     0
-pickup_latitude      0
-dropoff_longitude    1
-dropoff_latitude     1
-passenger_count      0
-dtype: int64</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="55">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename timestamp column</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.rename(columns<span class="op">=</span>{<span class="st">'key'</span> : <span class="st">'timestamp'</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="56">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check data types</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df.dtypes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="56">
-<pre><code>id                     int64
-timestamp             object
-fare_amount          float64
-pickup_datetime       object
-pickup_longitude     float64
-pickup_latitude      float64
-dropoff_longitude    float64
-dropoff_latitude     float64
-passenger_count        int64
-dtype: object</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="73">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert timestamp to a timestamp object</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'timestamp'</span>] <span class="op">=</span> (df[<span class="st">'timestamp'</span>].pipe(pd.to_datetime)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                   .dt.strftime(<span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st"> %H:%M:%S'</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                   .pipe(pd.to_datetime))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="74">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'timestamp'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="74">
-<pre><code>0        2015-05-07 19:52:06
-1        2009-07-17 20:04:56
-2        2009-08-24 21:45:00
-3        2009-06-26 08:22:21
-4        2014-08-28 17:47:00
-                 ...        
-199995   2012-10-28 10:49:00
-199996   2014-03-14 01:09:00
-199997   2009-06-29 00:42:00
-199998   2015-05-20 14:56:25
-199999   2010-05-15 04:08:00
-Name: timestamp, Length: 199999, dtype: datetime64[ns]</code></pre>
-</div>
-</div>
-</section>
-<section id="exploratory-data-analysis" class="level1">
-<h1>Exploratory Data Analysis</h1>
-<div class="cell" data-tags="[]" data-execution_count="76">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Look at fare amount change over time</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df.plot(x<span class="op">=</span><span class="st">'timestamp'</span>, y <span class="op">=</span> <span class="st">'fare_amount'</span>, figsize<span class="op">=</span>(<span class="dv">15</span>,<span class="dv">5</span>))<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The id column (formerly the unnamed column) indicates that there are about 2 million rows of data. Viewing the fare_amount column, we see that there are some invalid values (fares &lt; 0) and some potential outliers in fares (max is 499). The coordinates can be ignored in this method. Reviewing the passenger_count column, we see that on average there is 1 rider. However, this summary reveals that passenger_count also has potential outliers (max 208 passengers). While we will not include all details of how the dataframe is cleaned, we will mention a few in this analysis. Those who wish to see the full cleaning process can view the github repo where this analysis is housed.</p>
+<p>To continue with our exploratory analysis, we first look at how fares have changed over time. <a href="#fig-fare-1">Figure&nbsp;2.1</a> shows the change over time of fares.</p>
+<div class="cell" data-tags="[]" data-execution_count="13">
 <div class="cell-output cell-output-display">
-<p><img src="bayesian_pricing_uber_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
+<div id="fig-fare-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.1: Top panel shows individual fare prices over course of time. Bottom panel shows the change in average fare price over time.</figcaption><p></p>
+</figure>
 </div>
 </div>
+</div>
+<p>From <a href="#fig-fare-1">Figure&nbsp;2.1</a>, we see that there are a few large spikes but that the majority of the dataset is below \$100. Additionally, we see that the average fare for an Uber ride has risen from \$10 to \$13 over the 6 year dataset. Accounting for large outliers in fares will be an important piece of data cleanup for us.</p>
+<p>To continue our investigation, we can plot out the average fare by the time of day as well as the number of rides in the same timeframe. Below in <a href="#fig-fare-2">Figure&nbsp;2.2</a>, we this result.</p>
+<div class="cell" data-tags="[]" data-execution_count="14">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.2: Top panel shows average fare amount by the hour the ride was performed. Bottom panel shows the number of hides completed in a given hour.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-fare-2">Figure&nbsp;2.2</a> shows that the average fare is relatively constant with exception to the early morning (about 3am-6am with highest peak at 5am). Contrastingly, the number of rides by hour shows that 5am is one of the least popular time to get a ride. The majority of rides appear to be towards the afternoon/evening. The peak at 5am makes more sense seeing how the 5am time has a lower sample, thus skewing the average towards extremes.</p>
+<p>Since we have data on location, we can plot the latitude vs longitude to see where these pickups and dropoffs occur. <a href="#fig-loc-1">Figure&nbsp;2.3</a> illustrates this principle.</p>
+<div class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display">
+<div id="fig-loc-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-loc-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.3: Scatterplot of pickup vs dropoff locations</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Due to the spread of location in our dataset and possible repeat locations, there aren’t too many dots recorded on the plot. We will need to ensure that these points are realistic locations in our dataset as we strive to model pricing of fares for these trips.</p>
+<p>Having raw location data won’t serve our modeling purposes (or at least won’t be as easy to use). To extract the necessary information from these location data points, we will use the haversine distance formula to calculate the distance in miles between each pickup location to each respective dropoff location.</p>
+<p>After having performed this distance calculation, we can plot the relationship between distance of trip in miles and fare amount for said trip. <a href="#fig-fare-3">Figure&nbsp;2.4</a> shows this relationship.</p>
+<div class="cell" data-tags="[]" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.4: Scatterplot illustrating the relationship between distance of trip in miles vs the fare amount of a trip.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that the great majority of trips are close to 0 with a wide range of their respective fare amounts (max of 500). Additionally, we see that there are a few outliers of super long trips (greater than 2000 miles!). I for one would not want to be an in Uber for 10000 miles and can’t imagine where someone would even drive to for 10000 miles. We will address these errors in the data later on in the analysis.</p>
+<p>To confirm that these outliers are truly outliers, we can plot the distribution of miles per trip and fare amount per trip. This is shown in <a href="#fig-dist-1">Figure&nbsp;2.5</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-dist-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.5: Top panel shows distribution of miles per trip while bottom panel shows distribution of fare amount.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>To solidify our findings, we view one more graph in <a href="#fig-dist-2">Figure&nbsp;2.6</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-dist-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.6: Left panel shows distribution of trip in miles and right panel shows distribution of fare amount.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Both <a href="#fig-dist-1">Figure&nbsp;2.5</a> and <a href="#fig-dist-2">Figure&nbsp;2.6</a> confirm that there are many outliers that need to accounted for in our model. In this analysis, we will remove these outliers since we have sufficient sample size without them. From our calculations, we decided to remove all observations with fare amounts greater than \$30, trips with distance in miles greater than 10 miles, and there needs to be at least 1 passenger.</p>
+<section id="investigating-relationships-with-fare-amount" class="level2">
+<h2 class="anchored" data-anchor-id="investigating-relationships-with-fare-amount">Investigating Relationships with Fare Amount</h2>
+<p>As stated earlier, the purpose of this analysis is to analyze what, if anything, have effects on fare amount. We further this exploration in <a href="#fig-fare-4">Figure&nbsp;2.7</a> where we check the distribution of fare amount by the passenger count.</p>
+<div class="cell" data-tags="[]" data-execution_count="25">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.7: Box-and-whisker plots showing the distribution of fare amount by passenger count.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see, the distributions among passenger count appear to be approximately the same. The median fare amount for each passenger count appears to be constant and each quartile appears to be relatively equal to the others.</p>
+<p>Another possible influence could be day of the week when a ride is taken. <a href="#fig-fare-5">Figure&nbsp;2.8</a> shows the respective distributions of fare amount by weekday and weekend.</p>
+<div class="cell" data-tags="[]" data-execution_count="27">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-5" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-5-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.8: Box-and-whisker plot showing distribution of fare amount by weekday vs weekend.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Just as we saw in <a href="#fig-fare-4">Figure&nbsp;2.7</a>, <a href="#fig-fare-5">Figure&nbsp;2.8</a> shows that there is not much difference between weekday and weekend trips with regard to fare amount.</p>
+<p>After having cleaned up our dataset, we can view a scatterplot of trip in miles vs fare amount, colored by weekend or weekday, to see the relationhsip between these variables. This is shown in <a href="#fig-fare-6">Figure&nbsp;2.9</a>.</p>
+<div class="cell" data-execution_count="28">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-6" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-6-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.9: Scatterplot of trip in miles vs fare amount, with each dot colored by weekend (orange) and weekday (blue).</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Even after our data cleanup, we see in <a href="#fig-fare-6">Figure&nbsp;2.9</a> that there is a large amount of data to still use. There appears to be a slight positive linear relationship between trip in miles vs fare amount. We will hope to quantify this when we build our model. There also appears to be a lot more rides during the week vs the weekend (which makes sense since there are more weekdays than weekends).</p>
+</section>
+<section id="check-for-differences-in-number-of-rides-by-hour" class="level2">
+<h2 class="anchored" data-anchor-id="check-for-differences-in-number-of-rides-by-hour">Check for Differences in Number of Rides by Hour</h2>
+<p>As we mentioned at the end of the previous section, there are more rides on weekdays vs weekends. We should continue to explore the difference in these different segments. First, we’ll explore the difference in the number of rides by hour, split by weekdays vs weekends. This is shown in <a href="#fig-rides-1">Figure&nbsp;2.10</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="30">
+<div class="cell-output cell-output-display">
+<div id="fig-rides-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-rides-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.10: Top panel shows number of rides by hour on weekdays. Bottom panel shows number of rides by hour on weekends.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see, although the total number of rides might differ between weekdays and weekends, the trend appears more or less the same. Weekdays have much heavier peaks around the usual rush hour commuting times. Weekends appear to steadily increase from morning to evening.</p>
+<p>While weekdays vs weekends are one possible segmentation for number of rides, seasons are also a potential group we should explore for delineations in number of rides. <a href="#fig-rides-2">Figure&nbsp;2.11</a> shows the number of rides by hour for each season.</p>
+<div class="cell" data-tags="[]" data-execution_count="32">
+<div class="cell-output cell-output-display">
+<div id="fig-rides-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-rides-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.11: 2x2 grid showing number of rides by hour according to the labeled season.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There does not appear to be any differences between seasons, except for spring having very low peaks in comparison to the other 3 seasons. Generally speaking, each season follows the same trend of number of rides by hour, with winter, summer, and fall each following very similar trends and numbers.</p>
+</section>
+<section id="fare-amount-by-time-of-day-and-season" class="level2">
+<h2 class="anchored" data-anchor-id="fare-amount-by-time-of-day-and-season">Fare Amount by Time of Day and Season</h2>
+<p>We return to investigating fare amount since that is the principle objective of this analysis. One relationship we have yet to explore is the fare amount in relation to time of day. To do this, we will bucket each hour into a specific time of day (ie morning) and calculate the distributio of fare prices at that respective time. <a href="#fig-fare-7">Figure&nbsp;2.12</a> shows this distribution.</p>
+<div class="cell" data-execution_count="36">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-7" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-7-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.12: Box-and-whisker plot showing distribution of fare amount by bucketed time of day.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-fare-7">Figure&nbsp;2.12</a>, we see that there is no real difference in distributions. Dawn appears to have the highest variance of the 5 time buckets, but does not appear to be significant.</p>
+<p>To combine some of the relationships we have explored thus far, we will look at the change in average fare, split by season and time of day. Perhaps a combination of these segments could show a possible difference in fare price. <a href="#fig-fare-8">Figure&nbsp;2.13</a> shows this relationship.</p>
+<div class="cell" data-execution_count="37">
+<div class="cell-output cell-output-display">
+<div id="fig-fare-8" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-fare-8-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2.13: Top panel shows the average fare price and its change over seasons, split by time of day. Bottom panel shows the average fare amount by season, split by weekday vs weekend.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-fare-8">Figure&nbsp;2.13</a> is very informative as it shows clear delineations between average fare prices. The top panel shows that dawn by far has the highest average fare price over the other 4 time of day buckets. The closest to each other are evening and afternoon across all seasons. Interestingly, afternoon has a sharp dip in average fare price in the winter. The average afternoon fare price in winter is the lowest, followed closely by morning and evening. While we do notice clear separation between these lines, we should recognize that these prices are within essentially a dollar a part.</p>
+<p>The bottom panel of <a href="#fig-fare-8">Figure&nbsp;2.13</a> shows a clear (yet small in dollar value) difference between weekend and non-weekend average fare amounts across seasons. Weekends on average have a higher fare amount than weekdays across all seasons. Additionally, The difference appears constant between the average fare amount of weekends and weekdays across all seasons. <a href="#fig-fare-8">Figure&nbsp;2.13</a> shows the usefulness of these features in helping the model capture defined segments across the data.</p>
+</section>
+</section>
+<section id="bayesian-modeling" class="level1">
+<h1>Bayesian Modeling</h1>
+<p>After having explored the data, the next step is to write out our model to identify how we will model the effect of certain features on the response variable of fare amount. A flexible and useful model to do this is a linear regression model. To do fit this model, we will need to list the variables <span class="math inline">\(x_i\)</span> that we will use to explain our response <span class="math inline">\(y_i\)</span>. Our written model is found below.</p>
+<p><span class="math display">\[
+Y_{i} = \beta^{T}x_{i} + \epsilon_{i}
+\]</span> <span class="math display">\[
+\epsilon_{i} \sim \text{i.i.d. } N(0, \sigma^{2})
+\]</span></p>
+<p>Each observation of fare amount is modeled as a linear function of explanatory variables times beta values, plus our error term <span class="math inline">\(\epsilon_{i}\)</span> to account for variantion in the data. The explanatory variables we chose to use for this analysis are the following: passenger count, trip_miles, is_weekend, season_spring, season_summer, season_summer, time_day_dawn, time_day_evening, time_day_morning, time_day_night. Notice that season_fall, is_weekday, and time_afternoon are not included in the explanatory variable list. These values are included in the model, but are set as the baseline of the model. Essentially, our <span class="math inline">\(\beta_{0}\)</span> value will represent a beginning point for the change in fare amount for a trip in fall, on a weekday, in the afternoon. All other <span class="math inline">\(\beta\)</span> values will be modeled as either additions to or deductions from this baseline value.</p>
+<p>Additionally, since this is TheBayesianBandit blog, this will be a bayesian analysis and subsequently, require that we write out priors for our parameters of interest and derive a posterior distribution for these. Below is the bayesian addition to our model approach.</p>
+<p><span class="math display">\[
+\theta = (\beta_{0} ... \beta_{p-1})
+\]</span> <span class="math display">\[
+Y \sim MVN(X\beta, \sigma^{2})
+\]</span> <span class="math display">\[
+p(\theta) \sim N(0, 3)
+\]</span> <span class="math display">\[
+p(\sigma^{2}) \sim IG(3, 1)
+\]</span> <span class="math display">\[
+p(\theta|D) \propto p(\theta)p(D|\theta)
+\]</span></p>
+<p>Our primary parameter of interest in this study is the parameter <span class="math inline">\(\theta\)</span>, which is a vector of <span class="math inline">\(\beta\)</span> values corresponding to each explanatory variable in our dataset. We propose that fare amount is modeled by a multivariate normal distribution with mean <span class="math inline">\(X\beta\)</span> and variance <span class="math inline">\(\sigma^{2}\)</span>. <span class="math inline">\(\theta\)</span> is proposed to be distributed normally with mean 0 and standard deviation of 3. <span class="math inline">\(\sigma^{2}\)</span> is proposed to be distributed by an inverse-gamma distribution with <span class="math inline">\(\alpha\)</span> = 3 and <span class="math inline">\(\beta\)</span> (rate beta, not LR beta) = 1. Utilizing these values, we derive the posterior distribution for <span class="math inline">\(\theta\)</span> based on the data updates from our model. To do this, we will utilize a NUTS sampler with 1000 warmup samples and 2500 samples. Furthermore, we have split our data into train-test splits, with 67% of the data belonging to training and 33% belonging to testing. The results of our sampler are found below.</p>
+<div class="cell" data-tags="[]" data-execution_count="48">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                mean       std    median      5.0%     95.0%     n_eff     r_hat
+   beta[0]      4.69      0.03      4.69      4.65      4.73   1296.49      1.00
+   beta[1]      0.05      0.01      0.05      0.04      0.06   4623.29      1.00
+   beta[2]      3.25      0.01      3.25      3.24      3.26   3806.85      1.00
+   beta[3]     -0.26      0.02     -0.26     -0.29     -0.23   3442.71      1.00
+   beta[4]     -0.22      0.02     -0.22     -0.26     -0.19   1632.68      1.00
+   beta[5]     -0.34      0.02     -0.34     -0.38     -0.31   1502.49      1.00
+   beta[6]     -0.26      0.02     -0.26     -0.29     -0.22   1710.00      1.00
+   beta[7]     -1.00      0.03     -1.00     -1.04     -0.95   1962.38      1.00
+   beta[8]     -0.19      0.02     -0.19     -0.22     -0.15   1530.76      1.00
+   beta[9]     -0.58      0.03     -0.58     -0.62     -0.53   1851.44      1.00
+  beta[10]     -0.78      0.02     -0.78     -0.82     -0.74   1941.79      1.00
+     sigma      7.35      0.03      7.35      7.31      7.41   5336.50      1.00
+
+Number of divergences: 0</code></pre>
+</div>
+</div>
+<p>As we mentioned earlier in this section, our <span class="math inline">\(\beta_{0}\)</span> represents our baseline distribution for fare amount for a trip taken in fall, on a weekday, in the afternoon. On average, this value is about 4.69. Our 95% credible interval indicates this would be anywhere from 4.65 to 4.73 with 95% probability.</p>
+<p>It is interesting to not that the only increase in fare amounts come from <span class="math inline">\(\beta_{1}\)</span> and <span class="math inline">\(\beta_{2}\)</span>, which are the changes in fare amount based on the value of number of passengers and trip in miles, respectively. On average, for every 1 mile increase in the trip, the fare amount goes up by 3.25 dollars. Conversely, for trips taken in at dawn (<span class="math inline">\(\beta_{7}\)</span>), this results in an average decrease of 1 dollar from the fare amount.</p>
+<p>In order to know if we can trust these numbers, we need to check the n_eff values, the r_hat values, and the trace plots for each beta in order to verify that each parameter has converged and each parameter has achieved good mixing. Above, we see that each parameter achieved a r_hat value of 1, which indicates convergence. The n_eff value shows the effective sample size for each parameter and since each value is a good ratio with regard to the number of samples we drew with our sampler, this is also verified. Below in <a href="#fig-trace-1">Figure&nbsp;3.1</a> we analyze the trace plots for each beta value.</p>
+<div class="cell" data-tags="[]" data-execution_count="49">
+<div class="cell-output cell-output-display">
+<div id="fig-trace-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-trace-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: 2x6 grid of trace plots for each beta value. Beta value 11 is just a repeat of 10 since there are not 12 beta values.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-trace-1">Figure&nbsp;3.1</a> shows that each beta value appears to have good mixing and has achieved an acceptable level of stationarity. We will proceed with the analysis trusting in the numbers generated from our sampler. We can now proceed to view the posterior distribution of each beta value from our model. This is shown in <a href="#fig-dist-3">Figure&nbsp;3.2</a>.</p>
+<div class="cell" data-execution_count="50">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-dist-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.2: 2x6 grid of density plots for each beta value. Beta[11] is merely a repeat of beta[10].</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-dist-3">Figure&nbsp;3.2</a> shows that each beta value is sharply peaked with very little variation from the mean. As mentioned previously, all beta values along their entire distribution appear to have a negative impact on fare amount, with exception to beta[1] (number of passengers) and beta[2] (trip in miles). It is worth noting that while some values are close to 0, none of them ever cross the 0 threshold.</p>
+<p>Now that we have a posterior distribution for each beta value, we can generate predictions from our test set. Our values for RMSE, coverage, and width are shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="54">
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE: 1.84
+Coverage: 0.02
+Width: 0.10</code></pre>
+</div>
+</div>
+<p>On average, our predictions are off by about 1.84 dollars. Comparing this value to the standard deviation of the fare amount distribution (5.17), this is a good sign that our model has good predictive power. Unfortunately, our coverage does not score well with only 2% coverage over the test set. However, this is not too bad of a loss, since the width of these intervals are usually around .10. Since the width of these predictions are so narrow, it is normal to have low coverage. Nonetheless, we should investigate ways to improve coverage so that our predictions always lie within our 95% PIs.</p>
+<section id="simple-prediction-demonstration" class="level2">
+<h2 class="anchored" data-anchor-id="simple-prediction-demonstration">Simple Prediction Demonstration</h2>
+<p>To demonstrate how our model predicts, we will make a prediction for a single passenger, riding 5 miles, in the winter, in the morning, on a weekday. Using our estimated beta distributions above, we obtain the posterior predictive distribution in <a href="#fig-dist-4">Figure&nbsp;3.3</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="56">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="bayesian_pricing_uber_files/figure-html/fig-dist-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.3: Posterior predictive density for a single passenger riding 5 miles in winder during the morning on a weekday.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-dist-4">Figure&nbsp;3.3</a>, it appears that the average fare amount for a ride like this would be around 20.15 dollars. Approximate 95% PI would be (20.10, 20.20). Our model makes very precise predictions as evident by the short width of the distribution. Nonetheless, this illustrates very well how our bayesian linear model makes a predictive distribution instead of just a single point estimate. We have a small amount of uncertainty around this estimate due to the large amount of training data.</p>
+</section>
+</section>
+<section id="conclusions" class="level1">
+<h1>Conclusions</h1>
+<p>We demonstrated very briefly in this analysis the abililty to analyze ride share data by extracting meaningful featrues form raw form. We showed that there were reasonably viable features to use to understand how fare amount is estimated. We built a bayesian linear model that calculates the effect of each feature on fare amount, showing uncertainty with each estimate based on each value’s posterior distribution. We reviewed the predictive capabilites of the lienar model by estimating metrics like RMSE and coverage. While RMSE proved to be low, coverage also was very low due to the small widths of our posterior predictive distributions. Further enhancements to the model can be made, such as incorporating interactions, engineering new features from the raw data, or utilizing a different sampler/different numbers for different results. Overall, we are pleased with the results of our model. We have succesfully crafted a model that predicts fairly well the fare amount for rides on Uber.</p>
 
 
 </section>
