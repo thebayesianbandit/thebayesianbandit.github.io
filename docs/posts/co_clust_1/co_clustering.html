@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-02-10">
+
+<title>The Bayesian Bandit - An implementation of the ITCC algorithm in Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">An implementation of the ITCC algorithm in Python</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">python</div>
+                <div class="quarto-category">clustering</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">February 10, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#information-theoretic-co-clustering" id="toc-information-theoretic-co-clustering" class="nav-link" data-scroll-target="#information-theoretic-co-clustering">Information Theoretic Co-Clustering</a></li>
+  <li><a href="#code-walk-through" id="toc-code-walk-through" class="nav-link" data-scroll-target="#code-walk-through">Code Walk-Through</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>Clustering is a useful tool in data mining whereby data points are collected together based on some predefined similarity metric. This results in a more digestible data model that can provide solid inference into how related certain attributes of data are with each other. In this post, we discuss the information theoretic co-clustering algorithm <span class="citation" data-cites="dhillon2003information">(<a href="#ref-dhillon2003information" role="doc-biblioref">Dhillon, Mallela, and Modha 2003</a>)</span> and provide a python implementation of said algorithm. We discuss the usefulness of co-clustering and propose potential future projects.</p>
+<p>See this <a href="https://www.cs.utexas.edu/~inderjit/public_papers/kdd_cocluster.pdf">link</a> for the paper.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Co-clustering can be defined as a family of algorithms that simultaneously clusters rows and columns. Suppose we have a matrix A that contains n rows and m columns, as shown below.</p>
+<p><span class="math display">\[A = \begin{bmatrix}
+    a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1m} \\
+    a_{21} &amp; a_{22} &amp; \cdots &amp; a_{2m} \\
+    \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+    a_{n1} &amp; a_{n2} &amp; \cdots &amp; a_{nm}
+\end{bmatrix}\]</span></p>
+<p>Our objective with <span class="math inline">\(A\)</span> would be to identify distinct groups of data that exhibit great similarities to one another. One way to expose these groupings would be through a clustering algorithm like K-means. However, the down side to K-means is the single modality nature of the algorithm. That is, rows and columns would be clustered independetly of each other. In real-world scenarios, there are generally relationships between the rows and columns that we’d want to capture as part of our analysis. For example, suppose the rows of <span class="math inline">\(A\)</span> were customers and the columns of <span class="math inline">\(A\)</span> were products available. <span class="math inline">\(a_{ij}\)</span> would then represent the quantities purchased by the <span class="math inline">\(i\)</span>th customer for the <span class="math inline">\(j\)</span>th product. We’d want to capture in our analysis the relationships between customers and the products. This is where co-clustering comes in.</p>
+<p>Co-clustering are families of algorithms that simultaneously cluster rows and columns. Contuining with the example above of rows representing customers and columns representing products, suppose we have the following data.</p>
+<span class="math display">\[\begin{pmatrix}
+    3 &amp; 3 &amp; 0 \\
+    4 &amp; 4 &amp; 0 \\
+    0 &amp; 0 &amp; 1
+\end{pmatrix}\]</span>
+<p><span class="math inline">\(a_{ij}\)</span> once again represents the purchases by the <span class="math inline">\(i\)</span>th customer for the <span class="math inline">\(j\)</span>th product. In normal clustering approaches (like in K means clustering), we would ignore the column structure of this matrix and instead focus on the row structure only. Thus, we would probably end up with two clusters, with the the first two rows pertaining to one cluster and the last row pertaining to another. This approach, while helpful in identifying data points that closely resemble each other, does not take into account the complete picture offered by the matrix.</p>
+<p>In co-clustering, we would analyze both the row structure <b>and</b> the column structure. We would continue to use the row structure, as illustrated in the previous example, but we would also include column clusters, more than likely clustering the first two columns together and the last one by itself. Thinking back to what this data set represents, we can now show at a more granular level what customers have similar purchase histories, as well as what products are purchased together. Thus, we have a better understanding of a customer journey and their interactions with our products.</p>
+</section>
+<section id="information-theoretic-co-clustering" class="level1">
+<h1>Information Theoretic Co-Clustering</h1>
+<p>Now that we have a solid foundation on what co-clustering is and its potential uses, we explore the co-clustering algorithm “Information Theoretic Co-Clustering” <span class="citation" data-cites="dhillon2003information">(<a href="#ref-dhillon2003information" role="doc-biblioref">Dhillon, Mallela, and Modha 2003</a>)</span>. For a more detailed explanation, please refer to the paper link above or the referenced paper in the works cited.</p>
+<p>The ITCC algorithm poses the challenge of clustering as an optimization problem using relative entropy, as shown below in <a href="#eq-entropy">Equation&nbsp;3.1</a>.</p>
+<p><span id="eq-entropy"><span class="math display">\[\begin{equation}
+D_{KL}(P||Q) = \sum_{x} \sum_{y} P(x, y) \log \left( \frac{P(x, y)}{Q(x, y)} \right) \label{eq:kl_joint_discrete}
+\end{equation} \tag{3.1}\]</span></span></p>
+<p>Essentially, we are trying to find a prototype or approximate joint distribution <span class="math inline">\(Q(x,y)\)</span> to minimizes the distance from <span class="math inline">\(P(x,y)\)</span>. To do this, the ITCC algorithm attempts to calculate this minimized approximated joint disribution <span class="math inline">\(Q(x,y)\)</span> by monotonically decreasing the objective function (the objective function being mutual information loss, thus minimizing the information lost between the true joint distribution and the approximate joint distribution).</p>
+<p>To calculate this approximate joint distribution, a set number of row clusters and column clusters are assigned. Then, rows and columns are assigned to a specific cluster number, up to n row clusters and m column clusters. A joint cluster distribution is then calculated, which we will denote as <span class="math inline">\(P(\hat{x},\hat{y})\)</span>. The approximate joint distribution <span class="math inline">\(Q(x,y)\)</span> is the calculated using <span class="math inline">\(P(\hat{x},\hat{y}\)</span> and other conditional distributions. <span class="math inline">\(Q(x,y)\)</span> is calculated by finding rows and columns that minimize <a href="#eq-entropy">Equation&nbsp;3.1</a>, relative to the conditional <span class="math inline">\(P(X|\hat{Y})\)</span> and <span class="math inline">\(P(Y|\hat{X})\)</span>. A more structured run through of the algorithm is found below.</p>
+<ol>
+<li>
+Initialize co-cluster for rows (<span class="math inline">\(C_X\)</span>) and co-cluster for columns (<span class="math inline">\(C_Y\)</span>)
+</li>
+<li>
+Calculate <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((\hat{X}, \hat{Y})\)</span>, <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((X|\hat{X})\)</span>, <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((Y|\hat{Y})\)</span>, and <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((Y|\hat{x})\)</span>
+</li>
+<li>
+Compute new column clusters for each row x where <span class="math inline">\(C^{t+1}_{X}(x)=\)</span> <span class="math inline">\(argmin_{\hat{x}}\)</span> <span class="math inline">\(D(p(Y|x) || q^{(t)}(Y|\hat{x}))\)</span>
+</li>
+<li>
+Compute distributions <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((\hat{X}, \hat{Y})\)</span>, <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((X|\hat{X})\)</span>, <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((Y|\hat{Y})\)</span>, and <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((X|\hat{y})\)</span>
+</li>
+<li>
+Compute new column clusters for each column y where <span class="math inline">\(C^{t+2}_{Y}(y)=\)</span> <span class="math inline">\(argmin_{\hat{y}}\)</span> <span class="math inline">\(D(p(X|y) || q^{(t+1)}(X|\hat{y}))\)</span>
+</li>
+<li>
+Compute distributions <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((\hat{X}, \hat{Y})\)</span>, <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((X|\hat{X})\)</span>, <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((Y|\hat{Y})\)</span>, and <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((Y|\hat{x})\)</span>
+</li>
+<li>
+Stop and return current row and column clusters (<span class="math inline">\(C_X,C_Y\)</span>) if the change in the objective function value is small. Else, repeat starting at step 2.
+</li>
+<p>Essentially, the algorithm forms row and column cluster prototypes, calculates the appropriate distributions to get to the approximate joint distribution <span class="math inline">\(q(X,Y)\)</span>, then measures the distance between <span class="math inline">\(p(X,Y)\)</span> and <span class="math inline">\(q(X,Y\)</span> using <a href="#eq-entropy">Equation&nbsp;3.1</a>. The algorithm is able to be monotonically decreasing due to the fact that we always select the cluster that minimizes <a href="#eq-entropy">Equation&nbsp;3.1</a> (see steps 3 and 5 in the algorithm steps above).</p>
+</ol></section>
+<section id="code-walk-through" class="level1">
+<h1>Code Walk-Through</h1>
+<p>In this section, we’ll walk through the various code chunks that make up our ITCC algorithm. Full disclosure, this is a very crude approach to implementing this algorithm. There are far better implementations of this algorithm along with other co-clustering algorithms (e.g.&nbsp;scikit learn). This is merely an educational exercise by me to practice implementing clustering algorithms.</p>
+<p>To begin the code walk through, we will initialize our joint distribution <span class="math inline">\(P(X,Y)\)</span>, which is found below. This is the same joint distribution used in the ITCC paper.</p>
+<div class="cell" data-tags="[]" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Initialize test array</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>test_arr <span class="op">=</span> np.array([<span class="fl">.05</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>          <span class="fl">.05</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>          <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="dv">0</span>, <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="fl">.04</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>          <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="dv">0</span>, <span class="fl">.04</span>, <span class="fl">.04</span>]).reshape(<span class="dv">6</span>,<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Our <span class="math inline">\(P(X,Y)\)</span> is a 6x6 matrix. We will attempt to find the optimal 3 row clusters and 2 columns clusters using our ITCC implementation, just as performed in the ITCC paper. To do this, we will implement various functions that calculate the necessary distributions for eventually comparing <span class="math inline">\(P(X,Y)\)</span> and <span class="math inline">\(Q(X,Y)\)</span>.</p>
+<p>Our first function in the code walk through is calculating the joint distribution <span class="math inline">\(Q(\hat{X},\hat{Y})\)</span>, which is the joint distribution of the row and column clusters. The code to do this is found below.</p>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating joint distribution</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_joint(x: <span class="bu">dict</span>, y: <span class="bu">dict</span>, a: np.array) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    joint_arr <span class="op">=</span> np.zeros((<span class="bu">len</span>(x), <span class="bu">len</span>(y)))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#joint_arr = {}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, j <span class="kw">in</span> x.items():</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> z, p <span class="kw">in</span> y.items():</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            ind <span class="op">=</span> np.ix_(j,p)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            joint_arr[i,z] <span class="op">=</span> a[ind].<span class="bu">sum</span>()</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> joint_arr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The function accepts the row clusters, column clusters, and joint distribution <span class="math inline">\(P(X,Y)\)</span>. We chose to use dictionaries to illustrate the structure of co cluster prototypes with the co cluster number as the key and the value being a list of indices where the respective row(s) or column(s) lie. The function returns the mxn array, where m is the number of row clusters and n is the number of columns clusters.</p>
+<p>The next function we define is <span class="math inline">\(Q(X|\hat{X})\)</span>. This accepts the joint distribution <span class="math inline">\(P(X,Y)\)</span> and the dictionary for the row cluster prototypes. The function then returns a mxn matrix where m is the number of rows in the original matrix (or the total number of rows from all the row clusters) and n is the number of row clusters.</p>
+<div class="cell" data-tags="[]" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating conditional of x given x_hat</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_x_cond(jd: np.array, x_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    x_mar <span class="op">=</span> jd.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    xhat_mar <span class="op">=</span> calc_x_mar(jd, x_ind)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    cond_dist <span class="op">=</span> np.zeros((<span class="bu">len</span>(x_mar), <span class="bu">len</span>(x_ind)))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> key, val <span class="kw">in</span> x_ind.items():</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> idx, prb <span class="kw">in</span> <span class="bu">enumerate</span>(x_mar):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> idx <span class="kw">in</span> val:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                cond_dist[idx,key] <span class="op">=</span> prb <span class="op">/</span> xhat_mar[key]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                cond_dist[idx,key] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math inline">\(Q(\hat{X}|\hat{Y})\)</span> is the conditional distribution of the <span class="math inline">\(\hat{X}\)</span> given <span class="math inline">\(\hat{Y}\)</span>. This just becomes the joint distribution <span class="math inline">\(Q(\hat{X},\hat{Y})\)</span> divided by the marginal of <span class="math inline">\(Q(\hat{Y})\)</span>. The function returns a mxn matrix where m is the number of row clusters and n is the number of column clusters.</p>
+<div class="cell" data-tags="[]" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculation conditional of x_hat given y_hat</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_xhat_cond(jd: np.array) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    cond_dist <span class="op">=</span> np.zeros((jd.shape[<span class="dv">0</span>], jd.shape[<span class="dv">1</span>]))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(jd.shape[<span class="dv">1</span>]):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        y_mar <span class="op">=</span> jd[:,j].<span class="bu">sum</span>()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(jd.shape[<span class="dv">0</span>]):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> y_mar <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                cond_dist[i,j] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                cond_dist[i,j] <span class="op">=</span> jd[i,j] <span class="op">/</span> y_mar</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math inline">\(Q(X|\hat{Y})\)</span> is calculated as the product of <span class="math inline">\(Q(X|\hat{X})Q(\hat{X}|\hat{Y})\)</span>. This function accepts then the previously calculated <span class="math inline">\(Q(X|\hat{X})\)</span> distribution and the <span class="math inline">\(Q(\hat{X}|\hat{Y})\)</span> distribution. This function returns a mxn matrix where m is the number of rows from the original joint distribution <span class="math inline">\(P(X,Y)\)</span> and n is the the number of columns from the same said distribution.</p>
+<div class="cell" data-tags="[]" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating x given y_hat</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_x_cond_yhat(x_xhat: np.array, xhat_yhat: np.array, x_ind: <span class="bu">dict</span>, y_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    full_arr <span class="op">=</span> []</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> y_key, y_val <span class="kw">in</span> y_ind.items():</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(y_val)):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            row <span class="op">=</span> []</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> x_key, x_val <span class="kw">in</span> x_ind.items():</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                row.extend(xhat_yhat[x_key,y_key] <span class="op">*</span> x_xhat[x_val, x_key])</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            full_arr.append(row)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(full_arr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We now arrive at defining the column distributions, first with <span class="math inline">\(Q(Y|\hat{Y})\)</span>. This function accepts the primary joint distribution and the dictionary of <span class="math inline">\(\hat{Y}\)</span>. The function returns a matrix of dimension mxn where m is the number of columns in the original joint distribution and n is the number of column clusters.</p>
+<div class="cell" data-tags="[]" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating conditional of y given y_hat</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_y_cond(jd: np.array, y_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    y_mar <span class="op">=</span> jd.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    yhat_mar <span class="op">=</span> calc_y_mar(jd, y_ind)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    cond_dist <span class="op">=</span> np.zeros((<span class="bu">len</span>(y_mar), <span class="bu">len</span>(y_ind)))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> key, val <span class="kw">in</span> y_ind.items():</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> idx, prb <span class="kw">in</span> <span class="bu">enumerate</span>(y_mar):</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> idx <span class="kw">in</span> val:</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                cond_dist[idx,key] <span class="op">=</span> prb <span class="op">/</span> yhat_mar[key]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                cond_dist[idx,key] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math inline">\(Q(\hat{Y}|\hat{X})\)</span> is calculated very similariy to <span class="math inline">\(Q(\hat{X}|\hat{Y})\)</span> and returns, like the previous function, the same dimension of the of the joint co cluster distribution.</p>
+<div class="cell" data-tags="[]" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating conditional of y_hat given x_hat</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_yhat_cond(jd: np.array) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    cond_dist <span class="op">=</span> np.zeros((jd.shape[<span class="dv">0</span>], jd.shape[<span class="dv">1</span>]))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(jd.shape[<span class="dv">0</span>]):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        x_mar <span class="op">=</span> jd[i,:].<span class="bu">sum</span>()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(jd.shape[<span class="dv">1</span>]):</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> x_mar <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                cond_dist[i,j] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                cond_dist[i,j] <span class="op">=</span> jd[i,j] <span class="op">/</span> x_mar</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math inline">\(Q(Y|\hat{X})\)</span> is equal to the product of <span class="math inline">\(Q(Y|\hat{Y}) Q(\hat{Y}|\hat{X})\)</span>. This function accepts the <span class="math inline">\(Q(Y|\hat{Y})\)</span> distribution, <span class="math inline">\(Q(\hat{Y}|\hat{X})\)</span> distribution, the column cluster dictionary, and the row cluster dictionary. The function returns a mxn matrix of the same dimension of the original joint distribution.</p>
+<div class="cell" data-tags="[]" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating y given x_hat</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_y_cond_xhat(y_yhat: np.array, yhat_xhat: np.array, y_ind: <span class="bu">dict</span>, x_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    full_arr <span class="op">=</span> []</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> x_key, x_val <span class="kw">in</span> x_ind.items():</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(x_val)):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            row <span class="op">=</span> []</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> y_key, y_val <span class="kw">in</span> y_ind.items():</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                row.extend(yhat_xhat[x_key,y_key] <span class="op">*</span> y_yhat[y_val, y_key])</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>            full_arr.append(row)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(full_arr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math inline">\(C_X\)</span> represents our current row clusters. The function below takes in the distributions <span class="math inline">\(Q(Y|\hat{X}\)</span> and <span class="math inline">\(P(Y|X)\)</span>, along with the mappings of each row to row to cluster using the x_ind dictionary. This function utilizes <a href="#eq-entropy">Equation&nbsp;3.1</a> to find calculate the distance between these distributions. It then selects the cluster row prototype that minimizes the distance between a row of the true distribution and that of the approximate distribution. The function returns a dictionary with the new row cluster prototypes.</p>
+<div class="cell" data-tags="[]" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculation next c_x</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> next_cx(y_xhat: np.array, y_x: np.array, x_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    new_x_hat <span class="op">=</span> {key: [] <span class="cf">for</span> key <span class="kw">in</span> x_ind}</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(y_x.shape[<span class="dv">0</span>]):</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        temp_idx <span class="op">=</span> []</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> key, val <span class="kw">in</span> x_ind.items():</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            proto <span class="op">=</span> np.mean(y_xhat[val,:], axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            kl_res <span class="op">=</span> np.nan_to_num(kl_div(y_x[i,:], proto), posinf<span class="op">=</span><span class="dv">10</span>, neginf<span class="op">=-</span><span class="dv">10</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">#kl_res = rel_entr(y_x[i,:], proto)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            temp_idx.append(np.<span class="bu">sum</span>(kl_res))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>       </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        temp_val <span class="op">=</span> np.argmin(np.array(temp_idx))</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">#temp_val = tie_breaker(temp_idx)</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        new_x_hat[temp_val].append(i)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> new_x_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Similarily to the function above <span class="math inline">\(C_Y\)</span> represents our current column clusters. The function utilizes <span class="math inline">\(Q(X|\hat{Y})\)</span> and <span class="math inline">\(P(X|Y)\)</span> along with the mappings found in y_ind, which contain the mappings of columns to column clusters. It then uses <a href="#eq-entropy">Equation&nbsp;3.1</a> to perform the same calculations used in <span class="math inline">\(C_X\)</span>. This function also returns a dictionary with the new mappings for column cluster prototypes.</p>
+<div class="cell" data-tags="[]" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculation next c_y</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> next_cy(x_yhat: np.array, x_y: np.array, y_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    new_y_hat <span class="op">=</span> {key: [] <span class="cf">for</span> key <span class="kw">in</span> y_ind}</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(x_y.shape[<span class="dv">1</span>]):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        temp_idx <span class="op">=</span> []</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> key, val <span class="kw">in</span> y_ind.items():</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            proto <span class="op">=</span> np.mean(x_yhat[:,val], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            kl_res <span class="op">=</span> np.nan_to_num(kl_div(x_y[:,i], proto), posinf<span class="op">=</span><span class="dv">10</span>, neginf<span class="op">=-</span><span class="dv">10</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">#kl_res = rel_entr(x_y[:,i], proto)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            temp_idx.append(np.<span class="bu">sum</span>(kl_res))</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        temp_val <span class="op">=</span> np.argmin(np.array(temp_idx))</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">#temp_val = tie_breaker(temp_idx)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        new_y_hat[temp_val].append(i)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>       </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> new_y_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This function is where we formally define the co-clustering algorithm utilizing the functions defined above as well as the steps outline for the ITCC algorithm above. We refer the reader to the above section “Information Theoretic Co-Clustering”. The function accepts the target distribution we wish to perform co-clustering on, as well as the number of row clusters <span class="math inline">\(k\)</span> and column clusters <span class="math inline">\(l\)</span>. The user can also specify the number of iterations. The function returns a tuple of form (dict, dict), where the first dictionary is the row cluster and the second is the column cluster.</p>
+<div class="cell" data-tags="[]" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define co-clustering algorithm</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> co_cluster(joint_dist: np.array, k: <span class="bu">int</span>, l: <span class="bu">int</span>, num_iter: <span class="bu">int</span>) <span class="op">-&gt;</span> (<span class="bu">dict</span>, <span class="bu">dict</span>):</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Initialize x_hat</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    x_hat <span class="op">=</span> get_x_hat(joint_dist, k, new<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Initialize y_hat </span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    y_hat <span class="op">=</span> get_y_hat(joint_dist, l, new<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Initialize min kl val</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    max_kl <span class="op">=</span> <span class="fl">.0001</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"init_x_hat: </span><span class="sc">{</span>x_hat<span class="sc">}</span><span class="ss">, init_y_hat: </span><span class="sc">{</span>y_hat<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Enter loop</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_iter):</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate q(x_hat, y_hat)</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>        q_joint_hat <span class="op">=</span> calc_joint(x_hat, y_hat, joint_dist)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate q(x|x_hat)</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        q_x_cond_xhat <span class="op">=</span> calc_x_cond(joint_dist, x_hat)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate q(y|y_hat)</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        q_y_cond_yhat <span class="op">=</span> calc_y_cond(joint_dist, y_hat)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate p(y_hat|x_hat)</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        q_yhat_cond_xhat <span class="op">=</span> calc_yhat_cond(q_joint_hat)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate q(y|x_hat)</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>        q_y_cond_xhat <span class="op">=</span> calc_y_cond_xhat(q_y_cond_yhat, q_yhat_cond_xhat, y_hat, x_hat)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate p(y|x)</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        p_y_x <span class="op">=</span> joint_dist <span class="op">/</span> joint_dist.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>).reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Get next cx</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        x_hat_2 <span class="op">=</span> next_cx(q_y_cond_xhat, p_y_x, x_hat)</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Check if x_hat_2 is valid</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>        x_hat_2 <span class="op">=</span> valid_cluster(x_hat_2)</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+1(x_hat, y_hat)</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>        q_joint_hat_2 <span class="op">=</span> calc_joint(x_hat_2, y_hat, joint_dist)</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+1(x|x_hat)</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>        q_x_cond_xhat_2 <span class="op">=</span> calc_x_cond(joint_dist, x_hat_2)</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+1(x_hat|y_hat)</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>        q_xhat_cond_yhat_2 <span class="op">=</span> calc_xhat_cond(q_joint_hat_2)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+1(x|y_hat)</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        q_x_cond_yhat <span class="op">=</span> calc_x_cond_yhat(q_x_cond_xhat_2, q_xhat_cond_yhat_2, x_hat_2, y_hat)</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate p(x|y)</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>        p_x_y <span class="op">=</span> joint_dist <span class="op">/</span> joint_dist.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>).reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Get next cy</span></span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        y_hat_2 <span class="op">=</span> next_cy(q_x_cond_yhat, p_x_y, y_hat)</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Check if y_hat_2 is valid</span></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>        y_hat_2 <span class="op">=</span> valid_cluster(y_hat_2)</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+2(x_hat, y_hat)</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>        q_joint_hat_3 <span class="op">=</span> calc_joint(x_hat_2, y_hat_2, joint_dist)</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+2(y|y_hat)</span></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>        q_y_cond_yhat_2 <span class="op">=</span> calc_y_cond(joint_dist, y_hat_2)</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+2(y_hat|x_hat)</span></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>        q_yhat_cond_xhat_2 <span class="op">=</span> calc_yhat_cond(q_joint_hat_3)</span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+2(y|x_hat)</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>        q_y_cond_xhat_2 <span class="op">=</span> calc_y_cond_xhat(q_y_cond_yhat_2, q_yhat_cond_xhat_2, y_hat_2, x_hat_2)</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate q(x,y)</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>        joint_first <span class="op">=</span> joint_dist.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>).reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>) <span class="op">*</span> q_y_cond_xhat</span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Calculate qt+2(x,y)</span></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>        joint_second <span class="op">=</span> joint_dist.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>).reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>) <span class="op">*</span> q_y_cond_xhat_2</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>        kl_res_1 <span class="op">=</span> np.<span class="bu">sum</span>(np.nan_to_num(kl_div(joint_dist, joint_first), posinf<span class="op">=</span><span class="dv">10</span>, neginf<span class="op">=-</span><span class="dv">10</span>))</span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>        kl_res_2 <span class="op">=</span> np.<span class="bu">sum</span>(np.nan_to_num(kl_div(joint_dist, joint_second), posinf<span class="op">=</span><span class="dv">10</span>, neginf<span class="op">=-</span><span class="dv">10</span>))</span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>        kl <span class="op">=</span> kl_res_1 <span class="op">-</span> kl_res_2</span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> kl <span class="op">&gt;</span> max_kl:</span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>            x_hat <span class="op">=</span> x_hat_2</span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>            y_hat <span class="op">=</span> y_hat_2</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"kl=</span><span class="sc">{</span>kl<span class="sc">}</span><span class="ss"> on iteration </span><span class="sc">{</span>_<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> x_hat, y_hat</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x_hat, y_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="41">
+<div class="cell-output cell-output-stdout">
+<pre><code>init_x_hat: {0: array([0, 3]), 1: array([1, 5]), 2: array([2, 4])}, init_y_hat: {0: array([2, 5, 1]), 1: array([0, 4, 3])}
+kl=0.0 on iteration 2</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="41">
+<pre><code>({0: [0, 1], 1: [2, 3], 2: [4, 5]}, {0: [0, 1, 2], 1: [3, 4, 5]})</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="42">
+<div class="cell-output cell-output-stdout">
+<pre><code>init_x_hat: {0: array([2, 0]), 1: array([3, 1]), 2: array([5, 4])}, init_y_hat: {0: array([5, 2, 4]), 1: array([0, 1, 3])}
+kl=-0.024462773127011506 on iteration 0
+({0: array([2, 0]), 1: array([3, 1]), 2: array([5, 4])}, {0: array([5, 2, 4]), 1: array([0, 1, 3])})
+init_x_hat: {0: array([4, 3]), 1: array([5, 1]), 2: array([0, 2])}, init_y_hat: {0: array([0, 5, 1]), 1: array([3, 2, 4])}
+kl=0.0 on iteration 2
+({0: [0, 1], 1: [2, 3], 2: [4, 5]}, {0: [0, 1, 2], 1: [3, 4, 5]})
+init_x_hat: {0: array([3, 2]), 1: array([0, 5]), 2: array([1, 4])}, init_y_hat: {0: array([3, 5, 1]), 1: array([4, 2, 0])}
+kl=-60.67395171964527 on iteration 0
+({0: array([3, 2]), 1: array([0, 5]), 2: array([1, 4])}, {0: array([3, 5, 1]), 1: array([4, 2, 0])})
+init_x_hat: {0: array([1, 5]), 1: array([3, 4]), 2: array([0, 2])}, init_y_hat: {0: array([3, 4, 1]), 1: array([5, 0, 2])}
+kl=0.0 on iteration 1
+({0: [2, 3], 1: [0, 1, 5], 2: [4]}, {0: [3, 4, 5], 1: [0, 1, 2]})
+init_x_hat: {0: array([1, 5]), 1: array([3, 2]), 2: array([4, 0])}, init_y_hat: {0: array([5, 4, 3]), 1: array([2, 1, 0])}
+kl=0.0 on iteration 2
+({0: [2, 3], 1: [0, 1], 2: [4, 5]}, {0: [3, 4, 5], 1: [0, 1, 2]})</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="24">
+<div class="cell-output cell-output-stdout">
+<pre><code>init_x_hat: {0: array([4, 2]), 1: array([1, 0]), 2: array([3])}, init_y_hat: {0: array([0, 4, 2]), 1: array([1, 3])}
+kl=-4.239118604475969 on iteration 1</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>({0: [3], 1: [4], 2: [0, 1, 2]}, {0: [0, 3, 4], 1: [1, 2]})</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="50">
+<div class="cell-output cell-output-display" data-execution_count="50">
+<pre><code>array([[0.3, 0. ],
+       [0. , 0.3],
+       [0.2, 0.2]])</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="55">
+<div class="cell-output cell-output-display" data-execution_count="55">
+<pre><code>{0: [0, 1], 1: [2, 3], 2: [4, 5]}</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="62">
+<div class="cell-output cell-output-display" data-execution_count="62">
+<pre><code>{0: [0, 1, 2], 1: [3, 4, 5]}</code></pre>
+</div>
+</div>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-dhillon2003information" class="csl-entry" role="listitem">
+Dhillon, Inderjit S., Avinash Mallela, and Dharmendra S. Modha. 2003. <span>“Information-Theoretic Co-Clustering.”</span> In <em>Proceedings of the Ninth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em>, 89–98. ACM.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
