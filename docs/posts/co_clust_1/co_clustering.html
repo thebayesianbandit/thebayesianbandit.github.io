@@ -206,6 +206,7 @@ div.csl-indent {
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#information-theoretic-co-clustering" id="toc-information-theoretic-co-clustering" class="nav-link" data-scroll-target="#information-theoretic-co-clustering">Information Theoretic Co-Clustering</a></li>
   <li><a href="#code-walk-through" id="toc-code-walk-through" class="nav-link" data-scroll-target="#code-walk-through">Code Walk-Through</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -534,51 +535,11 @@ kl=0.0 on iteration 2</code></pre>
 <pre><code>({0: [0, 1], 1: [2, 3], 2: [4, 5]}, {0: [0, 1, 2], 1: [3, 4, 5]})</code></pre>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="42">
-<div class="cell-output cell-output-stdout">
-<pre><code>init_x_hat: {0: array([2, 0]), 1: array([3, 1]), 2: array([5, 4])}, init_y_hat: {0: array([5, 2, 4]), 1: array([0, 1, 3])}
-kl=-0.024462773127011506 on iteration 0
-({0: array([2, 0]), 1: array([3, 1]), 2: array([5, 4])}, {0: array([5, 2, 4]), 1: array([0, 1, 3])})
-init_x_hat: {0: array([4, 3]), 1: array([5, 1]), 2: array([0, 2])}, init_y_hat: {0: array([0, 5, 1]), 1: array([3, 2, 4])}
-kl=0.0 on iteration 2
-({0: [0, 1], 1: [2, 3], 2: [4, 5]}, {0: [0, 1, 2], 1: [3, 4, 5]})
-init_x_hat: {0: array([3, 2]), 1: array([0, 5]), 2: array([1, 4])}, init_y_hat: {0: array([3, 5, 1]), 1: array([4, 2, 0])}
-kl=-60.67395171964527 on iteration 0
-({0: array([3, 2]), 1: array([0, 5]), 2: array([1, 4])}, {0: array([3, 5, 1]), 1: array([4, 2, 0])})
-init_x_hat: {0: array([1, 5]), 1: array([3, 4]), 2: array([0, 2])}, init_y_hat: {0: array([3, 4, 1]), 1: array([5, 0, 2])}
-kl=0.0 on iteration 1
-({0: [2, 3], 1: [0, 1, 5], 2: [4]}, {0: [3, 4, 5], 1: [0, 1, 2]})
-init_x_hat: {0: array([1, 5]), 1: array([3, 2]), 2: array([4, 0])}, init_y_hat: {0: array([5, 4, 3]), 1: array([2, 1, 0])}
-kl=0.0 on iteration 2
-({0: [2, 3], 1: [0, 1], 2: [4, 5]}, {0: [3, 4, 5], 1: [0, 1, 2]})</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="24">
-<div class="cell-output cell-output-stdout">
-<pre><code>init_x_hat: {0: array([4, 2]), 1: array([1, 0]), 2: array([3])}, init_y_hat: {0: array([0, 4, 2]), 1: array([1, 3])}
-kl=-4.239118604475969 on iteration 1</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="24">
-<pre><code>({0: [3], 1: [4], 2: [0, 1, 2]}, {0: [0, 3, 4], 1: [1, 2]})</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="50">
-<div class="cell-output cell-output-display" data-execution_count="50">
-<pre><code>array([[0.3, 0. ],
-       [0. , 0.3],
-       [0.2, 0.2]])</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="55">
-<div class="cell-output cell-output-display" data-execution_count="55">
-<pre><code>{0: [0, 1], 1: [2, 3], 2: [4, 5]}</code></pre>
-</div>
-</div>
-<div class="cell" data-tags="[]" data-execution_count="62">
-<div class="cell-output cell-output-display" data-execution_count="62">
-<pre><code>{0: [0, 1, 2], 1: [3, 4, 5]}</code></pre>
-</div>
-</div>
+<p>Putting all the pieces together from our code walk through, the output above shows that we have successfully implemented a ITCC algorithm (this utilized the test case from the paper).</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Though this tutorial was short and consisted of only one test case, we illustrated the usefulness of co-clustering algorithms in a general sense. Additionally, we walked through the steps to implement the information theoretic co-clustering algorithm, along with example code. Further test cases should utilized in production settings. Nonetheless, we hope this post encourages others to discover for themselves the usefulness of co-clustering in their data mining jobs.</p>
 
 
 
