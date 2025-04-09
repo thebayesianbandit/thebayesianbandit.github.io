@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/cs_513_paper/cs_513.html",
       "/posts/co_clust_1/co_clustering.html",
       "/posts/bayes-pricing/bayesian_pricing_uber.html",
       "/posts/stat_685_proj/final_project.html",
