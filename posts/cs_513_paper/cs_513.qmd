@@ -8,7 +8,7 @@ categories: [marketing, causal inference, reinforcement learning]
 
 In this paper, I demonstrate a prototype for utilizing reinforcement learning in out-of-app (OOA) messaging optimization to increase customer loyalty. The RL model utilizes causal inference to better utilize true cause-effect relationships to better target customers. You can read my paper at the link below.
 
-[Download the Full Paper (PDF)](../../static/control_class_paper.pdf)
+[Read the Full Paper (PDF)](../../static/control_class_paper.pdf)
 
 Code for this prototype can be found in the github repo.
 

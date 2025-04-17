@@ -81,7 +81,7 @@
     "href": "posts/cs_513_paper/cs_513.html",
     "title": "Agentic Marketing: Designing Control Models using Causal Inference",
     "section": "",
-    "text": "In this paper, I demonstrate a prototype for utilizing reinforcement learning in out-of-app (OOA) messaging optimization to increase customer loyalty. The RL model utilizes causal inference to better utilize true cause-effect relationships to better target customers. You can read my paper at the link below.\nDownload the Full Paper (PDF)\nCode for this prototype can be found in the github repo."
+    "text": "In this paper, I demonstrate a prototype for utilizing reinforcement learning in out-of-app (OOA) messaging optimization to increase customer loyalty. The RL model utilizes causal inference to better utilize true cause-effect relationships to better target customers. You can read my paper at the link below.\nRead the Full Paper (PDF)\nCode for this prototype can be found in the github repo."
   },
   {
     "objectID": "posts/stat_685_proj/final_project.html",
