@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-04-24">
+
+<title>The Bayesian Bandit - Multiple Treatments in Marketing Messaging with Non-Compliance</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/causal_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Multiple Treatments in Marketing Messaging with Non-Compliance</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">marketing</div>
+                <div class="quarto-category">causal inference</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 24, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#problem-formulation" id="toc-problem-formulation" class="nav-link" data-scroll-target="#problem-formulation">Problem Formulation</a></li>
+  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
+  <li><a href="#uplift-modeling" id="toc-uplift-modeling" class="nav-link" data-scroll-target="#uplift-modeling">Uplift Modeling</a></li>
+  <li><a href="#uplift-modeling-with-non-compliance" id="toc-uplift-modeling-with-non-compliance" class="nav-link" data-scroll-target="#uplift-modeling-with-non-compliance">Uplift Modeling with Non Compliance</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>In this post, we provide an implementation for the paper <em>Uplift Modeling for Multiple Treatments with Cost Optimization</em> <span class="citation" data-cites="zhao2019uplift"><a href="#ref-zhao2019uplift" role="doc-biblioref">[1]</a></span>. We provide this implementation in the context of a marketing department testing which marketing campaign is most effective for a given loyalty tier. We continue with this example by extending the uplift framework to non-compliance situations. In this, we demonstrate the effectiveness of Causal Forests <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[2]</a></span> in calculating conditional local average treatment effects (C-LATE). The full code for this implementation can be found at the <a href="https://github.com/thebayesianbandit/thebayesianbandit.github.io/blob/main/posts/uplift_paper/uplift_paper.ipynb">github repo.</a></p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Uplift modeling is a useful way of measuring the incremental impact of treatments compared to the control. Essentially, it measures <em>how</em> an individual will react to interventions. <a href="#eq-uplift-1">Equation&nbsp;2.1</a> shows the math behind the calculation.</p>
+<p><span id="eq-uplift-1"><span class="math display">\[
+\text{Uplift}_i = Y_i(1) - Y_i(0)
+\tag{2.1}\]</span></span></p>
+<p><a href="#eq-uplift-1">Equation&nbsp;2.1</a> utilizes the potential outcomes framework derived by Rubin in <span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[3]</a></span>. Since we can only ever observe the effects of treatment or control on an individual, the average treatment effect (ATE) <a href="#eq-uplift-2">Equation&nbsp;2.2</a> is the usual metric calculated to understand treatment impact in an experiment. Furthermore, to understand how the treatment effect changes amongst subgroups/subpopulations, the conditional average treatment effect (CATE) <a href="#eq-uplift-3">Equation&nbsp;2.3</a> is useful in identifying the heterogeneous treatment effect.</p>
+<p><span id="eq-uplift-2"><span class="math display">\[
+\tau = E[Y_i(1) - Y_i(0)]
+\tag{2.2}\]</span></span></p>
+<p><span id="eq-uplift-3"><span class="math display">\[
+\tau(x_i) = E[Y_i(1) - Y_i(0) | X]
+\tag{2.3}\]</span></span></p>
+<p>In the context of marketing, the CATE is of great interest since it helps marketing organizations identify how treatments fair with different customer segments. For example, a marketing team might run a A/B test with some customers receiving a special promo (treatment) while others receive nothing (control) to see if there is a change in purchase behavior.</p>
+<p>Uplift modeling follows the same basic assumptions of most causal inference models, namely: stable unit treatment value assumption (SUTVA), unconfoundness, and overlap. SUTVA means that there is no interference between treatment assignments and potential outcomes of individuals, as well as no unaccounted treatment versions in the study. Unconfoundness means the treatment assignment is independent of potential outcomes after conditioning on observed covariates (X) (see <a href="#eq-uncon-1">Equation&nbsp;2.4</a>). Overlap means that for every observed combination of covariates (X) in the data, there is a non-zero probability of being assigned to either treatment or control.</p>
+<p><span id="eq-uncon-1"><span class="math display">\[
+\{Y(1), Y(0)\} \perp T \mid X
+\tag{2.4}\]</span></span></p>
+</section>
+<section id="problem-formulation" class="level1">
+<h1>Problem Formulation</h1>
+<p>We pose the situation of a bakery business looking to increase ticket sizes via promotional campaigns. The bakery business is fairly simple with the following price-cost structure (see <a href="#tbl-biz">Table&nbsp;3.1</a>).</p>
+<div id="tbl-biz" class="anchored">
+<table class="table">
+<caption>Table&nbsp;3.1: Bakery Price-Cost Structure</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Items</th>
+<th style="text-align: left;">Price</th>
+<th style="text-align: left;">Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Donut</td>
+<td style="text-align: left;">$2.50</td>
+<td style="text-align: left;">$1.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pastry</td>
+<td style="text-align: left;">$3.00</td>
+<td style="text-align: left;">$1.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sandwich</td>
+<td style="text-align: left;">$4.50</td>
+<td style="text-align: left;">$2.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Coffee</td>
+<td style="text-align: left;">$1.00</td>
+<td style="text-align: left;">$0.20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Juice</td>
+<td style="text-align: left;">$1.50</td>
+<td style="text-align: left;">$0.50</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Currently, the business runs a loyalty program that is four-tiered with levels: none, bronze, silver, gold. Each tier repeats purchases at a different rate (from the synthetic data, this is defined as a Poisson r.v.). Furthermore, customers are not willing to go and purchase things from our bakery if they are too far away. We define the distance from the bakery as the time when promotions are sent out to customers (for those who receive no promotions, it is still marked at the same time as promotion receivers). Lastly, we assume that the company’s promotions have an effect on the ticket size of an individual transaction. <a href="#fig-dag-1">Figure&nbsp;3.1</a> illustrates our assumed flow of causality for this situation.</p>
+<div class="cell" data-tags="[]" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div id="fig-dag-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-dag-1-output-1.svg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Proposed DAG for our experiment on increasing individual transaction ticket size.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>While <a href="#fig-dag-1">Figure&nbsp;3.1</a> shows the flow of causality going through the number of items purchased to determine ticket size, we will focus our analysis and modeling on the ticket size and will ignore this step of the DAG. This is to more easily calculate <em>Net Value</em> of the transaction, where we will define this as <span class="math inline">\(NV = R - MC\)</span>, where <span class="math inline">\(NV\)</span> is net value, <span class="math inline">\(R\)</span> is revenue, and <span class="math inline">\(MC\)</span> is marketing costs. From this, we propose that the optimal treatment program (i.e.&nbsp;optimal policy) can be defined in <a href="#eq-opt-1">Equation&nbsp;3.1</a>.</p>
+<p><span id="eq-opt-1"><span class="math display">\[\pi^* \in \underset{\pi}{\operatorname{argmax}} \{V(\pi)\} , \quad \pi^*(x) = \mathbf{1} (\{\tau(x) &gt; 0\}) \tag{3.1}\]</span></span></p>
+<p><a href="#eq-opt-1">Equation&nbsp;3.1</a> states that the optimal policy <span class="math inline">\(\pi\)</span> is that which maximizes the some arbitrary value function <span class="math inline">\(V(\pi)\)</span>. Although the above question is generally for single treatment experiments, it can be extended to multiple treatments.</p>
+<p>Specifically, the business wants to experiment with 3 different treatments: free donut, free juice, and a 30% discount. Furthermore, they wish to know through which marketing channel is the treatment most effective, namely: social media, in-app notifications, and email. Therefore, we have 9 distinct treatments that we need to test against the control (i.e.&nbsp;receiving no promotion).</p>
+<p><strong>Assummptions</strong>: We list here some crucial assumptions for this analysis demonstration. First, we operate under the 3 assumptions stated above (SUTVA, unconfoundness, and overlap). Second, we operate under the assumption that there is no spill over effect amongst participants. Though this is not an exhaustive list of assumptions from this experiment, these are sufficient for the educational purposes of this post.</p>
+</section>
+<section id="analysis" class="level1">
+<h1>Analysis</h1>
+<p>We begin our analysis by illustrating the average number of items purchased daily segmented by customer loyalty tier. <a href="#fig-dist-1">Figure&nbsp;4.1</a> shows such distributions.</p>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-dist-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Average # of items purchased per day segmented by customer loyalty status.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-dist-1">Figure&nbsp;4.1</a> shows that on average, our none tier customers don’t purchase anything, bronze tier is around 1 item, silver tier around 2 items, and gold tier around 4. This is expected as we suppose that as loyalty increases so does amount purchased daily.</p>
+<p>Within the experiment itself, we aimed to have 50% of customers be part of the control group with the other 50% in treatment split amongst the 9 treatmentes. The dataset below shows the splits in treatments.</p>
+<div class="cell" data-tags="[]" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>marketing_channel  marketing_treatment
+email              discount                222
+                   free_donut              212
+                   free_juice              225
+in-app             discount                211
+                   free_donut              208
+                   free_juice              222
+none               none                   2047
+social             discount                213
+                   free_donut              204
+                   free_juice              236
+Name: user_id, dtype: int64</code></pre>
+</div>
+</div>
+<p>The total observations in the dataset is 4000. Each treatment received around 200 customers and the control sat around 2000.</p>
+<p>To get a good idea on whether the treatments had an impact or not, we can look at <a href="#fig-bar-1">Figure&nbsp;4.2</a>.</p>
+<div class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div id="fig-bar-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-bar-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Average ticket between control and treated customers.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-bar-1">Figure&nbsp;4.2</a> clearly shows an increase in the average ticket size of treated customers. While we don’t know for sure if the difference is statistically significant, it is comforting to see that from the data, there is approximately a 50 cent difference. We can further view the effects of treatments by segmenting by tier and viewing the respective changes in ticket size based on the treatments received. This is shown in <a href="#fig-bar-2">Figure&nbsp;4.3</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-bar-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-bar-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.3: Average ticket size for each treatment, broken down by customer loyalty tier.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-bar-2">Figure&nbsp;4.3</a> tells an even better story than <a href="#fig-bar-1">Figure&nbsp;4.2</a>. Here, we see that each loyalty tier had different responses to the treatments. The none tier customers had a huge spike in average ticket size when treated via social media with the 30% discount. Bronze tier customers seemed to favor the free donut the most via the app. Silver tier enjoyed any promotion via the app. Gold tier is a bit harder to identify due to the amount of variation in their data, but free donuts appear to be the most impactful for ticket size.</p>
+<p>While the increase in revenue is an important start in the uplift analysis, we need to remember we are optimizing for <em>Net Value</em>. Thus, we need to include the costs associated with sending these promotions. <a href="#fig-bar-3">Figure&nbsp;4.4</a> shows this change.</p>
+<div class="cell" data-tags="[]" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div id="fig-bar-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-bar-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.4: Average net value for each treatment, broken down by customer loyalty tier.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-bar-3">Figure&nbsp;4.4</a> shows how the costs of marketing affected each treatment, but especially the discount ones. A 30% discount is a hefty price to pay for our business so if we can avoid such a heavy cost by finding treatments that cost less but are just as effective, that would be great. The results appear to hold from <a href="#fig-bar-2">Figure&nbsp;4.3</a>.</p>
+</section>
+<section id="uplift-modeling" class="level1">
+<h1>Uplift Modeling</h1>
+<p>As mentioned in the introduction, uplift modeling estimates <em>how</em> a customer will react to interventions. There are many ways to estimate the uplift of a treatment. In this section, we implement a x-learner <span class="citation" data-cites="Kunzel2017MetaLearners"><a href="#ref-Kunzel2017MetaLearners" role="doc-biblioref">[4]</a></span>. The x-learner belongs to a family of algorithms called <em>meta-learners</em> that specialize in utilizing machine learning approaches like random forests or boosting methods to estimate causal effects. While the x-learner was originally designed for binary treatments, <span class="citation" data-cites="zhao2019uplift"><a href="#ref-zhao2019uplift" role="doc-biblioref">[1]</a></span> demonstrates a way to extend the framework to multiple treatments. The stages of implementing the x-learner are shown below.</p>
+<p><span id="eq-x-1"><span class="math display">\[
+\mu_{t_{j}} = E[Y(t_{j})|X=x]
+\tag{5.1}\]</span></span></p>
+<p><span class="math display">\[
+D^{t_{0}}_{i} = \hat{\mu}_{t_{j}}(x) - Y_{i}
+\]</span> <span id="eq-x-2"><span class="math display">\[
+D^{t_{j}}_{i} = Y_{i} - \hat{\mu}_{t_{0}}(x)
+\tag{5.2}\]</span></span></p>
+<p><span id="eq-x-3"><span class="math display">\[
+\hat{\tau}^{t_{j}}(x) = \frac{\hat{e}_{t_{j}}(x)}{\hat{e}_{t_{j}}(x) + \hat{e}_{t_{0}}(x)}\hat{\tau}_{t_{0}}(x) + \frac{\hat{e}_{t_{0}}(x)}{\hat{e}_{t_{j}}(x) + \hat{e}_{t_{0}}(x)}\hat{\tau}_{t_{j}}(x)
+\tag{5.3}\]</span></span></p>
+<p>The first stage of the x-learner is just normal regression. We fit any regression type model to model the outcomes of <span class="math inline">\(Y\)</span> on covariates <span class="math inline">\(X\)</span> for each treatment <span class="math inline">\(t\)</span>. The second stage of the x-learner is where we impute the treatment effect <span class="math inline">\(D\)</span> by using the fitted regression models from <a href="#eq-x-1">Equation&nbsp;5.1</a>. This is essentially calculating counterfactual outcomes such that we can estimate individual treatment effects (ITEs). This is once again done for each treatment <span class="math inline">\(t\)</span>. We then “repeat” the process as before and create regression models that regress the treatment effects (or more properly, pseudo-effects) on the covariates <span class="math inline">\(X\)</span> to obtain functions <span class="math inline">\(\hat{\tau}_{t_{0}}\)</span> for the control and <span class="math inline">\(\hat{\tau}_{t_{j}}\)</span> for the j-th treatment. The third stage utilizes the propensity scores for each treatment to adjust the “weights” of each treatment. These weights adjust the outputs from the models generated from <a href="#eq-x-2">Equation&nbsp;5.2</a> to obtain our CATE for each treatment <span class="math inline">\(j\)</span>.</p>
+<p>To train our x-learner, we use the <code>causalML</code> library. We use an 80-20 split on 4000 observations (~2000 control vs ~2000 treated, split among 9 treatments). The base learner for our x-learner is a gradient boosting regressor from <code>sklearn</code>.</p>
+<p>While understanding the CATE due to all features in the dataset, for this business case specifically, understanding the CATE for each tier is of great importance. An understanding of what promotion is most effective with each tier is crucical for marketing strategy optimization. Below we output the CATE values for those in the none tier.</p>
+<div class="cell" data-tags="[]" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>array([-0.50800717, -0.33919301, -0.48013309, -0.16522906, -0.2352354 ,
+       -0.09895951,  1.14556021, -0.28385185, -0.26179227])</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>{'email-discount': 0,
+ 'email-free_donut': 1,
+ 'email-free_juice': 2,
+ 'in-app-discount': 3,
+ 'in-app-free_donut': 4,
+ 'in-app-free_juice': 5,
+ 'social-discount': 6,
+ 'social-free_donut': 7,
+ 'social-free_juice': 8}</code></pre>
+</div>
+</div>
+<p>Utilizing the mapping dictionary above, we see that most of our promotions on average perform no better (or actually worse) than the control, with the exception to one. The social discount promotion shows that it adds an additional 1.15 to our net value, on average. Due to the synthetic nature of our data, we are pleased with this result as the x-learner correctly identified the one promotion that we set to have an influence on purchasing behavior for those in the none loyalty tier. In a real business case, we’d want to further validate these estimates by doing a variety of checks (e.g.&nbsp;confidence intervals, AUUC, sensitivity checks, etc.). For the purpose of this post, it suffices us to see that the x-learner identified the hidden causal mechanism in the data.</p>
+</section>
+<section id="uplift-modeling-with-non-compliance" class="level1">
+<h1>Uplift Modeling with Non Compliance</h1>
+<p>For the purposes of business strategy in understanding which promotions worked best, our above approach and results would suffice. We identified with our x-learner which promotions cause a higher ticket size for different tiered customers. We can present these suggestions to our marketing team and away they go at promoting the business more effectively. However, from the lens of causal inference data scientists, we know these estimates are biased. Not everyone we sent our promotions to went to the store to make a purchase. This means that not everyone who was treated acted upon the treatment we provided. This suggests that we have <em>non compliance</em> within our study.</p>
+<p>Non compliance gets its name from biostatistic experiments where researchers would assign treatments to individuals but those individuals would not comply with the directive. This is exactly what is happening in our study. Not everyone who was treated with a promotion went to the store to make a purchase. <a href="#fig-scat-1">Figure&nbsp;6.1</a> shows exactly this problem.</p>
+<div class="cell" data-tags="[]" data-execution_count="39">
+<div class="cell-output cell-output-display">
+<div id="fig-scat-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-scat-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6.1: Scatterplot of net value by distance to store colored by treatment.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that anyone who was more than 2.75 miles from the store did not make a purchase, regardless of treatment. However, we assumed in the beginning that those who were in the control could not receive promotional effects (i.e.&nbsp;control can’t non comply). Therefore, we are only dealing with non complianace via treated -&gt; control. From this perspective, while we did calculate a CATE, we did so estimating the intent to treat (ITT). This is the causal effect of treatment assignment, not of the treatment itself. To calculate the causal effect of the treatment, we need to accounnt for non compliance.</p>
+<p>In order to account for non compliance within our study, we can utilize a popular approach of implementing an instrument variable (IV). IVs help reintroduce randomization into our study to help isolate the causal variation in our treatments. A IV needs to meet three assumptions. First, the IV must be correlated with the treatment (Relevance). Second, the IV must affect the outcome only through the treatment (Exclusion). Third, the IV must be independent of unmeasured confounders that affect the treatment and outcome (Exogeneity). In our case, we can simply add the instrument <em>Promotion Offered</em> to be our IV since it matches these assumptions. <a href="#fig-dag-2">Figure&nbsp;6.2</a> illustrates our new flow of causality.</p>
+<div class="cell" data-tags="[]" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div id="fig-dag-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-dag-2-output-1.svg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6.2: Proposed DAG for addressing non compliance in our study.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Our updated DAG in <a href="#fig-dag-2">Figure&nbsp;6.2</a> shows how this new knowledge of non compliance affects how we model causality. Because we know that distance to store affects whether or not a customer goes to the store, it now has causal edges to promotion redeemed and ticket size. Additionally, from our EDA we noticed that different tiers purchase at different rates so tier still affects ticket size directly. As well, different tiers value different promotions so it has an effect on whether the promotion is redeemed or not. Lastly, we included our IV in promotion offered. Promotion offered is not affected by other confounders, only affects the outcome of net value through promotion redeemed, and is clearly correlated with promotion redeemed.</p>
+<p>To model our new approach, we utilize <em>causal IV forests</em> from <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[2]</a></span>. Causal forests build off the foundations of random forests. It utilizes n number of decision trees to calculate the average result. The causality comes from estimating the counterfactual outcomes, just as we saw with the x-learner above. To perform this, the splitting criterion focuses on the variation in treatment effect. A short summary of the algorithm is provided below.</p>
+<ol type="1">
+<li>For a given tree, randomly sample data with replacement and split into split and estimation set.</li>
+<li>For a given node in a tree, iterate through features and cut points.</li>
+<li>Identify the split that maximizes the variance-based criterion such that heterogeneity is maximized.</li>
+<li>For a fully grown tree, for each terminal node, estimate CATE.</li>
+<li>Average CATE across all trees.</li>
+</ol>
+<p>For a more thorough explanation of the algorithm, see <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[2]</a></span>. The algorithm is then adapted to our scenario where we utilize IVs. In this case, the algorithm becomes generalized to incorporate <span class="math inline">\(Z\)</span>, our indicator variable of whether or not a customer was assigned a promotion or not. The algorithm then adjusts for this by estimating the local conditional average treatment effect (L-CATE).</p>
+<p>Our causalIVforest is implemented using <code>econML</code>. Similar to above, we use a 80-20 split. We do not perform any hyperparameter tuning for the causalIVforest. We output the split of tiers in our test set below.</p>
+<div class="cell" data-tags="[]" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>loyalty_tier_none      309
+loyalty_tier_bronze    264
+loyalty_tier_silver    161
+loyalty_tier_gold       66
+dtype: int64</code></pre>
+</div>
+</div>
+<p>After fitting our data, we test the model on the above sample and yield the following results shown in <a href="#fig-bar-4">Figure&nbsp;6.3</a>. We also output the explicit effects for each treatment in the none loyalty tier below.</p>
+<div class="cell" data-tags="[]" data-execution_count="34">
+<div class="cell-output cell-output-display">
+<div id="fig-bar-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="uplift_paper_files/figure-html/fig-bar-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6.3: C-LATE for each tier, treatment combination.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="35">
+<div class="cell-output cell-output-display" data-execution_count="35">
+<pre><code>array([-4.0571709 , -1.68161069, -4.44325053, -1.15262721, -2.26189429,
+       -0.27730894,  0.92089754, -0.57709819, -1.58279785])</code></pre>
+</div>
+</div>
+<p><a href="#fig-bar-4">Figure&nbsp;6.3</a> looks very similar to <a href="#fig-bar-3">Figure&nbsp;4.4</a>, but with an important distinction. <a href="#fig-bar-3">Figure&nbsp;4.4</a> were the average net values in the raw data. <a href="#fig-bar-4">Figure&nbsp;6.3</a> shows the treatment effects for each treatment for each tier. Looking at the none tier graph and numeric output, we see that all treatments yield a negative treatment effect with the exception to social-discount. This makes sense since from our synthetic data, none of the other treatments should have yieled a change in consumer behavior. Thus, when accounting for the costs of marketing, these other treatments cause a negative effect in net value. Conversely, since social-discount yields a +1 increase to purchase behavior, it shows a positive increase in net value. This pattern continues throughout all the tiers.</p>
+<p>The important distinction to make from this output and that of the x-learner is what the story behind each metric is. For the x-learner, we estimated the conditional intent to treat (CITT) effect, showing how <em>assignment</em> of the treatment causes changes in customer behavior. For the causalIVforest, we estimated the conditional local average treatment effect (C-LATE), showing how the <em>redemption</em> of the promotion causes changes in customer behavior. One estimates with everyone regardless of if they redeemed or not and the other estimates only for those who would redeem.</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we posed a business problem of understanding the effects of our promotions on customer purchase behavior. We demonstrated two causal inference methods using machine learning: the x-learner and the causalIVforest. The x-learner was used to estimate CATE/CITT so that our business could understand the effects of assignment of promotion on our customers, specifically the different loyalty tiers. The causalIVforest was used to estimate C-LATE so that our business could more precisely understand the effects of redemption of promotion in customer behavior. Overall, we hope that this post was a good demonstration on the usefulness of causal inference in business situations and how one can utilize Python packages to carry out an informative analysis.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-zhao2019uplift" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">Z. Zhao and T. Harinen, <span>“Uplift modeling for multiple treatments with cost optimization,”</span> <em>arXiv preprint arXiv:1908.05372</em>, 2019.</div>
+</div>
+<div id="ref-wager2015estimation" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">S. Wager and S. Athey, <span>“Estimation and inference of heterogeneous treatment effects using random forests,”</span> <em>arXiv preprint arXiv:1510.04342</em>, 2015.</div>
+</div>
+<div id="ref-rubin1974estimating" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">D. B. Rubin, <span>“Estimating causal effects of treatments in randomized and nonrandomized studies,”</span> <em>Journal of Educational Psychology</em>, vol. 66, no. 5, pp. 688–701, 1974.</div>
+</div>
+<div id="ref-Kunzel2017MetaLearners" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">S. R. Kunzel, J. S. Sekhon, P. J. Bickel, and B. Yu, <span>“Meta-learners for estimating heterogeneous treatment effects using machine learning,”</span> <em>Proceedings of the National Academy of Sciences</em>, Jun. 2017.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
