@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-06-07">
+
+<title>The Bayesian Bandit - Do Scanner Guns Decrease Checkout Time? An Analysis Using Diff-in-Diff and SCM</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/causal_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Do Scanner Guns Decrease Checkout Time? An Analysis Using Diff-in-Diff and SCM</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">operations</div>
+                <div class="quarto-category">causal inference</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 7, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#establishing-the-operations" id="toc-establishing-the-operations" class="nav-link" data-scroll-target="#establishing-the-operations">Establishing the Operations</a>
+  <ul class="collapse">
+  <li><a href="#understanding-optimal-efficiency-with-cycle-time-and-throughput-rate" id="toc-understanding-optimal-efficiency-with-cycle-time-and-throughput-rate" class="nav-link" data-scroll-target="#understanding-optimal-efficiency-with-cycle-time-and-throughput-rate">Understanding Optimal Efficiency with Cycle Time and Throughput Rate</a></li>
+  <li><a href="#queue-theory" id="toc-queue-theory" class="nav-link" data-scroll-target="#queue-theory">Queue Theory</a></li>
+  </ul></li>
+  <li><a href="#establishing-causality" id="toc-establishing-causality" class="nav-link" data-scroll-target="#establishing-causality">Establishing Causality</a>
+  <ul class="collapse">
+  <li><a href="#experiment-design-1-difference-in-differences" id="toc-experiment-design-1-difference-in-differences" class="nav-link" data-scroll-target="#experiment-design-1-difference-in-differences">Experiment Design 1: Difference-in-Differences</a></li>
+  <li><a href="#did-results" id="toc-did-results" class="nav-link" data-scroll-target="#did-results">DiD Results</a></li>
+  <li><a href="#experimental-design-2-synthetic-control" id="toc-experimental-design-2-synthetic-control" class="nav-link" data-scroll-target="#experimental-design-2-synthetic-control">Experimental Design 2: Synthetic Control</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>In this post, we present the situation of a grocery store chain looking to decrease checkout-time by supplying scanner guns at self-checkout registers. We demonstrate first the usefulness of difference-in-differences (DiD) methodology in calculating causal effects of the intervention. We then demonstrate how to utilize synthetic control methods (SCM) to perform DiD when there is not a single suitable control unit available.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p><strong>My-Warehouse</strong> (MW) is a regional warehouse club that has gained popularity along the west coast of the USA. MW has gained popularity for its bulk supply of local produce, meat, and other local specialty items from small businesses that can be bought at bulk for at a slight discount compared to other retailers. MW currently operates out of 11 stores in 11 distinct cities along the west coast.</p>
+<p>After analyzing customer data regarding how to improve the shopping experience in their stores, one clear suggestion came through: decrease time to checkout. With the growing popularity of MW, many new customers are anxious to get into the store and try local items. However, they become frustrated with how long they have to wait to checkout. Even with the addition of self-checkout, customers still wait too long in lines during peak hours.</p>
+<p>One suggestion to decrease checkout time is to provide scanner guns at each self-checkout register, allowing customers to scan the items in their cart instead of unloading each item. A pilot program was recently launched in the Seattle store (SEA). We are tasked with analyzing the data from this program and recommending if the program should be launched across all stores.</p>
+</section>
+<section id="establishing-the-operations" class="level1">
+<h1>Establishing the Operations</h1>
+<section id="understanding-optimal-efficiency-with-cycle-time-and-throughput-rate" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-optimal-efficiency-with-cycle-time-and-throughput-rate">Understanding Optimal Efficiency with Cycle Time and Throughput Rate</h2>
+<p>To begin our analysis, we establish the current flow of traffic in the store, specifically at checkouts. To do this, we’ll look at the current checkout time distribution at SEA, shown in <a href="#fig-dist-1">Figure&nbsp;3.1</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-dist-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="diff_diff_files/figure-html/fig-dist-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Checkout time distribution in seconds for SEA store.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-dist-1">Figure&nbsp;3.1</a>, we expect a customer at the SEA store to take about 120 seconds on average to complete the checkout process. We’ll assume the process of checkout to be as follows.</p>
+<ol type="1">
+<li>Customer scans membership card (begins timer).</li>
+<li>Customer begins scanning each individual item and places item on side platform next to register.</li>
+<li>After scanning all items, customer pays for items (only accepts cards at self-checkouts).</li>
+<li>Customer returns all items to cart and transaction ends.</li>
+</ol>
+<p>The time to move one unit (ie one customer) through the above process is known as <strong>cycle time (CT)</strong>. In MW stores, there are 4 self-checkout registers available for customers to use. In the optimal scenario, each station would begin and end in parallel and the demand for each station would immediately be filled. The total output from these 4 stations over a specified time interval is defined as <strong>throughput rate (TPR)</strong>. The relations between CT and TPR are shown in <a href="#eq-op-1">Equation&nbsp;3.1</a>.</p>
+<p><span class="math display">\[
+CT = \text{average time to process one unit}
+\]</span> <span class="math display">\[
+TPR = \frac{\text{num units produced}}{\text{total time elapsed}}
+\]</span> <span id="eq-op-1"><span class="math display">\[
+TPR = \frac{1}{CT}
+\tag{3.1}\]</span></span></p>
+<p>From <a href="#eq-op-1">Equation&nbsp;3.1</a>, TPR is the reciprocal of CT. Since we have CT, we know TPR must equal 1 / 120 seconds. To gain a more practical view of the operations, we’ll convert this to minutes and say that our TPR is 1 / 2 minutes, or half a customer per minute is our TPR. Additionally, since we have 4 stations, we multiply this TPR by 4 to get 2 customers per minute on average. This is the assumed peak efficiency of our current system.</p>
+</section>
+<section id="queue-theory" class="level2">
+<h2 class="anchored" data-anchor-id="queue-theory">Queue Theory</h2>
+<p>In the previous section, we established the peak efficiency the system can handle through CT and TPR. One of the big assumptions we placed on this system was a steady-state flow, meaning there would be immediate demand for each station once they became free. In the real-world, steady state is nearly impossible to achieve. Additionally (and possibly more importantly for us), understanding the current wait time of customers will help us to identify how speeding up the above system can help decrease wait time. This branch of operations is known as <strong>queue theory</strong>.</p>
+<p>While we will not provide an exhaustive tutorial on queue theory in this post, we will provide the necessary overview for this section. To do this, we begin with <strong>Kendall’s Notation</strong><span class="citation" data-cites="Kendall1953"><a href="#ref-Kendall1953" role="doc-biblioref">[1]</a></span>. Kendall’s notation provides a framework where we identify the 3 core components of queue creation, shown in <a href="#eq-op-2">Equation&nbsp;3.2</a>.</p>
+<p><span class="math display">\[
+A: \text{arrival process distribution (how often customers arrive)}
+\]</span> <span class="math display">\[
+B: \text{service time distribution (how long it takes to serve a customer)}
+\]</span> <span id="eq-op-2"><span class="math display">\[
+C: \text{number of servers}
+\tag{3.2}\]</span></span></p>
+<p>From the previous section, we learned B (defined as our CT) and C (4 self-checkout stations). We must now identify A. Let <span class="math inline">\(\lambda\)</span> denote the average arrival rate of customers. In the context of our problem, we will suppose <span class="math inline">\(\lambda\)</span> to be the average arrival rate during our peak hours (since slow hours do not tend to have any kind of queue). The arrival distribution (which we model as a poisson distribution) is shown below in <a href="#fig-arr-1">Figure&nbsp;3.2</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div id="fig-arr-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="diff_diff_files/figure-html/fig-arr-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.2: Arrival distribution of customers during peak hours.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>On average (during peak hours), we have about 2 customers arriving per minute. To better know the amount of time our registers are busy, we calculate <strong>system utilization</strong>, commonly denoted by <span class="math inline">\(\rho\)</span>. The formula for <span class="math inline">\(\rho\)</span> is found in <a href="#eq-op-3">Equation&nbsp;3.3</a>.</p>
+<p><span id="eq-op-3"><span class="math display">\[
+\rho = \frac{\lambda}{c\mu}
+\tag{3.3}\]</span></span></p>
+<p>System utilization is the defined as the ratio between the average arrival rate and the TPR we previously calculted. In our case, <span class="math inline">\(\rho\)</span> comes out to be .95, or 95%. According to queue theory, a system is stable if <span class="math inline">\(\rho\)</span> is &lt; 1. Our current system is therefore stable and allows us to use <strong>M/M/c</strong> formulas to calculate relevant wait time and queue length metrics. The formulas used all depend on <strong>Little’s Law</strong><span class="citation" data-cites="Little1961"><a href="#ref-Little1961" role="doc-biblioref">[2]</a></span>, illustrated in <a href="#eq-op-4">Equation&nbsp;3.4</a>.</p>
+<p><span id="eq-op-4"><span class="math display">\[
+L = \lambda W
+\tag{3.4}\]</span></span></p>
+<p>L represents the number of customers in the queue, <span class="math inline">\(\lambda\)</span> is the arrival rate of the customers, and W is the wait time of the customers. For our system specifically, we use an adapted version of <a href="#eq-op-4">Equation&nbsp;3.4</a>, as shown in <a href="#eq-op-5">Equation&nbsp;3.5</a>.</p>
+<p><span id="eq-op-5"><span class="math display">\[
+L_{q} = \frac{P_w \rho}{1-\rho}
+\tag{3.5}\]</span></span></p>
+<p><a href="#eq-op-5">Equation&nbsp;3.5</a> utilizes <strong>Erlang’s formula</strong><span class="citation" data-cites="Erlang1917"><a href="#ref-Erlang1917" role="doc-biblioref">[3]</a></span> to get <span class="math inline">\(P_w\)</span>, which is the probability of an arriving customer having to wait in the queue. This is scaled by result of <span class="math inline">\(\frac{\rho}{1-\rho}\)</span>. The result gives us the average length of the queue at any point in time (during peak hours). While we won’t cover the full derivation and calculation of <span class="math inline">\(P_w\)</span>, we provide that the value of it is approximately .9. Plugging this value in with our <span class="math inline">\(\rho\)</span> value, we get <span class="math inline">\(L_q\)</span> is equal to about 16.93, or about 17 people on average are waiting in the queue during peak shopping hours. That’s a lot of people!</p>
+<p>To calculate the average time a customer waits in the queue, we utilize <a href="#eq-op-4">Equation&nbsp;3.4</a> by rearranging the equation to solve for W. After performing some calculations, we get W is equal to 8.91 minutes. MW customers on average wait almost 9 minutes in line during peak shopping hours!</p>
+</section>
+</section>
+<section id="establishing-causality" class="level1">
+<h1>Establishing Causality</h1>
+<p>In the previous section, we laid out the current system design of MW stores, specifically for the checkout experience. We identified through our current models that customers experience long lines (on average 17 customers in queue) and consequently long wait times (about 9 minutes waiting in queue). To address this issue in the system, MW launched a pilot program in the Seattle store to see if giving customers scanner guns at self-checkout would decrease queue wait time. Essentially, if we can decrease CT, we can increase TPR and thus move people through the queue more quickly.</p>
+<p>What MW is attempting to gain is <strong>causal inference</strong> from their intervention. MW hopes to know that if they implement this program across all their stores, then their chcekout times will decrease. The gold standard when it comes to establishing cause-effect relationships is performing a <strong>randomized controlled trial (RCT)</strong>. This is also known as A/B testing in some scenarios. In our scenario, we could randomly assign some stores to be control (i.e.&nbsp;no change in the system) and other stores to the treatment (the scanner guns). We then measure their difference in outcomes and attribute any difference in outcome to the treatment effect, assuming that the RCT was designed properly and followed the core assumptions of causal inference.</p>
+<p>While in theory this is the easiest route, in practice it is not always the best approach. For MW, this would mean having to buy scanner guns for <span class="math inline">\(n\)</span> number of stores that needed the treatment, without knowing if they would be going ahead with the program or not. Furthermore, training staff at each treatment location on how to implement scanner guns would also generate more costs. Identifying causal inference in business needs to be balanced with the expected costs of experiments.</p>
+<section id="experiment-design-1-difference-in-differences" class="level2">
+<h2 class="anchored" data-anchor-id="experiment-design-1-difference-in-differences">Experiment Design 1: Difference-in-Differences</h2>
+<p>One approach we can take to help MW is to assign just one store the treatment and compare it with another store that is fairly comparable to the treated store. This approach is know as the <strong>Difference-in-Differences (DiD)</strong><span class="citation" data-cites="Card1994Minimum"><a href="#ref-Card1994Minimum" role="doc-biblioref">[4]</a></span> model. DiD is known as a quasi-experimental design since it doesn’t rely on random assignment. Instead, it “mimics” the effects of RCTs by accounting for unobserved confounders by measuring the change in outcomes to a similar unit. Specifically, this is known as the <strong>parallel trends</strong> assumption. DiD assumes that both the treated unit and the control unit follow parallel trends had there not been any intervention. Mathematically, this is represented as a linear model as shown in <a href="#eq-did-1">Equation&nbsp;4.1</a>.</p>
+<p><span id="eq-did-1"><span class="math display">\[
+Y_{i} = \beta_{0} + \beta_{1}SEA_{i} + \beta_{2}POST_{i} + \beta_{3}(SEA_{i}*POST_{i}) + \epsilon_{i}
+\tag{4.1}\]</span></span></p>
+<p><span class="math inline">\(Y_{i}\)</span> is the outcome being measured (average checkout time), <span class="math inline">\(SEA_{i}\)</span> is a dummy variable indicating whether the observation is in Seattle or not. <span class="math inline">\(POST_{i}\)</span> is a dummy variable indicating whether or not the observation occurred after the intervention. We then have the interaction term where <span class="math inline">\(\beta_{3}\)</span> would show the average treatment effect between Seattle and the control city after the intervention was applied.</p>
+<p>To get a little more granular into how a simple OLS regression model derives causal effects from this design, consider the basic case of the potential outcomes framework<span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[5]</a></span>. We extend this to DiD by saying each observation takes on an outcome of <span class="math inline">\(Y_{D}(T)\)</span>, where D is the treatment assignment (1 for Seattle and 0 for the control) and T is the time period (1 for post intervention and 0 for pre intervention). In the counterfactual world, we would be able to calculate the <strong>average treatment effect of treated (ATT)</strong> by computing <span class="math inline">\(E[Y_{1}(1) - Y_{0}(1)|D=1]\)</span>. However, <span class="math inline">\(Y_{0}(1)\)</span> is the counterfactual for any given observation where we observe the treated in post intervention. To work around this, we replace the missing counterfactual by setting it equal to <span class="math inline">\(E[Y_{0}(0)|D=1] + (E[Y_{0}(1)|D=0] - E[Y_{0}(0)|D=0])\)</span>. With a bit of rearranging to the original “preferred” equation, we arrive at <a href="#eq-did-2">Equation&nbsp;4.2</a>.</p>
+<p><span id="eq-did-2"><span class="math display">\[
+ATT = (E[Y(1)| D=1] - E[Y(0)| D=1]) - (E[Y(1)| D=0] - E[Y(0)| D=0])
+\tag{4.2}\]</span></span></p>
+<p>In essence, we take the difference between the treatment post and pre intervention and the difference between the control post and pre intervention, then take the difference of those differences. Hence, we arrive at the name “difference-in-differences”.</p>
+</section>
+<section id="did-results" class="level2">
+<h2 class="anchored" data-anchor-id="did-results">DiD Results</h2>
+<p>Since we’ve now established how we can model our problem using DiD, we can now get into the results of our model. As stated previously, Seattle is the location our treatment (i.e.&nbsp;implementing scanner guns for check-outs). From previous analysis, we believe a good control candidate that follows our DiD assumptions would be San Francisco (SF). We collected data over 100 days from both locations. At the 50 day mark, we rolled out the scanner guns in Seattle. <a href="#fig-did-1">Figure&nbsp;4.1</a> shows the data we collected over time at both SEA and SF.</p>
+<div class="cell" data-tags="[]" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">avg_ct</th>
+<th data-quarto-table-cell-role="th">sea</th>
+<th data-quarto-table-cell-role="th">post_int</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>115.429541</td>
+<td>1</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>130.756135</td>
+<td>0</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>113.958007</td>
+<td>1</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>122.035513</td>
+<td>0</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>114.782158</td>
+<td>1</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-did-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="diff_diff_files/figure-html/fig-did-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Seattle vs San Francisco average checkout time over 100 days.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From <a href="#fig-did-1">Figure&nbsp;4.1</a>, we see that SEA and SF follow similar trends up till time of intervention. When the scanner guns are implemented, there is a sharp decrease in average check-out time with a continual downward trend. This is a great indication that our program provided significant decrease to CT. To get a numerical value from this graph, we can extract it manually by performing the above calculations using the data or by fitting a OLS model (they both provide the same result. Below we provide both results.</p>
+<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="cell-output cell-output-stdout">
+<pre><code>True DiD Estimate: -27.421232456603718</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="10">
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">t</td>
+<td data-quarto-table-cell-role="th">P&gt;|t|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>130.4273</td>
+<td>0.607</td>
+<td>214.823</td>
+<td>0.000</td>
+<td>129.230</td>
+<td>131.625</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">post_int[T.True]</td>
+<td>6.8350</td>
+<td>0.867</td>
+<td>7.880</td>
+<td>0.000</td>
+<td>5.125</td>
+<td>8.546</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sea</td>
+<td>-12.1969</td>
+<td>0.859</td>
+<td>-14.205</td>
+<td>0.000</td>
+<td>-13.890</td>
+<td>-10.504</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sea:post_int[T.True]</td>
+<td>-27.4212</td>
+<td>1.227</td>
+<td>-22.355</td>
+<td>0.000</td>
+<td>-29.840</td>
+<td>-25.002</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The added value we gain from fitting the OLS is that we gain SE estimates and subsequent CI estimates. According to our model, scanner guns provide an on average decrease of about 27 seconds. Recalling what we calculated in the operations section, our new CT would be approximately 93 seconds. This means our new TPR would be approximately 2.58 customers per minute (a 29% increase in TPR). This results in a change in system utilization from 95% to about 74%. From here, we calculate our average queue length to be 1.36 customers (a 92% decrease in average queue length!) which then results in average wait time in the queue to be about 43 seconds (or .715 minutes, also a 92% decrease!).</p>
+<p>According to our models, the scanner guns are a huge success and represent a major opportunity for MW to increase customer satisfaction through higher operational efficiency. While we did derive useful causal effects from this experiment, MW should obviously consider other factors like feasability of company wide adoption, cost and maintenance of the equipment, and potential other factors like increases in theft from not scanning all items.</p>
+</section>
+<section id="experimental-design-2-synthetic-control" class="level2">
+<h2 class="anchored" data-anchor-id="experimental-design-2-synthetic-control">Experimental Design 2: Synthetic Control</h2>
+<p>As explained in the DiD section, one of the key assumtions behind the DiD model is the parallel trends assumption. In order for our model to be valid, we need to find an adequate enough control unit that follows a close enough parallel trend, along with the other usual assumptions of causality. This assumption is regularly broken in the real world as it is difficult to find a control unit that satisfies the model assumptions.</p>
+<p>Instead of attempting to find a single control unit to compare our control to, we can “create” our own control by using <strong>synthetic control methods</strong><span class="citation" data-cites="Abadie2003"><a href="#ref-Abadie2003" role="doc-biblioref">[6]</a></span>. We create a synthetic control by taking a weighted average of all our possible controls (i.e.&nbsp;our donor pool) that best mimics the pre-intervention behavior of our treatment unit. An popular example of this is also found in <span class="citation" data-cites="Abadie2010"><a href="#ref-Abadie2010" role="doc-biblioref">[7]</a></span> where the authors used SCM to model the effect of Califronia’s tobacco tax policy.</p>
+<p>In our example, we would take a weighted average of our other 10 stores to form a synthetic control to compare against Seattle. Let’s quickly walk through what the math looks like in SCM.</p>
+<p>SCM attempts to estimate the counterfactual <span class="math inline">\(Y_{t}^{N}\)</span>, that is, the response of our treatment unit had the intervention never happened (i.e.&nbsp;the response of Seattle had it never received scanner guns). SCM estimates this counterfactual through a weighted average across the responses of the donor pool, as shown in <a href="#eq-scm-1">Equation&nbsp;4.3</a>.</p>
+<p><span id="eq-scm-1"><span class="math display">\[
+Y_{t}^{N} \approx \sum_{j=2}^{J+1} w_{j} Y_{jt}
+\tag{4.3}\]</span></span></p>
+<p>The weights are calculated by finding the minimum distance between <span class="math inline">\(X_{1}\)</span> (the pre-intervention characteristics of the treated unit) and <span class="math inline">\(X_{0}W\)</span> (the pre-intervention characteristics of a control unit). This minimization is subject to two constraints: all weights must be greater than or equal to 0 and all weights must sum to 1. Once these weights are calculated, they are applied to the post-intervention responses of the control units. The distance between the treated unit and the synthetic control is then the estimated ATT.</p>
+<p>In our analysis, we used <code>pysyncon</code><span class="citation" data-cites="pysyncon"><a href="#ref-pysyncon" role="doc-biblioref">[8]</a></span> to create our synthetic control. After preparing our data for it, we obtained the following weights.</p>
+<div class="cell" data-tags="[]" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>1     0.028
+2     0.000
+3     0.000
+4     0.000
+5     0.297
+6     0.000
+7     0.000
+8     0.525
+9     0.149
+10    0.000
+Name: weights, dtype: float64</code></pre>
+</div>
+</div>
+<p>As we can see, the closest city is city 8, followed by city 5, 9, and 1. The rest of the cities are not included in the weighted average. The plot of our synthetic control vs treated is found below in <a href="#fig-scm-1">Figure&nbsp;4.2</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div id="fig-scm-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="diff_diff_files/figure-html/fig-scm-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Seattle vs Synthetic control over time.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Our SC appears to follow the trajectory and variation of Seattle fairly well (in a real SCM, we’d want it better but this suffices for this analysis). As such, when the intervention occurs, we can estimate the ATT via the distance between these two units. The distance overtime between these two are shown in <a href="#fig-scm-2">Figure&nbsp;4.3</a>. The ATT immediately follows below it.</p>
+<div class="cell" data-execution_count="21">
+<div class="cell-output cell-output-display">
+<div id="fig-scm-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="diff_diff_files/figure-html/fig-scm-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.3: Gap plot for Seattle vs Synthetic control.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>{'att': -20.67706963332358, 'se': 0.8177388666624705}</code></pre>
+</div>
+</div>
+<p>From both <a href="#fig-scm-1">Figure&nbsp;4.2</a> and <a href="#fig-scm-2">Figure&nbsp;4.3</a>, as well as the estimated ATT, the scanner guns appear to be a viable program for MW. Since we covered the effects on the operational efficiecny of this program in the previous experiment, we won’t go through it as detailed here. As mentioned earlier and as noticed in <a href="#fig-scm-2">Figure&nbsp;4.3</a>, we’d want to aim for a better SC to avoid the huge spikes in distance from the treated unit pre-intervention.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we walked through how operation research principles can help us establish a foundational model on how the customer experience is for checkouts in MW. We calculated baseline metrics for how long it takes for customers to go through the queue and through checkout. We then analyzed the effects of a potential solution of using scanner guns to speed up the checkout process. We used DiD and SCM to calculate these causal effects as well as the potential changes in operational efficiency this program would provide. The next steps of this analysis in a proper business setting would include cost-benefit analysis, customer sentiment analysis from the pilot store, and if accepted, implementation protocols for the rest of the stores. Overall, this analysis provided a solid foundation on how causal inference can be utilized to enhance operational efficiency.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-Kendall1953" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">D. G. Kendall, <span>“Stochastic processes occurring in the theory of queues and their analysis by the method of the imbedded markov chain,”</span> <em>The Annals of Mathematical Statistics</em>, vol. 24, no. 3, pp. 338–354, 1953, doi: <a href="https://doi.org/10.1214/aoms/1177728975">10.1214/aoms/1177728975</a>.</div>
+</div>
+<div id="ref-Little1961" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">J. D. C. Little, <span>“A proof for the queuing formula: L = w,”</span> <em>Operations Research</em>, vol. 9, no. 3, pp. 383–387, 1961, doi: <a href="https://doi.org/10.1287/opre.9.3.383">10.1287/opre.9.3.383</a>.</div>
+</div>
+<div id="ref-Erlang1917" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">A. K. Erlang, <span>“Solution of some problems in the theory of probabilities of significance in automatic telephone exchanges,”</span> <em>Elektrotkeknikeren</em>, vol. 13, pp. 5–13, 1917.</div>
+</div>
+<div id="ref-Card1994Minimum" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">D. Card and A. B. Krueger, <span>“Minimum wages and employment: A case study of the fast-food industry in new jersey and pennsylvania,”</span> <em>The American Economic Review</em>, vol. 84, no. 4, pp. 772–793, 1994.</div>
+</div>
+<div id="ref-rubin1974estimating" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">D. B. Rubin, <span>“Estimating causal effects of treatments in randomized and nonrandomized studies,”</span> <em>Journal of Educational Psychology</em>, vol. 66, no. 5, pp. 688–701, 1974.</div>
+</div>
+<div id="ref-Abadie2003" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">A. Abadie and J. Gardeazabal, <span>“The economic costs of conflict: A case study of the basque country,”</span> <em>American Economic Review</em>, vol. 93, no. 1, pp. 113–132, 2003, doi: <a href="https://doi.org/10.1257/000282803321455188">10.1257/000282803321455188</a>.</div>
+</div>
+<div id="ref-Abadie2010" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">A. Abadie, A. Diamond, and J. Hainmueller, <span>“Synthetic control methods for comparative case studies: Estimating the effect of california’s tobacco control program,”</span> <em>Journal of the American Statistical Association</em>, vol. 105, no. 490, pp. 493–505, 2010, doi: <a href="https://doi.org/10.1198/jasa.2009.ap08746">10.1198/jasa.2009.ap08746</a>.</div>
+</div>
+<div id="ref-pysyncon" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">S. Fordham, <em><span class="nocase">pysyncon: a Python package for the Synthetic Control Method</span></em>. (Dec. 2022). Available: <a href="https://github.com/sdfordham/pysyncon">https://github.com/sdfordham/pysyncon</a></div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
