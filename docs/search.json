@@ -88,7 +88,7 @@
     "href": "posts/grocery_ops/diff_diff.html",
     "title": "Do Scanner Guns Decrease Checkout Time? An Analysis Using Diff-in-Diff and SCM",
     "section": "",
-    "text": "In this post, we present the situation of a grocery store chain looking to decrease checkout-time by supplying scanner guns at self-checkout registers. We demonstrate first the usefulness of difference-in-differences (DiD) methodology in calculating causal effects of the intervention. We then demonstrate how to utilize synthetic control methods (SCM) to perform DiD when there is not a single suitable control unit available."
+    "text": "In this post, we present the situation of a grocery store chain looking to decrease checkout-time by supplying scanner guns at self-checkout registers. We demonstrate first the usefulness of difference-in-differences (DiD) methodology in calculating causal effects of the intervention. We then demonstrate how to utilize synthetic control methods (SCM) to perform DiD when there is not a single suitable control unit available. The code for this analysis can be found in the github repo."
   },
   {
     "objectID": "posts/grocery_ops/diff_diff.html#understanding-optimal-efficiency-with-cycle-time-and-throughput-rate",
