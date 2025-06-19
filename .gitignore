@@ -1,2 +1,13 @@
 /.quarto/
 /.ipynb_checkpoints/
+__pycache__/
+*.pyc
+*.pyd
+.Python/
+venv/
+.venv/
+.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+.env
