@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-06-19">
+
+<title>The Bayesian Bandit - The Doomscrolling Algorithm: Optimizing Content to Maximize Revenue</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/causal_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">The Doomscrolling Algorithm: Optimizing Content to Maximize Revenue</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">operations</div>
+                <div class="quarto-category">optimization</div>
+                <div class="quarto-category">reinforcement learning</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 19, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#company-strategy" id="toc-company-strategy" class="nav-link" data-scroll-target="#company-strategy">Company Strategy</a></li>
+  <li><a href="#from-strategy-to-product" id="toc-from-strategy-to-product" class="nav-link" data-scroll-target="#from-strategy-to-product">From Strategy to Product</a></li>
+  </ul></li>
+  <li><a href="#personalization-algorithm" id="toc-personalization-algorithm" class="nav-link" data-scroll-target="#personalization-algorithm">Personalization Algorithm</a>
+  <ul class="collapse">
+  <li><a href="#system-design" id="toc-system-design" class="nav-link" data-scroll-target="#system-design">System Design</a></li>
+  <li><a href="#recommendation-system-architecture" id="toc-recommendation-system-architecture" class="nav-link" data-scroll-target="#recommendation-system-architecture">Recommendation System Architecture</a></li>
+  <li><a href="#rl-agent-architecture" id="toc-rl-agent-architecture" class="nav-link" data-scroll-target="#rl-agent-architecture">RL Agent Architecture</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>In this post, we present a prototype recommendation system based on <em>Deep Neural Networks for YouTube Recommendations</em> <span class="citation" data-cites="Covington2016DeepNN"><a href="#ref-Covington2016DeepNN" role="doc-biblioref">[1]</a></span> and <em>Explore, Exploit, Explain: Personalizing Explainable Recommendations with Bandits</em> <span class="citation" data-cites="McInerney2018ExploreEE"><a href="#ref-McInerney2018ExploreEE" role="doc-biblioref">[2]</a></span>. We present the prototype in the context of a company that operates as a short-video content platform. We define the strategy behind the prototype by presenting the business objectives. We follow this by walking through the architecture of the prototype and how it fulfills the objectives of the company. We end by illustrating potential next steps for our company. The code for this prototype can be found at the <a href="https://github.com/thebayesianbandit/thebayesianbandit.github.io/blob/main/posts/doom_alg/doom_alg.ipynb">github repo.</a></p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p><strong>InstaTok</strong> is a new social media app that specializes in short-video content. The platform operates as a two-sided marketplace. There are user accounts and creator accounts. Anyone can sign-up for a user account for free. To join as a creator, creators must pay a small subscription fee plus a small commission, both billed monthly.</p>
+<p>Users interact with content via a mobile application. Like other short-video platforms, users are presented a <strong>for-you-page</strong> (FYP) with a single video playing. Users can choose to watch the video as many times as they like or move onto the next video at any time by swipping up on the app.</p>
+<p>Creators are incentivized to be on the platform by monetizing their videos through advertisements. InstaTok has partnerships with various brands to connect them with creators to advertise their products and services. Creators are then compensated directly by these companies based on their contractual agreements.</p>
+<p>Since InstaTok is a two-sided platform, we need to optimize experiences for both users and creators. Users need good videos to stay engaged and creators need users to monetize their videos. In order to balance these needs, we can define sound strategy on how we can define the problem and how it can be solved with it.</p>
+<p><strong>Note</strong>: While this would technically be a three-sided marketplace since brands also would need to benefit from the platform, we are simplifying this problem to a two-sided one for this post.</p>
+<section id="company-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="company-strategy">Company Strategy</h2>
+<p>As mentioned previously, in order for InstaTok to succeed, we need to develop a product that is appealing to both users and creators. In order to create a sound product that answers to both user and creator needs, we need to develop a robust strategy that will guide our approach to product creation. To do this, we need to answer four questions.</p>
+<ol type="1">
+<li>Where do we compete?</li>
+<li>What unique value do we bring to the market?</li>
+<li>What resources and capabilities can we utilize to deliver unique value?</li>
+<li>How do we sustain our ability to provide unique value?</li>
+</ol>
+<p>We have established that we are competing in the mobile application market, specifically within the short-video platform arena. We hope to appeal to all ages, but are aiming to capture the college-young professional market. Furthermore, we are looking for those who are looking to separate the world of social media and creative short-video content.</p>
+<p>We need to provide unique value to both sides of our market. For our users, we are providing a platform where all content is created by official creators. There are no random company ads appearing in the FYP nor social connection content. We focus the user experience on entertainment content. On top of that, we provide personalization to our users by algorithmically matching them with content they would enjoy.</p>
+<p>For our creators, we provide unique value through monetization and verified creator status. Creators compete solely with other creators for views, not with general social media users. Additionally, other platforms collect the ad revenue generated by creator content. On our platform, we provide a way for creators to directly collect ad revenue from brands.</p>
+<p>Our key resource and capabilities include our proprietary algorithms, our brand partnerships, and deep technology expertise. These are also key in how we sustain our unique value. By continuing to iterate our algorithms, grow our partnerships, and deepen our technology expertise, we can sustain a unique advantage in this marketplace.</p>
+</section>
+<section id="from-strategy-to-product" class="level2">
+<h2 class="anchored" data-anchor-id="from-strategy-to-product">From Strategy to Product</h2>
+<p>We’ve defined our company strategy, and now we must use it to create a viable product. Our minimum viable product (MVP) should be a mobile application with a user-friendly interface. This interface should provide short-video content to our users one video at a time. Users advance to the next video by swiping up on the screen. These functions should be designed in a way that is intuitive for our target demographic. Additionally, the algorithms powering the service need to be personalized to maximize each user’s specific utility.</p>
+<p>In this post, we will focus our attention on the personalization algorithms powering our platform. As mentioned, our personalization algorithm is one of our key resources/capabilities in our company strategy. We need it to be incredibly valuable in the eyes of our users and creators. To achieve this, we utilize data to drive our decision making. <a href="#tbl-prod-1">Table&nbsp;2.1</a> shows an example of this kind of data.</p>
+<div id="tbl-prod-1" class="anchored">
+<table class="table">
+<caption>Table&nbsp;2.1: User Interests by Region</caption>
+<thead>
+<tr class="header">
+<th>Region</th>
+<th>Interest</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>west</td>
+<td>tech</td>
+</tr>
+<tr class="even">
+<td>mid</td>
+<td>animals</td>
+</tr>
+<tr class="odd">
+<td>east</td>
+<td>food</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>According to our market research, users generally have <strong>two categories</strong> of videos that entice them to keep watching. Furthermore, we learned that users are open to exploring new categories of videos based on their geographic location. For example, those in the midwest appear to be open to exploring videos featuring animals. These insights should drive product development for our personalization algorithm.</p>
+</section>
+</section>
+<section id="personalization-algorithm" class="level1">
+<h1>Personalization Algorithm</h1>
+<section id="system-design" class="level2">
+<h2 class="anchored" data-anchor-id="system-design">System Design</h2>
+<p>While previous sections have focused on the business aspects of our product, this section describes the technical details needed to design and implement a personalization system. Our problem can be boiled down to this one question: <strong>how can we optimize our content offerings for any given user such that a creator maximizes their revenue?</strong> To do this, we begin with simple microeconomic theory. We believe that any given user is a rational agent seeking to maximize their utility. We further believe that users have downloaded InstaTok to maiximize their entertainment utility. Therefore, if we provide them with videos that help maximize this utility, they will continue to use the platform (i.e.&nbsp;maximize their watch time per session).</p>
+<p>To answer our question on how we can maximize entertainment utility for a given user, we propose a system in <a href="#fig-sys-1">Figure&nbsp;3.1</a> that illustrates how we can capture user data to provide meaningful personalization.</p>
+<div id="fig-sys-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="doom_diag.jpg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Personalization System Design</figcaption><p></p>
+</figure>
+</div>
+<p><a href="#fig-sys-1">Figure&nbsp;3.1</a> begins with a user opening our app and interacting with a shown video. The interaction data is sent to our data warehouse where it is stored with historical interaction data. Data is then sent from the warehouse to three functions. These functions help define the current state of our user. The first function retrieves current session data pertinent to our given user (e.g.&nbsp;demographic data, location data, etc.).</p>
+<p>The second function is our base recommendation system. The system parses our large video catalog and generates a candidate list of videos that best match user preferences. This list is further refined by adjusting the scores from the base recommendation with additional business logic. We will discuss the base recommendation algorithm in detail later on.</p>
+<p>The third function is our interest prediction layer. To better inform our decision on which video to show the user, we use past interaction data to predict user interest categories. Note: In a true production environment, this would be our approach. However, for the purposes of this post, we randomly generate these interests for each user.</p>
+<p>These functions provide output that defines the current state of the user. This state is fed into our reinforcement learning agent (RL agent) which then chooses which action to take (i.e.&nbsp;which video to show the user next). The selection is sent back to the user and the process repeats itself until the user closes the app. We will provide more detail on the RL agent later on.</p>
+</section>
+<section id="recommendation-system-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="recommendation-system-architecture">Recommendation System Architecture</h2>
+<p>Our recommendation system is a simple two-phase architecture. The first phase is the initial candidate list generation. To do this, we first assign scores to the interaction data. <a href="#tbl-rec-1">Table&nbsp;3.1</a> shows our assignment scores.</p>
+<div id="tbl-rec-1" class="anchored">
+<table class="table">
+<caption>Table&nbsp;3.1: Interaction Scores</caption>
+<thead>
+<tr class="header">
+<th>Interaction</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>watched</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>skipped</td>
+<td>-2</td>
+</tr>
+<tr class="odd">
+<td>liked</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>other</td>
+<td>-0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These scores are aggregated to create a item-user matrix, as depicted in <a href="#eq-rec-1">Equation&nbsp;3.1</a>. Note: For faster computation, we transform this into a sparse matrix using <code>scipy</code>.</p>
+<p><span id="eq-rec-1"><span class="math display">\[
+\begin{pmatrix}
+2 &amp; -.5 &amp; 1 \\
+1 &amp; 1 &amp; 1 \\
+2 &amp; -2 &amp; 1
+\end{pmatrix}
+\tag{3.1}\]</span></span></p>
+<p><a href="#eq-rec-1">Equation&nbsp;3.1</a> is a <span class="math inline">\(n\)</span> by <span class="math inline">\(m\)</span> matrix where each row <span class="math inline">\(i\)</span> is an item and each column <span class="math inline">\(j\)</span> is a user. The goal of setting the matrix like this is to identify relationships between items. We want to identify which items are most similar to each other based on similar scores from users. To calculate this, we utilize <em>cosine similarity</em> <span class="citation" data-cites="Salton1975Vector"><a href="#ref-Salton1975Vector" role="doc-biblioref">[3]</a></span> as shown in <a href="#eq-rec-2">Equation&nbsp;3.2</a>.</p>
+<p><span id="eq-rec-2"><span class="math display">\[
+\text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \|B\|}
+\tag{3.2}\]</span></span></p>
+<p><a href="#eq-rec-2">Equation&nbsp;3.2</a> allows us to measure the cosine of the angle between two item vectors. A smaller angle means higher similarity. Once these are all calculated, the results are stored in a <span class="math inline">\(n\)</span> by <span class="math inline">\(n\)</span> matrix, where each row and column corresponds to a specific item (i.e.&nbsp;an item-item matrix). We can then perform lookups on this matrix to recommend items that are most similar to those a user previously interacted positively with. Once we have <span class="math inline">\(r\)</span> number of recommendations for a user, these items with their respective scores are sent to our weighted-sum function for weighting based on important business objectives. This process of using item-item similarity and weighting according to business objectives is known as <em>collaborative filtering</em> <span class="citation" data-cites="Sarwar2001"><a href="#ref-Sarwar2001" role="doc-biblioref">[4]</a></span>.</p>
+<p><span id="eq-rec-3"><span class="math display">\[
+\text{Final Score} = w_{1}\text{Similarity Score} + w_{2}\text{Num Views} + w_{3}\text{Is Interest}
+\tag{3.3}\]</span></span></p>
+<p>The final score of a video is weighted by three key attributes: the similarity score (produced from <a href="#eq-rec-1">Equation&nbsp;3.1</a>), the number of views a video has (the popularity of it), and a boolean variable indicating whether the video aligns with the user’s interests.</p>
+</section>
+<section id="rl-agent-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="rl-agent-architecture">RL Agent Architecture</h2>
+<p>Our recommendation system currently outputs the top <span class="math inline">\(r\)</span> recommendations for a user based on their past interaction history. This is a great feature, but it does not capture the entire story of a user. Each time a user opens our app, they are in a different state of being. They could be bored, anxious, excited, or experiencing any other emotion. To better understand our users and present them content that aligns with their current state, we utilize reinforcement learning (RL) to model these states and their subsequent feedback. RL is the industry standard for capturing sequential decision making.</p>
+<p>From a high-level, we refer back to <a href="#fig-sys-1">Figure&nbsp;3.1</a>. The RL agent takes in current session information (number of videos watched so far, number of skips, last video category show, etc), the candidate list of videos with their final scores, and current “predicted” user interests. The RL agent then chooses an action (i.e.&nbsp;which video to show), sends that video to the user, and records the interaction. As the RL agent continues to do this, it learns which states matches certain videos. The more data it has around the interactions between users and videos given current states, the more optimized its <strong>policy</strong> will be at choosing the correct next best video.</p>
+<p>To model this system, we use a <em>Deep Q Network (DQN)</em> <span class="citation" data-cites="Mnih2015HumanlevelCT"><a href="#ref-Mnih2015HumanlevelCT" role="doc-biblioref">[5]</a></span>. The DQN utilizes neural networks to approximate the <em>Q Function</em> <span class="citation" data-cites="Watkins1989Learning"><a href="#ref-Watkins1989Learning" role="doc-biblioref">[6]</a></span>, as shown in <a href="#eq-rl-1">Equation&nbsp;3.4</a>.</p>
+<p><span id="eq-rl-1"><span class="math display">\[Q^*(s, a) = \mathbb{E}_{s' \sim P(\cdot|s,a)} \left[ r + \gamma \max_{a'} Q^*(s', a') \right] \tag{3.4}\]</span></span></p>
+<p><a href="#eq-rl-1">Equation&nbsp;3.4</a> is the optimal Q-value function for a Q-learning algorithm. The equation basically says that the optimal Q-value for taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span> is equal the expectation of the sum of the immediate reward of taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span> and the optimal Q-value for the next state <span class="math inline">\(s\)</span> over all possible next actions <span class="math inline">\(a\)</span>. Simply put, this function estimates the expected future cumulative reward of taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span>.</p>
+<p>In our DQN, we estimate these Q-values using neural networks. The neural network takes the current state <span class="math inline">\(s\)</span> as input, passes it through the hidden layers, and produces <span class="math inline">\(r\)</span> number of Q-values. The DQN then chooses a video to show the user. To do this, we use an <em>epsilon-greedy</em> <span class="citation" data-cites="Sutton1998Reinforcement"><a href="#ref-Sutton1998Reinforcement" role="doc-biblioref">[7]</a></span> approach to balance exploration with exploitation. The video is then shown to the user, the user interacts with the video, the interaction is recorded, and the process begins again.</p>
+<p>Our DQN learns is via <strong>experience replay</strong>. The RL agent learns via mini-batches of experiences that are randomly sampled from a “memory storage”. This breaks correlation and improves training stability. The training is performed like many other DL algorithms where we attempt to minimize a loss function. In our prototype, we use <strong>mean squared error</strong>. The loss is calculated as the difference between our target Q-value and the predicted Q-value, as shown in <a href="#eq-rl-2">Equation&nbsp;3.5</a>.</p>
+<p><span id="eq-rl-2"><span class="math display">\[\min_{\theta} \mathcal{L}(\theta) = \min_{\theta} \mathbb{E} \left[ \left( Y - Q(s, a; \theta) \right)^2 \right] \tag{3.5}\]</span></span></p>
+<p>Since we don’t directly observe target Q-values in the real world, we estimate them via a <strong>target network</strong> in our RL agent. Our predicted Q-values are derived from an entirely different network known as the <strong>online network</strong>.</p>
+<p><strong>All specific technical details of the DQN, state and action space, etc. can be found at the github link in the abstract.</strong></p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we presented InstaTok, a short-video platform aimed at revolutionizing the short-video entertainment space by providing ad-free experiences to users via a new incentive and verification structure for creators. We walked through the core company strategy and product development on how we can create a prodcut to fulfill the needs of both users and creators. We presented a high-level overview of a user’s journey on the app, as well as deeper technical details of how we can algorithmically match users to videos they would enjoy, thereby maximizing their watch time per session. In a real-life scenario where we’d be launching this system, we’d want to implement experiments to properly measure changes in user watch time between different algorithms (e.g.&nbsp;testing a different base recommendation system vs current one to observe its impact on user watch time).</p>
+<p>Overall, we hope this post demonstrated the power of recommendation systems and the importance of each layer of the system. Additionally, we hope that readers gained an appreciation for how sound business strategy can guide product development. With both good business strategy and deep technical expertise, one can build an app like TikTok following the principles outlined in this post.</p>
+<p><strong>For code of this prototype, see <a href="https://github.com/thebayesianbandit/thebayesianbandit.github.io/blob/main/posts/doom_alg/doom_alg.ipynb">github repo.</a></strong></p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-Covington2016DeepNN" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">P. Covington, J. Adams, and E. Sargin, <span>“<span class="nocase">Deep Neural Networks for YouTube Recommendations</span>,”</span> in <em>Proceedings of the 10th ACM conference on recommender systems</em>, New York, NY, USA: ACM, 2016.</div>
+</div>
+<div id="ref-McInerney2018ExploreEE" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">J. McInerney <em>et al.</em>, <span>“<span class="nocase">Explore, Exploit, Explain: Personalizing Explainable Recommendations with Bandits</span>,”</span> in <em>Proceedings of the 12th ACM conference on recommender systems (RecSys)</em>, Vancouver, BC, Canada: ACM, 2018.</div>
+</div>
+<div id="ref-Salton1975Vector" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">G. Salton, A. Wong, and C.-S. Yang, <span>“A vector space model for automatic indexing,”</span> <em>Commun. ACM</em>, vol. 18, no. 11, pp. 613–620, 1975, doi: <a href="https://doi.org/10.1145/361219.361220">10.1145/361219.361220</a>.</div>
+</div>
+<div id="ref-Sarwar2001" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">B. Sarwar, G. Karypis, J. Konstan, and J. Riedl, <span>“Item-based collaborative filtering recommendation algorithms,”</span> in <em>Proceedings of the 10th international conference on world wide web</em>, in WWW ’01. New York, NY, USA: ACM, 2001, pp. 285–295. doi: <a href="https://doi.org/10.1145/371920.372071">10.1145/371920.372071</a>.</div>
+</div>
+<div id="ref-Mnih2015HumanlevelCT" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">V. Mnih <em>et al.</em>, <span>“Human-level control through deep reinforcement learning,”</span> <em>Nature</em>, vol. 518, no. 7540, pp. 529–533, 2015, doi: <a href="https://doi.org/10.1038/nature14236">10.1038/nature14236</a>.</div>
+</div>
+<div id="ref-Watkins1989Learning" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">C. J. C. H. Watkins, <span>“Learning from delayed rewards,”</span> PhD thesis, King’s College, Cambridge, Cambridge, UK, 1989. Available: <a href="http://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf">http://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf</a></div>
+</div>
+<div id="ref-Sutton1998Reinforcement" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">R. S. Sutton and A. G. Barto, <em>Reinforcement learning: An introduction</em>, 1st ed. Cambridge, MA, USA: MIT Press, 1998.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
