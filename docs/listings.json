@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/fan_causal/fan_causal.html",
       "/posts/doom_alg/doom_alg.html",
       "/posts/dispatch_alg/dispatch_alg.html",
       "/posts/grocery_ops/diff_diff.html",

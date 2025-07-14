@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-07-14">
+
+<title>The Bayesian Bandit - The Impact of Sports on University Philanthropy: A Causal Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/causal_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">The Impact of Sports on University Philanthropy: A Causal Analysis</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">marketing</div>
+                <div class="quarto-category">causal inference</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 14, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#encouraging-engagement-sports-passes" id="toc-encouraging-engagement-sports-passes" class="nav-link" data-scroll-target="#encouraging-engagement-sports-passes">Encouraging Engagement: Sports Passes</a></li>
+  <li><a href="#discovering-causality" id="toc-discovering-causality" class="nav-link" data-scroll-target="#discovering-causality">Discovering Causality</a>
+  <ul class="collapse">
+  <li><a href="#gathering-data" id="toc-gathering-data" class="nav-link" data-scroll-target="#gathering-data">Gathering Data</a></li>
+  <li><a href="#exploring-the-data" id="toc-exploring-the-data" class="nav-link" data-scroll-target="#exploring-the-data">Exploring the Data</a></li>
+  <li><a href="#illustrating-the-flow-of-causality" id="toc-illustrating-the-flow-of-causality" class="nav-link" data-scroll-target="#illustrating-the-flow-of-causality">Illustrating the Flow of Causality</a></li>
+  <li><a href="#logistic-regression-to-estimate-average-treatment-effect-ate" id="toc-logistic-regression-to-estimate-average-treatment-effect-ate" class="nav-link" data-scroll-target="#logistic-regression-to-estimate-average-treatment-effect-ate">Logistic Regression to estimate Average Treatment Effect (ATE)</a></li>
+  <li><a href="#conditional-average-treatment-effect-cate-via-causal-forests" id="toc-conditional-average-treatment-effect-cate-via-causal-forests" class="nav-link" data-scroll-target="#conditional-average-treatment-effect-cate-via-causal-forests">Conditional Average Treatment Effect (CATE) via Causal Forests</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a>
+  <ul class="collapse">
+  <li><a href="#strategy-based-on-analysis" id="toc-strategy-based-on-analysis" class="nav-link" data-scroll-target="#strategy-based-on-analysis">Strategy Based on Analysis</a></li>
+  <li><a href="#wrap-up" id="toc-wrap-up" class="nav-link" data-scroll-target="#wrap-up">Wrap-up</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>In this post, we present a scenario where a university seeks to identify the causal effects of sports passes on alumni donation likelihood. Using a synthetic dataset mimicking a random sample of alumni five years post-graduation, we explore the data to gather insights and illustrate the flow of causality via a Directed Acyclic Graph (DAG). We then demonstrate how a university can calculate these causal effects using two different models: logistic regression and causal forests. Finally, we discuss how a university might strategically utilize these findings to increase philanthropic activity among alumni.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>A major source of revenue for universities is through donations from alumni <span class="citation" data-cites="Schwartz_2024_UScolleges"><a href="#ref-Schwartz_2024_UScolleges" role="doc-biblioref">[1]</a></span>. These contributions are largely used to provide financial assistance to students but can also support other causes, including university operations, research funding, and facility construction. Maximizing alumni engagement and encouraging them to give back is a key objective for all universities. To achieve this, universities attempt to create meaningful touchpoints that strengthen relationships with alumni. One significant avenue for fostering these connections is through sports programs.</p>
+<p>University sports programs have become an important lever in creating alumni loyalty <span class="citation" data-cites="PEGLtd_2024_Bleachers"><a href="#ref-PEGLtd_2024_Bleachers" role="doc-biblioref">[2]</a></span>. They provide the university with good publicity for recruiting new students, help establish strong alumni pipelines, and maintaining existing alumni relationships. From merchandise to games and special dinners, sports programs offer universities a powerful way to instill pride in their alumni, encouraging them to contribute to the university’s mission.</p>
+<p>The central question then becomes: How can universities foster this sense of pride in students during their time on campus and sustain it post-graduation? If sports programs serve as a bridge between alumni and the university, how can we ensure students are engaged with these programs so that, when the time is appropriate, they are eager to become donors who support and sustain the university?</p>
+</section>
+<section id="encouraging-engagement-sports-passes" class="level1">
+<h1>Encouraging Engagement: Sports Passes</h1>
+<p>A common approach to encourage student engagement with sports programs is a one-for-all pass. Purchased for a flat fee at the beginning of the school year, these passes grant students access to any home sporting event within designated student seating. This not only serves as a valuable revenue stream for the university but also creates meaningful student memories at games. From pre-game fan activities to in-game engagement and post-game celebrations, these sport passes actively encourage students throughout their university tenure to immerse themselves in the exciting atmosphere of the university.</p>
+<p>Since students have a direct avenue to become acquainted with university sports via these passes, we can now formulate our research question: <strong>Do sports passes cause an increase in the likelihood of alumni becoming donors?</strong> It is crucial that we move beyond simply observing a correlation between sports pass purchase and alumni donations. Instead, our goal is to identify if these passes represent a true lever that universities can strategically utilize to influence the philanthropic behavior of their alumni.</p>
+</section>
+<section id="discovering-causality" class="level1">
+<h1>Discovering Causality</h1>
+<section id="gathering-data" class="level2">
+<h2 class="anchored" data-anchor-id="gathering-data">Gathering Data</h2>
+<p>In order to attempt to establish a causal relationship, we first need to identify the nature of our data. The gold standard for establishing causal relationships is performing a <strong>randomized controlled trial (RCT)</strong>. However, in our situation, this is infeasible. We would not want to randomly assign sports passes to some students and withhold them from others, as this would significantly reduce potential revenue from pass sales. Furthermore, we cannot guarantee that students assigned a pass would actually utilize it.</p>
+<p>From a university’s perspective, we have a long history of selling sports passes and have significantly enhanced our ability to track student activity through student IDs across various campus engagements. While we lack experimental data, we have a plethora of observational data. Although extracting causal relationships from observational data is more complex, recent advancements in causal inference have made these estimates considerably more robust <span class="citation" data-cites="Hernan2006"><a href="#ref-Hernan2006" role="doc-biblioref">[3]</a></span>.</p>
+<p>Even though we have a plethora of observational data, we still need to design a sampling strategy in order to set up our analysis correctly. To do this, we’ll use a stratified sampling approach where we take equal random samples across different university majors. Furthermore, we gather other important covariates for modeling. Below is a sample of our gathered data.</p>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">major</th>
+<th data-quarto-table-cell-role="th">GPA</th>
+<th data-quarto-table-cell-role="th">gender</th>
+<th data-quarto-table-cell-role="th">alumni_parents</th>
+<th data-quarto-table-cell-role="th">played_intramurals</th>
+<th data-quarto-table-cell-role="th">current_salary</th>
+<th data-quarto-table-cell-role="th">sports_pass</th>
+<th data-quarto-table-cell-role="th">has_donated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Humanities</td>
+<td>2.44</td>
+<td>f</td>
+<td>0</td>
+<td>0</td>
+<td>64.78</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Computer Science</td>
+<td>2.71</td>
+<td>f</td>
+<td>0</td>
+<td>1</td>
+<td>97.37</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Engineering</td>
+<td>2.87</td>
+<td>m</td>
+<td>0</td>
+<td>1</td>
+<td>89.18</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Computer Science</td>
+<td>2.85</td>
+<td>f</td>
+<td>1</td>
+<td>1</td>
+<td>99.85</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Humanities</td>
+<td>2.99</td>
+<td>f</td>
+<td>0</td>
+<td>1</td>
+<td>44.13</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The samples we gathered were from alumni who graduated five years ago. Our response variable <em>has_donated</em> is 1 for donated and 0 for no donation. Our treatment variable <em>sports_pass</em> is also binary where 1 is for purchased a sports pass and 0 for no. Since we are dealing with establishing causality, we want to include potential confounders as part of the dataset. To account for this, we gathered data on alumni majors, GPA, gender, if their parents are alumni, if they played intramurals, and their current salary. Our data in total contains 3000 observations.</p>
+</section>
+<section id="exploring-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-the-data">Exploring the Data</h2>
+<p>Before diving into the causal models, we first explore the data to see if there is any potential evidence of causality. Our first graph <a href="#fig-eda-1">Figure&nbsp;4.1</a> shows the count between non-donors and donors in our dataset.</p>
+<div class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-eda-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Count of Non-Donors vs Donors</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-1">Figure&nbsp;4.1</a> clearly shows that the majority of our observations are non-donors. We can see how these numbers are across different majors in <a href="#fig-eda-2">Figure&nbsp;4.2</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-eda-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Count of Non-Donors vs Donors by Major</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-2">Figure&nbsp;4.2</a> reveals an interesting relationship between donors and major. It seems that, according to our sample, donation likelihood across majors varies. Business majors appear to have the highest percent of donors whereas engineering appears to have the lowest. <a href="#fig-eda-3">Figure&nbsp;4.3</a> continues this investigation by seeing the proportion of alumni who purchased sports passes in their undergrad split by major.</p>
+<div class="cell" data-tags="[]" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-eda-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.3: Count of Non-Sports Pass Holders vs Sports Pass Holders by Major</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-3">Figure&nbsp;4.3</a> reveals an interesting finding: Business majors exhibit the highest proportion of sports pass holders, with engineering majors once again showing the lowest. While we can’t immediately attribute the higher number of donors from business majors solely to their high proportion of sports pass ownership, we are encouraged by this finding as it presents a plausible explanation for the observed donation patterns. To further investigate this possibility, we can look at <a href="#fig-eda-4">Figure&nbsp;4.4</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-eda-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.4: Count of Non-Donors vs Donors by Sports Pass</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-4">Figure&nbsp;4.4</a> is very informative. There is a much higher proportion of donors who come from those who own sports passes than those who did not own a sports pass. Again, it is too early to attribute causality as the reason behind these relationships. Nonetheless, it is once again an encouraging sign for us attempting to discover a causal relationship between sports pass and donor likelihood. For example, <a href="#fig-eda-5">Figure&nbsp;4.5</a> shows a potential confounder to donation.</p>
+<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-5" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-eda-5-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.5: Salary Distribution between Donors and Non-Donors</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>fig-eda-5 shows current salary as a potential confounder. The distribution of donors appears to be more left-skewed than that of non-donors, signifying that the mean and median salary of donors are higher. While we don’t know if this difference is statistically significant, it suggests that a person’s current salary, rather than their sports connection to the university, could be a reason for their donation behavior.</p>
+</section>
+<section id="illustrating-the-flow-of-causality" class="level2">
+<h2 class="anchored" data-anchor-id="illustrating-the-flow-of-causality">Illustrating the Flow of Causality</h2>
+<p>The best way to begin to understand all the potential causal influences on a response variable in observational studies is via a <strong>directed acyclic graph (DAG)</strong>. DAGs are the language of causal inference since we can visually see the flow of causality from our potential confounders and treatment to our response variable. <a href="#fig-dag-1">Figure&nbsp;4.6</a> shows our proposed DAG.</p>
+<div class="cell" data-tags="[]" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div id="fig-dag-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-dag-1-output-1.svg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.6: DAG representing the flow of causality in our observational data</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-dag-1">Figure&nbsp;4.6</a> clearly shows many different influences on likelihood of donation. For example, the choice of major causes the current salary which then flows into how likely an alumni is to donate. We also hypothesize the potential that those who have parents that are alumni has a causal relationship with donation and sports pass. We also illustrate the potential of unobserved confounders influencing the likelihood of purchasing sports passes and the likelihood of donating.</p>
+<p>To identify a causal relationship between sports pass and donation, we need to isolate the flow of causality between sports pass and donation. To do this, we need to block any backdoor paths of causality. For example, since having parents who are alumni is a cause of both donation and sports pass, this introduces a backdoor flow of causality that confounds the effects of sports pass. In total, we need to block Major and Parent Alumni to eliminate backdoor causal paths.</p>
+<p>Unfortunately, we can’t block unobserved confounders since there is no way of measuring them. We’ll have to address this problem later on in our modeling through sensitivity analysis.</p>
+</section>
+<section id="logistic-regression-to-estimate-average-treatment-effect-ate" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-to-estimate-average-treatment-effect-ate">Logistic Regression to estimate Average Treatment Effect (ATE)</h2>
+<p>After establishing our causal relationships via <a href="#fig-dag-1">Figure&nbsp;4.6</a>, we can begin to define a model that will estimate our <strong>average treatment effect (ATE)</strong>. A simple way we can do this is via logistic regression, as shown in <a href="#eq-log-1">Equation&nbsp;4.1</a>.</p>
+<p><span id="eq-log-1"><span class="math display">\[
+\log\left(\frac{p}{1-p}\right) = \beta^{T}X
+\tag{4.1}\]</span></span></p>
+<p><span class="math inline">\(X\)</span> is our design matrix, <span class="math inline">\(\beta\)</span> is our vector of coefficients, and the left hand side of the equation is our log-odds ratio. Logistic regression aims to maximize the log likelihood through finding the proper <span class="math inline">\(\beta\)</span> values. In other words, it aims to find the most likely <span class="math inline">\(\beta\)</span> values that would occur with the <span class="math inline">\(X\)</span> and <span class="math inline">\(y\)</span> combinations.</p>
+<p>In our scenario, we identified that we need to include major and parent alumni in our design matrix to isolate the effects of sports pass on likelihood of donation. However, since including other covariates wouldn’t introduce confoundness, we can include the rest of the covariates from <a href="#fig-dag-1">Figure&nbsp;4.6</a>. Our model output is shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="12">
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>-3.9580</td>
+<td>0.618</td>
+<td>-6.407</td>
+<td>0.000</td>
+<td>-5.169</td>
+<td>-2.747</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">C(major)[T.Computer Science]</td>
+<td>-0.8742</td>
+<td>0.139</td>
+<td>-6.285</td>
+<td>0.000</td>
+<td>-1.147</td>
+<td>-0.602</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">C(major)[T.Engineering]</td>
+<td>-2.2845</td>
+<td>0.209</td>
+<td>-10.917</td>
+<td>0.000</td>
+<td>-2.695</td>
+<td>-1.874</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">C(major)[T.Humanities]</td>
+<td>0.0752</td>
+<td>0.237</td>
+<td>0.318</td>
+<td>0.751</td>
+<td>-0.389</td>
+<td>0.539</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">C(major)[T.Life Science]</td>
+<td>-1.4476</td>
+<td>0.232</td>
+<td>-6.234</td>
+<td>0.000</td>
+<td>-1.903</td>
+<td>-0.993</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sports_pass</td>
+<td>1.4989</td>
+<td>0.106</td>
+<td>14.181</td>
+<td>0.000</td>
+<td>1.292</td>
+<td>1.706</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">alumni_parents</td>
+<td>0.9650</td>
+<td>0.109</td>
+<td>8.880</td>
+<td>0.000</td>
+<td>0.752</td>
+<td>1.178</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">GPA</td>
+<td>-0.1134</td>
+<td>0.106</td>
+<td>-1.065</td>
+<td>0.287</td>
+<td>-0.322</td>
+<td>0.095</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">played_intramurals</td>
+<td>0.0484</td>
+<td>0.104</td>
+<td>0.465</td>
+<td>0.642</td>
+<td>-0.156</td>
+<td>0.253</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">current_salary</td>
+<td>0.0289</td>
+<td>0.005</td>
+<td>5.729</td>
+<td>0.000</td>
+<td>0.019</td>
+<td>0.039</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Our primary parameter of interest is sports_pass. Our log-odds increase in donation likelihood is 1.4989, which on the odds scale about 4.47. This means that on average, holding all else constant, those with sports passes have 4.47 higher odds of donating than those who do not have sports passes. While this insight is informative, a better metric of the causal effect of sport pass would be the ATE. The equation for ATE and the corresponding result are shown below.</p>
+<p><span id="eq-ate-1"><span class="math display">\[
+\text{ATE} = E[Y(1) - Y(0)] = E[Y(1)] - E[Y(0)]
+\tag{4.2}\]</span></span></p>
+<div class="cell" data-tags="[]" data-execution_count="22">
+<div class="cell-output cell-output-stdout">
+<pre><code>ATE: 0.22</code></pre>
+</div>
+</div>
+<p>As shown in <a href="#eq-ate-1">Equation&nbsp;4.2</a>, the ATE is the difference in expectation between the treated and the untreated groups across the entire population. To calculate this with logistic regression, we fit the model, then predict outcomes for all individuals under both treatment and non-treatment scenarios, and finally take the difference between the two resulting averages. Our result above shows that we obtained an ATE of 0.22. This means that, on average, those who purchased sports passes have a 22 percentage point increase in the probability of becoming a donor compared to those who did not purchase a sports pass.</p>
+<p>This result is a strong indication of a causal relationship between sports pass and donation activity. In order to verify this result, we should check that our key causal assumptions hold under the <strong>potential outcomes framework</strong> <span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[4]</a></span>. The first assumption is the <strong>stable unit treatment value assumption (SUTVA)</strong>. This says that treatment assignment of one individual does not affect the outcome of another individual and that treatmnet is a consistent experience for each individual. We will say this assumption holds since there is just one version of sports pass in our study and there is no information saying that individuals who purchase a pass affect the donation behavior of another person.</p>
+<p>The second assumption we need to verify is <strong>unconfoundness</strong>. This states that treatment assignment is independent of potential outcomes, conditioned on the observed covariates. This assumption is currently violated with the presence of our unobserved confounders. However, we can relax this assumption by calculating E-values to perform sensitivity analysis. E-values quantify the minimum “strength” that an unmeasured confounder would need to have on the treatment and outcome to explain away any observed association. In our E-value calculation, we use the lower bound of our 95% CI. Our result is shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="13">
+<div class="cell-output cell-output-stdout">
+<pre><code>E-value for low CI estimate: 6.74</code></pre>
+</div>
+</div>
+<p>Our lower bound result is strong with 6.74. This would mean that any unobserved confounder would need to shift the confidence interval of sports pass by this amount to include the null hypothesis. While we still techinically have a biased estimate of ATE, because of our e-value, we can at least assume that this causal relationship of sports pass on donation is robust to a fair amount of unobserved confounding.</p>
+</section>
+<section id="conditional-average-treatment-effect-cate-via-causal-forests" class="level2">
+<h2 class="anchored" data-anchor-id="conditional-average-treatment-effect-cate-via-causal-forests">Conditional Average Treatment Effect (CATE) via Causal Forests</h2>
+<p>While our ATE estimate is a good indication of a causal relationship between sports pass and donor behavior, we don’t expect this effect to be consistent across different demographics. In order to quantify the impact of our treatment on different alumni demographics, we need to obtain the <strong>conditional average treatment effect (CATE)</strong>. The CATE is very similar to <a href="#eq-ate-1">Equation&nbsp;4.2</a>, but differs in that it is conditioned on a set of covariates, as shown in <a href="#eq-cate-1">Equation&nbsp;4.3</a>.</p>
+<p><span id="eq-cate-1"><span class="math display">\[
+\text{CATE}(X) = E[Y(1) - Y(0) | X] = E[Y(1) | X] - E[Y(0) | X]
+\tag{4.3}\]</span></span></p>
+<p>While we technically could obtain CATE estimates from our logistic regression model, one potential downfall to our logistic model is that it takes on a parametric form. In other words, we have strong assumptions about the nature of our data generating problem. To relax this assumption, we can use a nonparametric learner to understand the patterns in our data. In our case, we can utilize Causal Forests <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[5]</a></span>. We briefly walk through how Causal Forests estimate CATE below.</p>
+<ol type="1">
+<li>Create Causal Trees: This step involves creating multiple different trees just as a decision tree does, only these trees are to identify different subgroup effects.</li>
+<li>Split Nodes Based on Heterogeneity: At each node, the algorithm finds the split that maximizes the heterogeneity of treatment effect between resulting children nodes.</li>
+<li>Debias using Honesty: To debias the estimates, Causal Forests utilize an honesty metric, which means the splitting metric is independent of the treatment effect metric, as they use different data</li>
+<li>Estimate Local ATE: Once a tree is full, an observation passes through the tree and lands in a terminal node, where then the ATE is calculated between those in treated and those in control.</li>
+<li>Average Across Trees: For new observation with X covariates, we gather the ATE across all the terminal nodes where this observation would land and take the average, resulting in the CATE.</li>
+</ol>
+<p>We use <code>econML</code> <span class="citation" data-cites="econml"><a href="#ref-econml" role="doc-biblioref">[6]</a></span> to provide us with an implementation of Causal Forests. After fitting our data to the forest, we obtained the following CATE estimates for different majors in <a href="#fig-cate-1">Figure&nbsp;4.7</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div id="fig-cate-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-cate-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.7: CATE across Different Majors</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>To reiterate what the CATE represents, it is the incremental, or uplift, effect of our treatment. For example, business majors who purchase a sports pass experience, on average, a little more than a 25 percentage point increase in the probability of donating compared to those who do not purchase a sports pass. As we can see, the CATE is fairly different across majors. The effect of the sports pass appears to have the highest impact on Business and Computer Science majors, with the lowest being Engineering. However, since all these CATEs appear to be above 0.2, this strongly indicates that encouraging sports pass purchases can be an effective strategy to increase future donor likelihood among alumni.</p>
+<p>We can further explore other covariates such as parent alumni status, as shown in <a href="#fig-cate-2">Figure&nbsp;4.8</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div id="fig-cate-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fan_causal_files/figure-html/fig-cate-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.8: CATE across Non-Alumni Parents vs Alumi Parents</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Building on the insights from <a href="#fig-cate-2">Figure&nbsp;4.8</a>, the CATEs appear quite similar and both remain positive. While we do not know the baseline probability of donation for these two categories, our analysis indicates that individuals within both groups react positively towards donating in the future when they purchase a sports pass.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<section id="strategy-based-on-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="strategy-based-on-analysis">Strategy Based on Analysis</h2>
+<p>Despite the relatively concise nature of our analysis, our findings are clearly impactful. Assuming the validity of our causal assumptions and sampling design, we have identified a controllable lever that universities can utilize to increase alumni donor likelihood. If these findings were to guide university strategy, actively encouraging more students to purchase sports passes would require careful strategic planning. For example, our analysis could inform targeted advertisements or promotions aimed at students identified as more likely future donors. Alternatively, the university might consider expanding the number of sports passes offered to broaden the pool of potential donors. Another valuable avenue for future research would be to further analyze which specific aspects of sports pass ownership cultivate stronger donor relations (e.g., fostering positive memories, facilitating social connections). In order to best utilize our findings, we would need to develop sound strategy on how to implement these findings and align it with the mission of the university.</p>
+</section>
+<section id="wrap-up" class="level2">
+<h2 class="anchored" data-anchor-id="wrap-up">Wrap-up</h2>
+<p>Overall, this simple analysis demonstrated key frameworks and models to help administrators identify levers within their university to increase philanthropic behavior from their alumni. While we made some strong assumptions on the validity of our data and the nature of our findings, the principles illustrated in this case study can be useful for many different scenarios. In the end, we hope this analysis provided you with the opportunity to see causal inference in action, from problem formulation to analysis and finally realizing that next steps include more strategic planning and research.</p>
+
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-Schwartz_2024_UScolleges" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">N. Schwartz, <em>Higher Ed Dive</em>, 2024, Accessed: Jul. 12, 2025. [Online]. Available: <a href="https://www.highereddive.com/news/us-colleges-received-58b-in-philanthropic-support-in-fy23/708605/">https://www.highereddive.com/news/us-colleges-received-58b-in-philanthropic-support-in-fy23/708605/</a></div>
+</div>
+<div id="ref-PEGLtd_2024_Bleachers" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">PEG Ltd., <span>“From bleachers to boardrooms: How college sports shape lifelong alumni connections,”</span> <em>PEG Ltd. (pegltd.com)</em>, 2024, Accessed: Jul. 12, 2025. [Online]. Available: <a href="https://pegltd.com/blog/from-bleachers-to-boardrooms-how-college-sports-shape-lifelong-alumni-connections/">https://pegltd.com/blog/from-bleachers-to-boardrooms-how-college-sports-shape-lifelong-alumni-connections/</a></div>
+</div>
+<div id="ref-Hernan2006" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">M. A. Hernán and J. M. Robins, <span>“Estimating causal effects from observational data,”</span> <em>Journal of the American Statistical Association</em>, vol. 101, no. 475, pp. 1431–1447, 2006.</div>
+</div>
+<div id="ref-rubin1974estimating" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">D. B. Rubin, <span>“Estimating causal effects of treatments in randomized and nonrandomized studies,”</span> <em>Journal of Educational Psychology</em>, vol. 66, no. 5, pp. 688–701, 1974.</div>
+</div>
+<div id="ref-wager2015estimation" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">S. Wager and S. Athey, <span>“Estimation and inference of heterogeneous treatment effects using random forests,”</span> <em>arXiv preprint arXiv:1510.04342</em>, 2015.</div>
+</div>
+<div id="ref-econml" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">X. Nie, S. Wager, S. Athey, G. W. Imbens, <em>et al.</em>, <span>“EconML: A universal API for causal inference,”</span> <em>arXiv preprint arXiv:2002.11681</em>, 2020.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
