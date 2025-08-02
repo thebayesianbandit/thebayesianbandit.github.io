@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/wtp_air/wtp_air.html",
       "/posts/kind_alg/kindred_match.html",
       "/posts/fan_causal/fan_causal.html",
       "/posts/doom_alg/doom_alg.html",

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-08-01">
+
+<title>The Bayesian Bandit - (AI)rplane Pricing: Estimating Willingness To Pay</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/causal_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">(AI)rplane Pricing: Estimating Willingness To Pay</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">operations</div>
+                <div class="quarto-category">optimization</div>
+                <div class="quarto-category">causal inference</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 1, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#first-methods-yield-management" id="toc-first-methods-yield-management" class="nav-link" data-scroll-target="#first-methods-yield-management">First Methods: Yield Management</a></li>
+  <li><a href="#modern-methods-big-data" id="toc-modern-methods-big-data" class="nav-link" data-scroll-target="#modern-methods-big-data">Modern Methods: Big Data</a></li>
+  </ul></li>
+  <li><a href="#from-market-personalization-to-consumer-personalization" id="toc-from-market-personalization-to-consumer-personalization" class="nav-link" data-scroll-target="#from-market-personalization-to-consumer-personalization">From Market Personalization to Consumer Personalization</a>
+  <ul class="collapse">
+  <li><a href="#large-language-models" id="toc-large-language-models" class="nav-link" data-scroll-target="#large-language-models">Large Language Models</a></li>
+  <li><a href="#large-market-models" id="toc-large-market-models" class="nav-link" data-scroll-target="#large-market-models">Large Market Models</a></li>
+  </ul></li>
+  <li><a href="#personalized-pricing-prototype" id="toc-personalized-pricing-prototype" class="nav-link" data-scroll-target="#personalized-pricing-prototype">Personalized Pricing Prototype</a>
+  <ul class="collapse">
+  <li><a href="#utility-theory" id="toc-utility-theory" class="nav-link" data-scroll-target="#utility-theory">Utility Theory</a></li>
+  <li><a href="#hierarchical-bayesian" id="toc-hierarchical-bayesian" class="nav-link" data-scroll-target="#hierarchical-bayesian">Hierarchical Bayesian</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#price-offer-strategy" id="toc-price-offer-strategy" class="nav-link" data-scroll-target="#price-offer-strategy">Price Offer Strategy</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>Dynamic pricing has been the dominant approach in airline revenue management systems for decades. This method has continually improved with advances in new algorithms and better computing power. However, even with these improvements, the general pricing system remained rooted in price discrimination principles. Recently, Large Language Models (LLMs) have opened new avenues for many technologies. Their underlying structures and capabilities provide an opportunity for a new pricing paradigm to enter the airline industry: <strong>fully personalized pricing</strong>. In this post, we review the history and current approaches to airline pricing systems, from economic theory to the algorithms generally utilized. We then present information on <strong>Large Market Models (LMMs)</strong>, the new approach companies are leveraging to provide completely personalized prices to airline consumers. We conclude with a basic prototype of personalized pricing using a dynamic hierarchical Bayesian mixed logit model.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>In the early history of commercial aviation, airlines were governed by the <strong>Civil Aeronautics Board (CAB)</strong>. The CAB not only set prices and established routes but also oversaw various other operational aspects for these airlines. However, this changed dramatically in 1978 with airline deregulation <span class="citation" data-cites="AirlineDeregulationAct"><a href="#ref-AirlineDeregulationAct" role="doc-biblioref">[1]</a></span>. From that point onward, airlines gained the autonomy to determine their own pricing strategies, establish their own routes, and offer distinct services to differentiate themselves within the industry.</p>
+<p>This new freedom, however, brought the challenge of achieving profitability at each airline. The airline business operates within a high fixed cost, low marginal cost industry. A significant portion of airline expenses is incurred through the acquisition and maintenance of aircraft, personnel, fuel, and other operational overhead. In contrast, the marginal cost of accommodating an additional passenger on a given flight is relatively low. Thus, achieving full or near-full flights—became the primary driver of airline profitability.</p>
+<p>Like all businesses, airlines sought to move beyond simply selling available seats. They wanted to maximize total revenue (and thus profit) from each flight. To achieve this, airlines recognized the critical need to accurately estimate a consumer’s <strong>willingness to pay (WTP)</strong> <span class="citation" data-cites="Marshall1890Principles"><a href="#ref-Marshall1890Principles" role="doc-biblioref">[2]</a></span>. Consequently, a sole focus on cost-based pricing was insufficient. Instead, a transition to <strong>market-based pricing</strong> <span class="citation" data-cites="Cross1997Revenue"><a href="#ref-Cross1997Revenue" role="doc-biblioref">[3]</a></span> became imperative.</p>
+<section id="first-methods-yield-management" class="level2">
+<h2 class="anchored" data-anchor-id="first-methods-yield-management">First Methods: Yield Management</h2>
+<p>This market-based pricing approach became known as <strong>yield management</strong> (a term coined by Robert Cross at American Airlines). Yield management constituted a systematic approach focused on identifying distinct customer segments, setting different prices for these segments, and updating these prices regularly. Essentially, yield management aims to estimate a consumer’s WTP and set prices that capture as much of that value as possible.</p>
+<p>Airlines recognized that each customer had a unique WTP, but given the computational limitations of the time, calculating individual WTP was impractical. Insetad, general market approaches such as price discrimination were employed <span class="citation" data-cites="Pigou1920Economics"><a href="#ref-Pigou1920Economics" role="doc-biblioref">[4]</a></span>. Rather than offering every seat at a uniform price, airlines could differentiate seats with varying perks and sell them at distinct price points, thereby segmenting consumers into different WTP ranges.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://media.united.com/assets/m/135e5704439135f4/original/777-200_V1_SeatMap.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Different seating choices on a Boeing 777</figcaption><p></p>
+</figure>
+</div>
+<p>Beyond differentiating prices based on seating sections, airlines also began to strategically set prices according to supply and demand dynamics. With the increasing prevalence of computer systems, airlines gained the capacity to collect data on passenger booking patterns. For instance, they observed that leisure travelers typically booked tickets well in advance, while business travelers often purchased tickets with short notice. This behavioral insight was leveraged to develop tactics such as <strong>fare classes and fences</strong> <span class="citation" data-cites="Belobaba1987Air"><a href="#ref-Belobaba1987Air" role="doc-biblioref">[5]</a></span>.</p>
+<p>The fare class system operates as follows: While seat prices are initially differentiated by section, fare classes further segment inventory by stipulating the order in which seats are sold and at what price points. For example, within the economy section, different fare classes (e.g., A, B, C, D) are established. Seats assigned to class A are priced the lowest, with progressively higher prices for classes B, C, and D. This hierarchical pricing structure continues until a given class is fully booked. This approach is designed to mimic supply-demand principles: once a lower-priced class (e.g., A) is sold out, subsequent bookings are directed to higher-priced classes (e.g., B), reflecting a decrease in the remaining supply for that particular section. Thus, fare classes allowed airlines to “dynamically” adjust prices based on the quantity of seats sold within each designated class.</p>
+<p>Fences extend the fare class system by further refining price discrimination. These rules aim to retain higher-WTP customers within their designated fare classes while encouraging lower-WTP customers to “jump” fences and access more price-sensitive fares. For instance, airlines typically offer lower prices for early bookings to incentivize leisure travelers to commit in advance, whereas business travelers often pay a premium for bookings made closer to the travel date. Another common example is the minimum stay rule. Airlines frequently implement a Saturday-night stay requirement for round-trip tickets to differentiate business travelers from leisure travelers.</p>
+</section>
+<section id="modern-methods-big-data" class="level2">
+<h2 class="anchored" data-anchor-id="modern-methods-big-data">Modern Methods: Big Data</h2>
+<p>While the overall approach to pricing airfare remains deeply rooted in economic theory and operations research, airline revenue management systems have become significantly more sophisticated due to advances in data collection and predictive analytics.</p>
+<p>A key development in this area, for example, is the application of multi-armed bandit problems to dynamic pricing. Papers such as <em>A Modern Bayesian Look at the Multi-armed Bandit</em> <span class="citation" data-cites="Scott2010Bayesian"><a href="#ref-Scott2010Bayesian" role="doc-biblioref">[6]</a></span> leverage the power of multi-armed bandits to contextualize consumer behavior and optimize prices to encourage purchase behavior.</p>
+<p>Modern systems have also embraced other machine learning techniques to process a broader array of data points. Instead of relying solely on booking history and fare class availability, algorithms now incorporate factors such as web traffic patterns, historical search data for specific routes, time of day, and even weather forecasts. These models are designed to uncover complex, non-linear relationships between these variables and consumer demand, allowing for more nuanced and responsive pricing adjustments. The goal is to move beyond simple segmentation based on booking time and toward a more data-driven, continuous assessment of market conditions.</p>
+</section>
+</section>
+<section id="from-market-personalization-to-consumer-personalization" class="level1">
+<h1>From Market Personalization to Consumer Personalization</h1>
+<p>Despite significant advances in machine learning and big data, airline revenue management systems remained limited to personalizing prices based on market segments and prevailing market conditions rather than on individual WTP. Consequently, airlines were still unable to capture the complete consumer surplus from each passenger. However, a new advancement in technology began to emerge in the late 2010s, one that would fundamentally transform personalization across all industries.</p>
+<section id="large-language-models" class="level2">
+<h2 class="anchored" data-anchor-id="large-language-models">Large Language Models</h2>
+<p>In 2017, Google released the paper “Attention Is All You Need” by Vaswani et al. <span class="citation" data-cites="Vaswani2017Attention"><a href="#ref-Vaswani2017Attention" role="doc-biblioref">[7]</a></span>. This paper introduced the revolutionary architecture of transformers to process sequences of data, which was a significant breakthrough in natural language processing (NLP). The transformer’s ability to handle large amounts of data in parallel was a key enabler for the development of much larger models.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://machinelearningmastery.com/wp-content/uploads/2021/08/attention_research_1-727x1024.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Transformer Architecture</figcaption><p></p>
+</figure>
+</div>
+<p>From this foundational paper, research and development in the field accelerated. Examples include companies like <strong>OpenAI</strong>, who began developing their own <strong>Large Language Models (LLMs)</strong> to produce a personalized search engine. The transformer architecture fundamentally changed the landscape of AI, and today, almost all companies are looking to incorporate these powerful models into their services for personalization and advanced data processing.</p>
+</section>
+<section id="large-market-models" class="level2">
+<h2 class="anchored" data-anchor-id="large-market-models">Large Market Models</h2>
+<p>From a simplified point of view, the core objective of an LLM is to predict the next token in a sequence of input tokens. This fundamental principle of next-token prediction is now being generalized across various industries to address different problems. A prominent challenge being tackled is <strong>next market dynamic prediction</strong>. That is, using sequential observations of a market’s behavior to forecast its subsequent state.</p>
+<p>This new class of models aiming to predict market dynamics are called <strong>Large Market Models (LMMs)</strong> <span class="citation" data-cites="li2024mars"><a href="#ref-li2024mars" role="doc-biblioref">[8]</a></span>. Just like LLMs, LMMs can process large amounts of data to ultimately predict optimal actions within a given market. In the context of airline revenue management, this optimal action would be the optimal price. However, this pricing approach fundamentally differs from current dynamic pricing strategies. Instead of the “hard jumps” between fare classes (as previously discussed), LMMs can generate a continuous function for pricing <strong>at the individual consumer level</strong>.</p>
+<p>One company at the forefront of this research is Fetcherr. Founded in 2019 by Roy Cohen, Uri Yerushalmi, and Robby Nissan, the company believed that traditional business decision-making was not leveraging the full potential of modern AI and machine learning tools. Consequently, they developed a new revenue management system centered on the use of LMMs to revolutionize the airline industry. As their technology is proprietary, the specific implementation details cannot be discussed here. However, for those interested in a deeper understanding, a presentation on their approach is available in the video below.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/nzkeJgzS-Pk" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+</section>
+<section id="personalized-pricing-prototype" class="level1">
+<h1>Personalized Pricing Prototype</h1>
+<p>Due to hardware constraints and data availability, a prototype LMM cannot be presented in this post. However, to illustrate the core principles of personalized pricing, we instead present a <strong>hierarchical mixed logit model</strong>.</p>
+<p>To achieve this, we take the perspective of an airline aiming to optimize pricing to maximize revenue per customer through personalized offers. For the purpose of simulation, we created a data-generating function that attempts to mimic the dynamics of different consumer segments purchasing airline tickets. Each customer is presented with two options: Flight 1 and Flight 2. Each flight has its own attributes (e.g., number of layovers, price), and each customer has their own attributes (e.g., age group, income level, business traveler status). The dataset includes three scenarios for each customer, who can choose between Flight 1, Flight 2, or no flight. A sample of this dataset is provided below.</p>
+<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">cust_id</th>
+<th data-quarto-table-cell-role="th">scen_id</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">income</th>
+<th data-quarto-table-cell-role="th">is_business</th>
+<th data-quarto-table-cell-role="th">seat_browsed</th>
+<th data-quarto-table-cell-role="th">price_f1</th>
+<th data-quarto-table-cell-role="th">stops_f1</th>
+<th data-quarto-table-cell-role="th">price_f2</th>
+<th data-quarto-table-cell-role="th">stops_f2</th>
+<th data-quarto-table-cell-role="th">choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0</td>
+<td>0</td>
+<td>25-34</td>
+<td>high</td>
+<td>0</td>
+<td>econ</td>
+<td>177.0</td>
+<td>1</td>
+<td>233.0</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0</td>
+<td>1</td>
+<td>25-34</td>
+<td>high</td>
+<td>0</td>
+<td>econ</td>
+<td>191.0</td>
+<td>2</td>
+<td>198.0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>0</td>
+<td>2</td>
+<td>25-34</td>
+<td>high</td>
+<td>0</td>
+<td>econ</td>
+<td>194.0</td>
+<td>2</td>
+<td>189.0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>1</td>
+<td>0</td>
+<td>25-34</td>
+<td>low</td>
+<td>1</td>
+<td>econ</td>
+<td>169.0</td>
+<td>2</td>
+<td>255.0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1</td>
+<td>1</td>
+<td>25-34</td>
+<td>low</td>
+<td>1</td>
+<td>econ</td>
+<td>201.0</td>
+<td>0</td>
+<td>228.0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>In total, our dataset consists of one hundred unique customers each with three distinct scenarios. Our analysis continues with some simple EDA to better understand the synthetic data, starting with <a href="#fig-eda-1">Figure&nbsp;4.1</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="wtp_air_files/figure-html/fig-eda-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Count of customer by age and income</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Our data appears to have a higher proportion of middle class income customers with approximately an even split between high and low income customers. There also seems to be more customers in the age range of 25-34 than other categories.</p>
+<div class="cell" data-tags="[]" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="wtp_air_files/figure-html/fig-eda-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Count of choices between flight 1, flight 2, or no flight</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-2">Figure&nbsp;4.2</a> shows the count of choices for flight 1 (0), flight 2 (2), or no flight (2). The graph shows that the general consumer selected flight 1 slightly more often than flight 2.</p>
+<div class="cell" data-tags="[]" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="wtp_air_files/figure-html/fig-eda-3-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.3: Average price of seat split by class and flight number</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-3">Figure&nbsp;4.3</a> shows the average price between flight 1 and flight 2 tickets, split by class type. Flight two in both categories had higher average ticket prices than flight 1.</p>
+<div class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="wtp_air_files/figure-html/fig-eda-4-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.4: Proportion of ticket purchases by seat type</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-eda-4">Figure&nbsp;4.4</a> shows that both economy and premium class seats were about equally purchased, around 60% purchase rate.</p>
+<section id="utility-theory" class="level2">
+<h2 class="anchored" data-anchor-id="utility-theory">Utility Theory</h2>
+<p>The theory for our modeling approach stems from microeconomics, namely utility theory <span class="citation" data-cites="bernoulli1738exposition"><a href="#ref-bernoulli1738exposition" role="doc-biblioref">[9]</a></span>. As previously discussed, the primary objective for airlines is to capture as much consumer surplus as possible by accurately estimating a customer’s WTP. WTP itself is derived from the principle that individuals seek to maximize their utility from the consumption of a good or service. Therefore, if an airline’s service provides a consumer with utility, the goal is to set a price that is optimally aligned with the value of that utility, thereby maximizing the revenue captured.</p>
+<p>In our simulation, given the discrete consumer choice between alternatives, we use the random utility model <span class="citation" data-cites="mcfadden1974conditional"><a href="#ref-mcfadden1974conditional" role="doc-biblioref">[10]</a></span>, as shown in <a href="#eq-rum-1">Equation&nbsp;4.1</a>.</p>
+<p><span class="math display">\[
+U_{ijt} = V_{ijt} + \epsilon_{ijt}
+\]</span> <span id="eq-rum-1"><span class="math display">\[
+\epsilon_{ijt} \overset{i.i.d.}{\sim} \text{Gumbel}(0,1)
+\tag{4.1}\]</span></span></p>
+<p><span class="math inline">\(U_{ijt}\)</span> is the utility derived by the <span class="math inline">\(i\)</span>th customer choosing the <span class="math inline">\(j\)</span>th alternative in the <span class="math inline">\(t\)</span>th scenario. This utility is composed of a deterministic portion <span class="math inline">\(V_{ijt}\)</span> (our “observed” utility from purchased ticket data) and a stochastic term <span class="math inline">\(\epsilon_{ijt}\)</span> that we assume follows a Gumbel distribution.</p>
+<p>While we don’t observe an exact “utility” estimate in this data (or in any data for that matter), we postulate that utility is derived as a linear combination of observed features. This is illustrated in <a href="#eq-rum-2">Equation&nbsp;4.2</a>.</p>
+<p><span id="eq-rum-2"><span class="math display">\[
+V_{ijt} = \text{ASC}_{flight1,i,t} I(\text{Flight 1}) + \text{ASC}_{flight2,i,t} I(\text{Flight 2}) + \beta_{i,price,t} Price_{jt} + \beta_{i,stops,t} Stops_{jt} + \beta_{i,seat,t} Seat_{jt}
+\tag{4.2}\]</span></span></p>
+<p>The equation <a href="#eq-rum-2">Equation&nbsp;4.2</a> illustrates that the observed utility, <span class="math inline">\(V_{ijt}\)</span>, is a function of several key attributes of both the alternatives and the customer. Specifically, the utility is dependent on the flight’s price, the number of stops, and the type of seat purchased.</p>
+<p>The utility we derive in <a href="#eq-rum-2">Equation&nbsp;4.2</a> is then used to calculate the probability of choosing a given alternative in a given scenario. This is illustrated in <a href="#eq-rum-3">Equation&nbsp;4.3</a>.</p>
+<p><span id="eq-rum-3"><span class="math display">\[
+P(Y_{ijt} = 1) = \frac{exp(V_{ijt})}{\sum_{z=1}^{J}exp(V_{izt})}
+\tag{4.3}\]</span></span></p>
+<p>Essentially, we assume that the probability of a consumer’s observed choice is a function of the utility of a given alternative ($V_{ijt}) relative to the utilities of all other available alternatives.</p>
+</section>
+<section id="hierarchical-bayesian" class="level2">
+<h2 class="anchored" data-anchor-id="hierarchical-bayesian">Hierarchical Bayesian</h2>
+<p>As mentioned at the outset of this section, we are modeling this scenario hierarchically. This approach is based on the belief that individuals derive their preferences from a “global” distribution, which is then adjusted based on personal differences. To implement this, we model each <span class="math inline">\(\beta\)</span> value as a draw from a global population distribution, as shown in <a href="#eq-bay-1">Equation&nbsp;4.4</a>.</p>
+<p><span id="eq-bay-1"><span class="math display">\[
+\beta_{it} = \begin{pmatrix} \text{ASC}_{flight1,i,t} \\ \text{ASC}_{flight2,i,t} \\ \beta_{i,price,t} \\ \beta_{i,stops,t} \\ \beta_{i,seat,t} \end{pmatrix} \sim N(\mu_{t}, \Sigma)
+\tag{4.4}\]</span></span></p>
+<p>Each customer <span class="math inline">\(i\)</span> in scenario <span class="math inline">\(t\)</span> has a vector <span class="math inline">\(\beta\)</span> that is drawn from a multivariate normal distribution with mean <span class="math inline">\(\mu_{t}\)</span> and covariance <span class="math inline">\(\Sigma\)</span>. <span class="math inline">\(\mu_{t}\)</span> is our vector of population parameter estimates for the average preference for each attribute of a flight at time <span class="math inline">\(t\)</span>. <span class="math inline">\(\Sigma\)</span> represents the unobserved heterogeneity around <span class="math inline">\(\mu_{t}\)</span> (Note: we hold this value constant throughout to simplify modeling).</p>
+<p>We model <span class="math inline">\(\mu_{t}\)</span> as an AR(1) process, as shown in <a href="#eq-bay-2">Equation&nbsp;4.5</a>.</p>
+<p><span id="eq-bay-2"><span class="math display">\[
+\mu_{kt} = \mu_{k,base} + \phi_{k}(\mu_{kt-1} - \mu_{k,base}) + \eta_{kt}
+\tag{4.5}\]</span></span></p>
+<p><span class="math inline">\(\mu_{kt}\)</span> is the average preference for attribute <span class="math inline">\(k\)</span> at time <span class="math inline">\(t\)</span>. This is a linear combination of three key components: The base preference (<span class="math inline">\(\mu_{k,base}\)</span>), the difference between the past average preference and the base preference scaled by autoregressive component <span class="math inline">\(\phi_{k}\)</span> (how much the past mean influences the current mean), and the random shock <span class="math inline">\(\eta_{kt}\)</span> which accounts for unobserved fluctuations in the average preference. (Note: We assume <span class="math inline">\(\eta_{kt}\)</span> is drawn from <span class="math inline">\(N(0,q_{k})\)</span>. Interested readers can see the code for <span class="math inline">\(q_{k}\)</span> prior).</p>
+<p>The <span class="math inline">\(\mu_{k,base}\)</span> parameter is estimated from the baseline population hyperparameters, as shown in <a href="#eq-bay-3">Equation&nbsp;4.6</a>.</p>
+<p><span id="eq-bay-3"><span class="math display">\[
+\mu_{k,base} = \alpha_{k} + \delta_{kc}
+\tag{4.6}\]</span></span></p>
+<p><span class="math inline">\(\alpha_{k}\)</span> is the intercept for the baseline population mean for each attribute <span class="math inline">\(k\)</span>. This is then adjusted based on different customer demographics <span class="math inline">\(c\)</span> for each attribute <span class="math inline">\(k\)</span>. Each <span class="math inline">\(\alpha_{k}\)</span> and <span class="math inline">\(\delta_{kc}\)</span> has prior <span class="math inline">\(N(\mu, \sigma)\)</span> (interested readers can view the numpyro code for specific numbers).</p>
+<p>The likelihood function based on all these parameters is modeled in <a href="#eq-bay-4">Equation&nbsp;4.7</a>.</p>
+<p><span id="eq-bay-4"><span class="math display">\[
+L(Y|\beta, \mu, \Sigma, \phi, Q) = \prod_{i=1}^{N} \prod_{j=1}^{J} \prod_{t=1}^{T_{i}} P(Y_{ijt} = 1)
+\tag{4.7}\]</span></span></p>
+<p>Once these parameters are estimated, we can calculate individual WTP using <a href="#eq-wtp-1">Equation&nbsp;4.8</a>.</p>
+<p><span id="eq-wtp-1"><span class="math display">\[
+\text{WTP}_{ikt} = -\frac{\beta_{ikt}}{\beta_{i,price,t}}
+\tag{4.8}\]</span></span></p>
+<p>WTP is formally defined as the marginal rate of substitution between a non-monetary attribute and price. Within our logit framework, this is calculated as the ratio of an attribute’s coefficient to the absolute value of the price coefficient. A positive WTP indicates the amount a customer is willing to pay to gain an attribute, while a negative WTP represents the cost a customer is willing to incur to avoid an undesirable attribute.</p>
+<p>To model this data, we used <code>numpyro</code> <span class="citation" data-cites="phan2019composable"><a href="#ref-phan2019composable" role="doc-biblioref">[11]</a></span> using a NUTS kernel <span class="citation" data-cites="hoffman2014no"><a href="#ref-hoffman2014no" role="doc-biblioref">[12]</a></span> and collected 1000 samples.</p>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>In the context of airline pricing, we’d like to understand the WTP for customers avoiding layovers (stops) on their flights and the WTP for customers seeking a premium class seat. If we can identify different WTP for each customer, we can better personalize pricing based on these attributes to capture more revenue per customer.</p>
+<p>To illustrate the results of our model, we present the average WTP estimate for stops along with 95% credible interval for customer 5. These results are shown below for each scenario <span class="math inline">\(t\)</span>.</p>
+<div class="cell" data-tags="[]" data-execution_count="26">
+<div class="cell-output cell-output-stdout">
+<pre><code>Average WTP stop for customer 5: -11.361211776733398
+95% CI for customer 5: [-60.          -0.18702286]</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="27">
+<div class="cell-output cell-output-stdout">
+<pre><code>Average WTP stop for customer 5: -10.813233375549316
+95% CI for customer 5: [-60.         -0.1928775]</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="28">
+<div class="cell-output cell-output-stdout">
+<pre><code>Average WTP stop for customer 5: -10.883264541625977
+95% CI for customer 5: [-60.          -0.17119325]</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="29">
+<div class="cell-output cell-output-display">
+<div id="fig-wtp-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="wtp_air_files/figure-html/fig-wtp-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.5: Posterior distributions for WTP on stops across different scenarios</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="30">
+<div class="cell-output cell-output-display" data-execution_count="30">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">cust_id</th>
+<th data-quarto-table-cell-role="th">scen_id</th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">income</th>
+<th data-quarto-table-cell-role="th">is_business</th>
+<th data-quarto-table-cell-role="th">seat_browsed</th>
+<th data-quarto-table-cell-role="th">price_f1</th>
+<th data-quarto-table-cell-role="th">stops_f1</th>
+<th data-quarto-table-cell-role="th">price_f2</th>
+<th data-quarto-table-cell-role="th">stops_f2</th>
+<th data-quarto-table-cell-role="th">choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">15</td>
+<td>5</td>
+<td>0</td>
+<td>18-24</td>
+<td>med</td>
+<td>0</td>
+<td>econ</td>
+<td>207.0</td>
+<td>1</td>
+<td>237.0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">16</td>
+<td>5</td>
+<td>1</td>
+<td>18-24</td>
+<td>med</td>
+<td>0</td>
+<td>prem</td>
+<td>323.0</td>
+<td>0</td>
+<td>328.0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17</td>
+<td>5</td>
+<td>2</td>
+<td>18-24</td>
+<td>med</td>
+<td>0</td>
+<td>econ</td>
+<td>180.0</td>
+<td>2</td>
+<td>228.0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Customer 5, an individual aged 18-24 with a middle income who is not a business traveler, shows a WTP of approximately $11 to avoid one additional stop. This is the marginal value that customer 5 would be willing to add to the ticket, on average, to avoid an additional stop on their flight. If we were to set prices at the customer level, we could use this information to set a price below this ceiling amount to better capture the additional consumer surplus.</p>
+<p>We also can view customer 5’s WTP for seat upgradge (going up from economy to premium). These results are shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="33">
+<div class="cell-output cell-output-stdout">
+<pre><code>Average WTP seat for customer 5: 26.012453079223633
+95% CI for customer 5: [ 0.8786044 60.       ]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="34">
+<div class="cell-output cell-output-stdout">
+<pre><code>Average WTP seat for customer 5: 26.450408935546875
+95% CI for customer 5: [ 0.83505126 60.        ]</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="35">
+<div class="cell-output cell-output-stdout">
+<pre><code>Average WTP seat for customer 5: 26.11977767944336
+95% CI for customer 5: [ 1.03312797 60.        ]</code></pre>
+</div>
+</div>
+<div class="cell" data-tags="[]" data-execution_count="36">
+<div class="cell-output cell-output-display">
+<div id="fig-wtp-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="wtp_air_files/figure-html/fig-wtp-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.6: Posterior distribution for WTP on seat upgrade across different scenarios</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The posterior distributions for seat upgrades are more spread out, indicating a higher degree of uncertainty in our estimates compared to those for stops. Similar to the distributions in <a href="#fig-wtp-1">Figure&nbsp;4.5</a>, these posterior distributions do not vary significantly across each scenario. It is worth noting that the mean WTP for seat upgrades is higher for Customer 5, reflecting a greater potential value, though this estimate comes with higher uncertainty due to the wider distribution. This uncertainty can be incorporated directly into our pricing strategy to create a more robust offering system.</p>
+</section>
+<section id="price-offer-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="price-offer-strategy">Price Offer Strategy</h2>
+<p>Our goal is to maximize the expected profit from a given price point for a particular customer. While we could set the price as the base fare plus the mean of the posterior distribution, a more optimal approach would be finding a price point <span class="math inline">\(p\)</span> that would maximize <a href="#eq-profit-1">Equation&nbsp;4.9</a>.</p>
+<p><span id="eq-profit-1"><span class="math display">\[
+E[p-c] = (p-c)P(WTP_{ikt} &gt; p)
+\tag{4.9}\]</span></span></p>
+<p><span class="math inline">\(p\)</span> is the price and <span class="math inline">\(c\)</span> is the cost associated with the flight. The probabilities from <a href="#eq-profit-1">Equation&nbsp;4.9</a> can be pulled from our posterior distributions.</p>
+<p>Assuming a cost <span class="math inline">\(c\)</span> of $200 and a base fare <span class="math inline">\(p\)</span> of $200, we determine the optimal price for a flight based on the WTP for avoiding a stop. To do this, we test integer price points ranging from $5 to $30 above the base fare. Using the posterior distribution derived from scenario 2 for customer 5, the resulting optimal price is shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="47">
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimal price to maximize profit: $218</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we reviewed the history of airline revenue management, from the 1978 deregulation act to today’s more sophisticated approaches. We discussed how these systems have attempted to maximize revenue by constantly adjusting prices based on market dynamics and leveraging techniques like price discrimination. We then introduced a new technological disruption with the advent of LLMs and LMMs. Following this, we presented a simpler approach using a dynamic hierarchical mixed logit model to estimate individual customer WTP. We concluded by demonstrating how these estimates can be used within a basic profit optimization framework to offer prices that maximize profitability for each customer.</p>
+<p>Overall, we hope this post has provided a clear overview of the complexities of pricing within the airline industry. The practices currently in use are the result of a considerable amount of research and development. Now, with the revolution of AI powered by LLMs, the airline industry appears to primed for yet another pricing revolution.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-AirlineDeregulationAct" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline"><span>“Airline deregulation act.”</span> <a href="https://en.wikipedia.org/wiki/Airline_Deregulation_Act" class="uri">https://en.wikipedia.org/wiki/Airline_Deregulation_Act</a>, 2025.</div>
+</div>
+<div id="ref-Marshall1890Principles" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">A. Marshall, <em>Principles of economics</em>. London: Macmillan; Co., 1890.</div>
+</div>
+<div id="ref-Cross1997Revenue" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">R. G. Cross, <em>Revenue management: Hard-core tactics for market domination</em>. New York: Broadway Books, 1997.</div>
+</div>
+<div id="ref-Pigou1920Economics" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">A. C. Pigou, <em>The economics of welfare</em>. London: Macmillan; Co., 1920.</div>
+</div>
+<div id="ref-Belobaba1987Air" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">P. P. Belobaba, <span>“Air travel demand and airline seat inventory management,”</span> Ph.D. Dissertation, Massachusetts Institute of Technology (MIT), Cambridge, MA, 1987.</div>
+</div>
+<div id="ref-Scott2010Bayesian" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">S. L. Scott, <span>“A modern bayesian look at the multi-armed bandit,”</span> <em>Applied Stochastic Models in Business and Industry</em>, vol. 26, no. 6, pp. 639–658, 2010.</div>
+</div>
+<div id="ref-Vaswani2017Attention" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">A. Vaswani <em>et al.</em>, <span>“Attention is all you need,”</span> in <em>Advances in neural information processing systems</em>, I. Guyon, U. von Luxburg, S. Bengio, H. Wallach, R. Fergus, S. V. N. Vishwanathan, R. Garnett, and K. Rowland, Eds., Curran Associates, Inc., 2017, pp. 5998–6008.</div>
+</div>
+<div id="ref-li2024mars" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">J. Li <em>et al.</em>, <span>“MarS: A financial market simulation engine powered by generative foundation model,”</span> <em>arXiv preprint arXiv:2409.07486</em>, 2024.</div>
+</div>
+<div id="ref-bernoulli1738exposition" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[9] </div><div class="csl-right-inline">D. Bernoulli, <span>“Specimen theoriae novae de mensura sortis,”</span> <em>Commentarii Academiae Scientiarum Imperialis Petropolitanae</em>, vol. 5, pp. 175–192, 1738.</div>
+</div>
+<div id="ref-mcfadden1974conditional" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[10] </div><div class="csl-right-inline">D. McFadden, <span>“Conditional logit analysis of qualitative choice behavior,”</span> in <em>Frontiers in econometrics</em>, Academic Press, 1974, pp. 105–142.</div>
+</div>
+<div id="ref-phan2019composable" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[11] </div><div class="csl-right-inline">D. Phan, N. Pradhan, and M. Jankowiak, <span>“Composable effects for flexible and accelerated probabilistic programming in NumPyro,”</span> <em>arXiv preprint arXiv:1912.11554</em>, 2019.</div>
+</div>
+<div id="ref-hoffman2014no" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[12] </div><div class="csl-right-inline">M. D. Hoffman and A. Gelman, <span>“The no-u-turn sampler: Adaptively setting path lengths in hamiltonian monte carlo,”</span> <em>Journal of Machine Learning Research</em>, vol. 15, no. 1, pp. 1593–1623, 2014.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
