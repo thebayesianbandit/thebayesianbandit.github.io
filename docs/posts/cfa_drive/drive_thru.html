@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-09-30">
+
+<title>The Bayesian Bandit - Eat More SDID? Testing Chick-fil-A Mobile Thru using Synthetic Difference-in-Difference</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/causal_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Eat More SDID? Testing Chick-fil-A Mobile Thru using Synthetic Difference-in-Difference</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">operations</div>
+                <div class="quarto-category">marketing</div>
+                <div class="quarto-category">causal inference</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 30, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#chick-fil-a" id="toc-chick-fil-a" class="nav-link" data-scroll-target="#chick-fil-a">Chick-fil-A</a>
+  <ul class="collapse">
+  <li><a href="#drive-thru-operations" id="toc-drive-thru-operations" class="nav-link" data-scroll-target="#drive-thru-operations">Drive-Thru Operations</a></li>
+  <li><a href="#analyzing-the-drive-thru-via-queue-theory" id="toc-analyzing-the-drive-thru-via-queue-theory" class="nav-link" data-scroll-target="#analyzing-the-drive-thru-via-queue-theory">Analyzing the Drive-Thru via Queue Theory</a></li>
+  <li><a href="#chick-fil-a-one" id="toc-chick-fil-a-one" class="nav-link" data-scroll-target="#chick-fil-a-one">Chick-fil-A One</a></li>
+  <li><a href="#mobile-thru" id="toc-mobile-thru" class="nav-link" data-scroll-target="#mobile-thru">Mobile Thru</a></li>
+  </ul></li>
+  <li><a href="#testing-the-mobile-thru" id="toc-testing-the-mobile-thru" class="nav-link" data-scroll-target="#testing-the-mobile-thru">Testing the Mobile-Thru</a>
+  <ul class="collapse">
+  <li><a href="#theory-behind-strategy" id="toc-theory-behind-strategy" class="nav-link" data-scroll-target="#theory-behind-strategy">Theory Behind Strategy</a></li>
+  <li><a href="#testing-our-theories" id="toc-testing-our-theories" class="nav-link" data-scroll-target="#testing-our-theories">Testing Our Theories</a></li>
+  <li><a href="#exploring-the-data" id="toc-exploring-the-data" class="nav-link" data-scroll-target="#exploring-the-data">Exploring the Data</a></li>
+  </ul></li>
+  <li><a href="#calculating-causal-effect-via-synthetic-difference-in-difference-sdid" id="toc-calculating-causal-effect-via-synthetic-difference-in-difference-sdid" class="nav-link" data-scroll-target="#calculating-causal-effect-via-synthetic-difference-in-difference-sdid">Calculating Causal Effect via Synthetic Difference-in-Difference (SDiD)</a>
+  <ul class="collapse">
+  <li><a href="#sdid-model-and-results" id="toc-sdid-model-and-results" class="nav-link" data-scroll-target="#sdid-model-and-results">SDiD Model and Results</a></li>
+  </ul></li>
+  <li><a href="#from-causal-modeling-to-business-strategy" id="toc-from-causal-modeling-to-business-strategy" class="nav-link" data-scroll-target="#from-causal-modeling-to-business-strategy">From Causal Modeling to Business Strategy</a>
+  <ul class="collapse">
+  <li><a href="#operational-efficiency" id="toc-operational-efficiency" class="nav-link" data-scroll-target="#operational-efficiency">Operational Efficiency</a></li>
+  <li><a href="#personalized-customer-experience" id="toc-personalized-customer-experience" class="nav-link" data-scroll-target="#personalized-customer-experience">Personalized Customer Experience</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>Drive-thrus are the American way of dining. Therefore, companies need this part of the restaurant to operate at peak efficiency. One company in particular that excels in this is <strong>Chick-fil-A</strong>. Recently, Chick-fil-A has begun testing <strong>mobile-thrus</strong>, a designated drive-thru lane for mobile orders made through the Chick-fil-A app. In this post, we briefly review the history of the drive-thru for fast food restaurants. We further zoom in on Chick-fil-A’s drive-thru strategy and operations. We then present an experimentation design for Chick-fil-A to validate this drive-thru pilot program using <strong>Synthetic Difference-in-Difference (SDiD)</strong>. We conclude by discussing possible strategic directions from our causal findings.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Although the drive-thru is a necessity for many fast-food chains today, it was not initially seen as a revolutionary concept. The first drive-thru is credited to Red’s Giant Hamburger, a small restaurant in Missouri, in 1947 <span class="citation" data-cites="agate_incredible_2024"><a href="#ref-agate_incredible_2024" role="doc-biblioref">[1]</a></span>. The innovation’s primary motivation was to transition from the traditional drive-in model to a faster system, allowing cars to pull up to a service window and leave promptly after receiving their food.</p>
+<p>Word of the drive-thru model eventually spread to the West Coast, where burger chain <strong>In-N-Out</strong> operationalized and advanced the concept. In-N-Out innovated by inventing the two-way speaker system, which separated order placement from food pickup to speed up operations. Soon after, other chains like <strong>Jack in the Box</strong> and <strong>Wendy’s</strong> adopted this two-way speaker drive-thru model. Despite this growing trend, larger chains such as McDonald’s and Burger King did not implement their own drive-thrus until the mid-1970s. Today, drive-thrus are critical to the success of fast-food chains, estimated to generate approximately 62% of all revenue <span class="citation" data-cites="goyal_drive-thru_2025"><a href="#ref-goyal_drive-thru_2025" role="doc-biblioref">[2]</a></span>. This places immense pressure on companies to meet the high expectations of the drive-thru model: speed, efficiency, and accuracy.</p>
+</section>
+<section id="chick-fil-a" class="level1">
+<h1>Chick-fil-A</h1>
+<p>In 1946, brothers S. Truett Cathy and Ben Cathy opened the <strong>Dwarf House</strong> in Hapeville, Georgia <span class="citation" data-cites="chick-fil-a_2020"><a href="#ref-chick-fil-a_2020" role="doc-biblioref">[3]</a></span>. The establishment was a typical diner, serving a variety of items like burgers, fries, and shakes. To differentiate the menu, S. Truett Cathy began experimenting with boneless chicken sandwich recipes. He eventually found the perfect combination, and the new sandwiches quickly became more popular than the burgers. Cathy decided to focus exclusively on this signature chicken sandwich and coined the name <strong>Chick-fil-A</strong> to reflect its high quality (inspired by the premium beef cut, fillet). The first official Chick-fil-A restaurant opened in Atlanta, Georgia, in 1967.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://d1fd34dzzl09j.cloudfront.net/Images/CFACOM/PLP%20updates/Image%20Updates/OS_3Col2.png?la=en&amp;h=-1&amp;w=-1" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">The Chick-fil-A Sandwich</figcaption><p></p>
+</figure>
+</div>
+<p>The first drive-thru Chick-fil-A opened in Greenville, South Carolina, in 1993. Since then, Chick-fil-A has grown into a fast-food powerhouse, generating approximately $8 billion in annual sales. A significant portion of this revenue is attributed to its drive-thru operations.</p>
+<p>Chick-fil-A wasn’t always known for its fast drive-thru service; in fact, it was once one of the slowest chains in the country. However, through a combination of strategic operational changes and technological innovations, the company has since become the industry standard for drive-thru efficiency.</p>
+<section id="drive-thru-operations" class="level2">
+<h2 class="anchored" data-anchor-id="drive-thru-operations">Drive-Thru Operations</h2>
+<p>In practice, drive-thru operations at each Chick-fil-A location are not identical; they vary based on factors like store layout and local demand. For this analysis, we will assume a standard operational structure and flow as depicted in Figure 1, which serves as a representative model for our discussion.</p>
+<div id="fig-drive-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="drive_thru_1.jpg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Chick-fil-A Drive-Thru Diagram</figcaption><p></p>
+</figure>
+</div>
+<p>Our Chick-fil-A restaurant, as shown in Figure 1, features a double-lane drive-thru. The process is as follows:</p>
+<ol type="1">
+<li>A car enters the drive-thru and chooses a lane.</li>
+<li>The customer places their order with the designated order taker for that lane.</li>
+<li>If paying with cash, the customer stops at a shared cashier station located between the two lanes.</li>
+<li>The car proceeds to the delivery window, where an employee delivers the food.</li>
+</ol>
+<p>Inside the restaurant, a team of baggers and beverage/milkshake station employees assemble the orders based on their contents.</p>
+</section>
+<section id="analyzing-the-drive-thru-via-queue-theory" class="level2">
+<h2 class="anchored" data-anchor-id="analyzing-the-drive-thru-via-queue-theory">Analyzing the Drive-Thru via Queue Theory</h2>
+<p>Our drive-thru operation can be analyzed using tools from <strong>queue theory</strong> <span class="citation" data-cites="Erlang1917"><a href="#ref-Erlang1917" role="doc-biblioref">[4]</a></span>. Below are some key parameters.</p>
+<ul>
+<li>Arrival Rate (<span class="math inline">\(\lambda\)</span>): The average rate of customers arriving at the drive-thru. In our scenario, <span class="math inline">\(\lambda\)</span> = 2 customers per minute.</li>
+<li>Order Take Time (OTT): The average time it takes for customers to place their order. In our scneario, OTT = 30 seconds.</li>
+<li>Service Rate (<span class="math inline">\(\mu\)</span>): The average rate at which orders are processed and fulfilled (time from order placement to order delivery). In our scenario, <span class="math inline">\(\mu\)</span> = 2.33 customers per minute.</li>
+</ul>
+<p>With two order takers and a single service window, the system’s bottleneck is the service window, as it has the lowest service rate. Since the overall system’s throughput is limited by this single service point, we can model the entire drive-thru as a <strong>M/M/1 queue</strong> using <strong>Kendall notation</strong> <span class="citation" data-cites="Kendall1953"><a href="#ref-Kendall1953" role="doc-biblioref">[5]</a></span>, where the service window represents the single server. This simplifies our analysis by focusing on the primary constraint on the system’s capacity.</p>
+<p>For our drive-thru to run efficiently, we want to ensure that certain key metrics are optimized. These metrics and the respective calculations are listed below.</p>
+<ul>
+<li>System Utilization (<span class="math inline">\(\rho\)</span>): <span class="math inline">\(\rho = \frac{\lambda}{\mu} = 85.8\%\)</span></li>
+<li>Average Number of Customers in Queue (<span class="math inline">\(L_{q}\)</span>): <span class="math inline">\(L_{q} = \frac{\lambda^{2}}{\mu(\mu - \lambda)} = 5.2\)</span></li>
+<li>Average Time in Queue (<span class="math inline">\(W_{q}\)</span>): <span class="math inline">\(W_{q} = \frac{L_{q}}{\lambda} = 2.6 \text{ mins}\)</span></li>
+<li>Average Number of Customers in System (<span class="math inline">\(L\)</span>): <span class="math inline">\(L = \frac{\lambda}{\mu - \lambda} = 6.1\)</span></li>
+<li>Average Time in System (<span class="math inline">\(W\)</span>): <span class="math inline">\(W = \frac{1}{\mu - \lambda} = 3.0 \text{ mins}\)</span></li>
+</ul>
+<p>Under the current system, the service window operates at around 86% capacity. On average, there are 5 cars waiting for their food, with each car spending an average of 2.5 minutes in the queue. The total average time a car spends in the system—from entering the drive-thru to receiving their food—is 3 minutes, with a total of 6 cars in the system on average. Overall, for peak hours, these are acceptable values that represent an efficient drive-thru.</p>
+</section>
+<section id="chick-fil-a-one" class="level2">
+<h2 class="anchored" data-anchor-id="chick-fil-a-one">Chick-fil-A One</h2>
+<p>In 2012, Chick-fil-A released their own mobile app. This app allowed customers to order items from their mobile device and pick up their order in the lobby or via the drive-thru. In 2016, Chick-fil-A added an incentive to get the app by developing their <strong>Chick-fil-A One</strong> rewards program. Any customer could now sign up and earn rewards for their purchases through the app.</p>
+<div id="fig-cfa-rewards" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="https://res.cloudinary.com/graham-media-group/image/upload/f_auto/q_auto/c_scale,w_640/v1/production/public/SZRU42CYP5G2VKBGMGR4NE7GJY.jpg?_a=DAJHqpE+ZAAA" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.2: Chick-fil-A One Rewards Program Benefits</figcaption><p></p>
+</figure>
+</div>
+<p>As shown in <a href="#fig-cfa-rewards">Figure&nbsp;3.2</a>, customers earn points based on their spending tier, with higher tiers offering greater benefits. This program is not only valuable to customers but also immensely beneficial to Chick-fil-A. In exchange for these rewards, the company collects crucial data on customer purchasing habits. This data can reveal insights into a customer’s typical order time, their distance to the store when placing an order, purchasing trends on weekdays versus weekends, etc. These data points allow Chick-fil-A to personalize the customer experience and optimize store operations.</p>
+</section>
+<section id="mobile-thru" class="level2">
+<h2 class="anchored" data-anchor-id="mobile-thru">Mobile Thru</h2>
+<p>While members can place orders on the app for drive-thru pickup, these orders are currently not given priority. The system processes them like any other order in the queue. The only difference is the speed of order taking. A customer simply provides their name to an order taker, who then adds the pre-entered mobile order to the queue.</p>
+<p>Since drive-thrus are the most popular way for customers to order their food and Chick-fil-A wants to continue to encourage customers to use their app, Chick-fil-A came up with “mobile-thrus”. Here, customers who use the mobile app have a dedicated lane in the drive-thru instead of joining the normal queue mixed with mobile and non-mobile customers.</p>
+<div id="fig-cfa-mobile" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="https://d1fd34dzzl09j.cloudfront.net/Images/CFACOM/Customer%20Support/MobileThruLifestyle_Resize.jpg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.3: Mobile Thru at Chick-fil-A</figcaption><p></p>
+</figure>
+</div>
+<p>We can view how this would affect the operations outlined in <a href="#fig-drive-1">Figure&nbsp;3.1</a>. Using the same notation as before, we assume that the average OTT remains at 30 seconds. In the new mobile-thru lane, average OTT is 10 seconds. While this is a great improvement in OTT, the bottleneck still occurs at the service window. Instead of dealing with a M/M/2 converging into a M/M/1 queue, we can break this into two parallel M/M/1 queues. The system specifications are enumerated below.</p>
+<ul>
+<li><span class="math inline">\(\lambda_{normal}\)</span> = 1 customer per minute</li>
+<li><span class="math inline">\(\lambda_{mobile}\)</span> = 1 customer per minute</li>
+<li><span class="math inline">\(OTT_{normal}\)</span> = 30 seconds</li>
+<li><span class="math inline">\(OTT_{mobile}\)</span> = 10 seconds</li>
+<li><span class="math inline">\(\mu_{normal}\)</span> = 1.1 customers per minute</li>
+<li><span class="math inline">\(\mu_{mobile}\)</span> = 1.3 customers per minute</li>
+</ul>
+<p>In the scenario with the specifications above, we assume the same average arrival rate but split evenly between the two lanes. The key difference is the service rate between the two lanes. We assume that we put the “faster” bagger on the mobile lane to enhance that experience. With these rates, we calculate the following metrics in <a href="#tbl-mob-1">Table&nbsp;3.1</a>.</p>
+<div id="tbl-mob-1" class="anchored">
+<table class="table">
+<caption>Table&nbsp;3.1: Drive-Thru Metrics w/ Mobile Thru</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;"></th>
+<th style="text-align: right;">Normal</th>
+<th style="text-align: right;">Mobile</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(\rho\)</span></td>
+<td style="text-align: right;">90.9%</td>
+<td style="text-align: right;">76.9%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">\(W_{q}\)</span></td>
+<td style="text-align: right;">9.1</td>
+<td style="text-align: right;">2.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(L_{q}\)</span></td>
+<td style="text-align: right;">~9</td>
+<td style="text-align: right;">~3</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">\(W\)</span></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">\(L\)</span></td>
+<td style="text-align: right;">~10</td>
+<td style="text-align: right;">~3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>As evident in the table, the mobile lane runs at much higher efficiency than the normal lane. On average, the normal line has almost 9 cars in the queue, 3 times as many as the mobile lane. Subsequently, cars in the normal lane wait on average 9 minutes for their order to be completed, whereas the mobile lane only waits about 2.6 minutes.</p>
+</section>
+</section>
+<section id="testing-the-mobile-thru" class="level1">
+<h1>Testing the Mobile-Thru</h1>
+<p>While our theoretical model of the drive-thru system clearly indicates that the mobile lane would run faster, the question then becomes: would it actually? Additionally, not only would we like the mobile lane to be more efficient, but we would like more customers to use the mobile lane. From a strategic point of view, if we can encourage more customers to use the mobile lane, we can gather more data and have a much clearer picture of the purchasing behavior of our customers.</p>
+<section id="theory-behind-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="theory-behind-strategy">Theory Behind Strategy</h2>
+<p>Our mobile-thru is an application of <strong>nudge theory</strong> <span class="citation" data-cites="thaler2008nudge"><a href="#ref-thaler2008nudge" role="doc-biblioref">[6]</a></span>, which states that people’s decisions can be influenced by small changes to their “choice architecture.” In this scenario, we alters our drive-thru by changing the lane configuration from two traditional lanes to one traditional lane and one exclusive “mobile-thru” lane. This change in choice architecture, combined with the greater efficiency and rewards associated with the mobile lane, provides a strong nudge for customers to choose the mobile-thru option.</p>
+<p>This scenario also is a practical application of <strong>social exchange theory</strong> <span class="citation" data-cites="homans1958social"><a href="#ref-homans1958social" role="doc-biblioref">[7]</a></span>. In exchange for exceptional service and loyalty points, we gain valuable customer data. This information includes a range of data points such as demographics, average ticket sizes, redeemed rewards, and the effectiveness of promotions.</p>
+</section>
+<section id="testing-our-theories" class="level2">
+<h2 class="anchored" data-anchor-id="testing-our-theories">Testing Our Theories</h2>
+<p>From our theories, we can develop research questions from which we will design our experiment. For our analysis, we focus on one primary question: - <strong>Does the mobile-thru increase the proportion of mobile orders?</strong></p>
+<p>In order to answer this questions, we need to design a robust experimentation framework that will allow us to gather data points to then perform valid causal inference. Ideally, we’d like to perform some kind of randomized controlled trial (RCT). However, this is infeasible since we can’t randomly assign customers to one of the lanes. Furthermore, a wide-scale rollout is too risky, as an unpopular mobile-thru could damage brand credibility and incur significant costs.</p>
+<p>To accomdate these requirements, the proposed research design is as follows: - Randomly select <span class="math inline">\(n\)</span> stores in each of our core geographic regions - Perform a staggered roll out of the mobile-thru to the <span class="math inline">\(n\)</span> locations - For each roll restaurant, collect transcation data <span class="math inline">\(t_{1}\)</span> number of days before roll out and <span class="math inline">\(t_{2}\)</span> days after roll out - Compare the transaction data between “treated” stores and “non-treated” stores</p>
+<p>Note: We perform random selection of restaurants to mitigate the potential for confoundness. We also perform a staggered roll out for the same reason (perhaps economic conditions are better in one month vs another).</p>
+</section>
+<section id="exploring-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-the-data">Exploring the Data</h2>
+<p>We begin exploring the data by first seeing what data we have available. We call a simple <code>head</code> method call to preview the data.</p>
+<div class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">store_id</th>
+<th data-quarto-table-cell-role="th">day_num</th>
+<th data-quarto-table-cell-role="th">has_mobile</th>
+<th data-quarto-table-cell-role="th">perc_rev_member</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0.412567</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0.299284</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0.465392</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0.190485</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0.647600</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We have four columns currently. Store id represents the unique identifier for each restaurant (0-7 for a total of eight restaurants). Day num represents the day number collected relative to the beginning of the experiment/rollout. Has mobile is a boolean representing if/when a restaurant receives the mobile thru. Percent revenue member represents the proportion of revenue at the restaurant for the day generated from members (i.e.&nbsp;via the app).</p>
+<p>To help with visualizations, we create a new column called <code>gets_treat</code> to show which restaurants will receive treatment. In our study, this corresponds to restaurants 0, 2, 4, and 6. Each of these restaurants, as stated earlier in the post, has a similar restaurant within the same region that acts as the control (Note: in our analysis, we assume homogeneity across geographic regions). Thus, one interesting visualization would be plotting the 100-day experiment comparing the response variable between treated restaurants and controls. This is shown in <a href="#fig-eda-1">Figure&nbsp;4.1</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="drive_thru_files/figure-html/fig-eda-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: Aggregated panel data plot showing average percent of revenue from mobile orders between treated and control units</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The dotted black lines in <a href="#fig-eda-1">Figure&nbsp;4.1</a> show the rollout dates for each of the restaurants in the study. As we approach the 100-day mark, the distance between the treated and control restaurants grows larger, indicating a potential treatment effect. To verify if this is true across all restaurants or if one restaurant is driving this change, we plot each region separately in <a href="#fig-eda-2">Figure&nbsp;4.2</a>.</p>
+<div class="cell" data-tags="[]" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div id="fig-eda-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="drive_thru_files/figure-html/fig-eda-2-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.2: Proportion of revenue generated by mobile orders between treated and control in each region</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The graph above verifies that each region tested shows a growing gap between treated and control restaurants. As such, we’d like to quantify this gap to help Chick-fil-A know on average what a full mobile-thru rollout would do for driving an increase in mobile-app order usage.</p>
+</section>
+</section>
+<section id="calculating-causal-effect-via-synthetic-difference-in-difference-sdid" class="level1">
+<h1>Calculating Causal Effect via Synthetic Difference-in-Difference (SDiD)</h1>
+<p>Since we are dealing with panel data, a hard date for treatment implementation, and no treatment rollback, a common approach to this would be using a <em>Difference-in-Differences</em> <span class="citation" data-cites="Card1994Minimum"><a href="#ref-Card1994Minimum" role="doc-biblioref">[8]</a></span> estimator. However, recent studies have shown that in the case of potential heterogeneous treatment effects and staggered rollouts, this estimator can become biased <span class="citation" data-cites="Goodman-Bacon2021"><a href="#ref-Goodman-Bacon2021" role="doc-biblioref">[9]</a></span>.</p>
+<p>To handle such broken assumptions, one can use <em>Synthetic Control Method (SCM)</em> <span class="citation" data-cites="Abadie2010"><a href="#ref-Abadie2010" role="doc-biblioref">[10]</a></span>. However, this approach lacks the ability to account for multiple treated units and staggered rollout dates. While we could perform four separate SCMs to generate causal inference, this method would fail to pool information acrosss all units to get a stable average treatment effect of the treated (ATT). Therefore, we need a framework that allows us to utilize all the information across our four regions that doesn’t break when with staggered rollouts.</p>
+<p>In 2021, Dmitry Arkhangelsky, Susan Athey, David A. Hirshberg, Guido W. Imbens, and Stefan Wager published <em>Synthetic Difference-in-Differences (SDiD</em> <span class="citation" data-cites="Arkhangelsky2021"><a href="#ref-Arkhangelsky2021" role="doc-biblioref">[11]</a></span>. This estimator combines the best of both worlds of DiD and SCM. For our purposes, it can handle multiple treated and control units, allows for staggered rollouts, and has a more robust counterfactual estimate since it uses weights from DiD and SCM.</p>
+<section id="sdid-model-and-results" class="level2">
+<h2 class="anchored" data-anchor-id="sdid-model-and-results">SDiD Model and Results</h2>
+<p><strong>Notice</strong>: We’d like to recognize the work of <span class="citation" data-cites="Arkhangelsky2021"><a href="#ref-Arkhangelsky2021" role="doc-biblioref">[11]</a></span> and the work of Matheus Facure [Facure:SynDiD]. We use Matheus’s implementation of SDiD in our post and highly recommend that people read his book, <a href="https://matheusfacure.github.io/python-causality-handbook/landing-page.html#">Causal Inference for The Brave and True</a>.</p>
+<p>In most causal inference models, we are dealing with estimating what is happening versus what could have happened using the potential outcomes framework <span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[12]</a></span>. To do this in our analysis, we begin by deriving the SDiD estimator by showing the optimization equations for DiD and SCM in <a href="#eq-sdid-1">Equation&nbsp;5.1</a>.</p>
+<p><span class="math display">\[
+\hat{\tau}^{sc} = \underset{\beta, \tau}{argmin}  \bigg\{ \sum_{i=1}^N \sum_{t=1}^T \big(Y_{it} - \beta_t - \tau D_{it}\big)^2 \hat{w}^{sc}_i \bigg\}
+\]</span> <span id="eq-sdid-1"><span class="math display">\[
+\hat{\tau}^{did} = \underset{\mu, \alpha, \beta, \tau}{argmin} \bigg\{ \sum_{i=1}^N \sum_{t=1}^T \big(Y_{it} - (\mu + \alpha_i + \beta_t + \tau D_{it}\big)^2 \bigg\}
+\tag{5.1}\]</span></span></p>
+<p>The top equation is for SCM. In SCM, we attempt to find the parameters <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\tau\)</span> that minimize the difference between the observed result <span class="math inline">\(Y_{it}\)</span>. In DiD, we attempt to find parameters <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\tau\)</span> that minize the difference between the observed result <span class="math inline">\(Y_{it}\)</span>. The goal in SCM is to generate a counterfactual that mimics the pre-treatment period for the treated unit. Likewise, in DiD, we use a control unit that mimics the behavior of the treated unit (i.e.&nbsp;follows the parallel trends assumption).</p>
+<p>In SDiD, we merge the two equations together to get <a href="#eq-sdid-2">Equation&nbsp;5.2</a>. We describe each part of this equation in the list below.</p>
+<p><span id="eq-sdid-2"><span class="math display">\[
+\hat{\tau}^{sdid} = \underset{\mu, \alpha, \beta, \tau}{argmin}  \bigg\{ \sum_{i=1}^N \sum_{t=1}^T \big(Y_{it} - (\mu + \alpha_i + \beta_t + \tau D_{it})^2 \hat{w}^{sdid}_i \hat{\lambda}^{sdid}_t \big) \bigg\}
+\tag{5.2}\]</span></span></p>
+<p><span id="eq-sdid-3"><span class="math display">\[
+\begin{split}
+\hat{\lambda}^{sdid} = \underset{\lambda}{\mathrm{argmin}} \ ||\bar{\pmb{y}}_{post, co} - (\pmb{\lambda}_{pre} \pmb{Y}_{pre, co} +  \lambda_0)||^2_2 \\
+\text{s.t } \ \sum \lambda_t = 1 \text{ and } \ \lambda_t &gt; 0 \ \forall \ t
+\end{split}
+\tag{5.3}\]</span></span></p>
+<p><span id="eq-sdid-4"><span class="math display">\[
+\begin{split}
+\hat{w}^{sdid} = \underset{w}{\mathrm{argmin}} \ ||\bar{\pmb{y}}_{pre, tr} - (\pmb{Y}_{pre, co} \pmb{w}_{co} +  w_0)||^2_2 + \zeta^2 T_{pre} ||\pmb{w}_{co}||^2_2\\
+\text{s.t } \ \sum w_i = 1 \text{ and } \ w_i &gt; 0 \ \forall \ i
+\end{split}
+\tag{5.4}\]</span></span></p>
+<ul>
+<li><span class="math inline">\(Y_{it}\)</span> is the actual outcome for restaurant <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span></li>
+<li><span class="math inline">\(\mu\)</span> is the baseline of the counterfactual</li>
+<li><span class="math inline">\(\alpha_{i}\)</span> is the fixed effect for the <span class="math inline">\(i\)</span>th restaurant</li>
+<li><span class="math inline">\(\beta_{t}\)</span> is the time fixed effect for time <span class="math inline">\(t\)</span></li>
+<li><span class="math inline">\(D_{it}\)</span> is the treatment indicator (1 for treated, 0 for control)</li>
+<li><span class="math inline">\(\tau\)</span> is the ATT</li>
+<li><span class="math inline">\(\hat{w_{i}}^{sdid}\)</span> is the <span class="math inline">\(ith\)</span> unit weight from SCM</li>
+<li><span class="math inline">\(\hat{\lambda_{t}}^{sdid}\)</span> is the <span class="math inline">\(th\)</span> time weight</li>
+</ul>
+<p>We won’t go into too much detail with <a href="#eq-sdid-3">Equation&nbsp;5.3</a> nor <a href="#eq-sdid-4">Equation&nbsp;5.4</a>, as they are mostly there for reference as to where those weights come from. The critical equation is <a href="#eq-sdid-2">Equation&nbsp;5.2</a>, which shows that it is a balanced combination of SCM and DiD. This means that SDiD finds optimal parameters that both estimate the treated unit’s counterfactual trajectory. In short, the SDiD estimator becomes a doubly robust estimator for estimating ATT.</p>
+<p>In particular, SDiD is a doubly robust estimator in staggered adoption designs. Because SDiD relies on block-matrix design (see <span class="citation" data-cites="Arkhangelsky2021"><a href="#ref-Arkhangelsky2021" role="doc-biblioref">[11]</a></span> section 8 for more information), we adjust this block design by running SDiD four times across the four treated units while still comparing them across all the controls. After fitting our data to the SDiD estimator, we obtain the ATT shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="18">
+<div class="cell-output cell-output-stdout">
+<pre><code>ATT: 0.3035668498514986</code></pre>
+</div>
+</div>
+<p>Our ATT indicates that restaurants that have implemented the mobile-thru have, on average, about a 0.31 increase in the proportion of revenue generated from mobile orders. This is a major increase! Previously, drive-thrus had, on average, about 30% of revenue from mobile orders. Now, with mobile-thrus, this number is basically double.</p>
+<p><strong>Note</strong>: In a more thorough analysis (and obviously with real data), we’d want to verify this ATT by performing other statistical tests and reporting relevant statistical measures. However, since this is synthetic data for a synthetic example, it suffices to show that the SDiD correctly uncovered the underlying causal mechanism, accounting for confounding effects and properly handling the staggered rollout.</p>
+</section>
+</section>
+<section id="from-causal-modeling-to-business-strategy" class="level1">
+<h1>From Causal Modeling to Business Strategy</h1>
+<p>At the end of the day, causal modeling is merely a tool to inform business strategy. Knowing that mobile-thrus in our small experiment increased the proportion of mobile orders is great, but what should we do with this information? What are the available resources and capabilities of Chick-fil-A to maximize this opportunity?</p>
+<p>As mentioned earlier in the post, Chick-fil-A has been increasingly focused on improving the drive-thru to make it the go-to spot for speed and accuracy. Furthermore, Chick-fil-A has been investing a lot into their digital touchpoints with customers via their mobile application. With these two main focuses and the result of the mobile-thru experiment, Chick-fil-A is well positioned to merge these two worlds to <strong>maximize its value chain</strong> <span class="citation" data-cites="Porter1985"><a href="#ref-Porter1985" role="doc-biblioref">[13]</a></span>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://www.cisl.cam.ac.uk/files/media/the-value-chain.jpg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">The Value Chain</figcaption><p></p>
+</figure>
+</div>
+<p>The value chain consists of the intentional steps a business takes to provide a good or service to its customers. In our case, Chick-fil-A is aiming to provide food to its customers in a friendly and efficient way, particularly through the drive-thru.</p>
+<p>The combination of the mobile app with the mobile-thru provides a new way for Chick-fil-A to operationalize their business. These changes can be summarized in two areas below.</p>
+<section id="operational-efficiency" class="level2">
+<h2 class="anchored" data-anchor-id="operational-efficiency">Operational Efficiency</h2>
+<p>The increase in mobile orders means increased insight into customer purchase patterns. We can now know the minute of the day, distance, and preference of food for each individual customer. Since we have a more accurate picture into what customers are looking to purchase, we can leverage predictive analytics to more accurately forecast our supply chain needs and workforce management.</p>
+<p>Furthermore, since we have continuous feedback from customers, these models can be continuously updated to match the current trends and preferences of customers. By planning our resources around this new reliable source of data, Chick-fil-A can enhance operational efficiency to drive profits.</p>
+</section>
+<section id="personalized-customer-experience" class="level2">
+<h2 class="anchored" data-anchor-id="personalized-customer-experience">Personalized Customer Experience</h2>
+<p>The app gives incredible insight into each customer’s tastes and preferences. As more users continue to go into the app, we can get better insights into different customer demographics and activities. Using those insights, we can better personalize deals and opportunities. We can understand the timing of sending promotions, different app layouts to maximize customer checkout throughput, etc. There are a plethora of ways Chick-fil-A can leverage this new digital touchpoint to better position themselves to provide maximum value to their customers.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we reviewed the rich history of Chick-fil-A, its current drive-thru strategy, and a potential new avenue with mobile-thrus. We used queue theory to analyze the current system and the potential changes in drive-thru efficiency by implementing a mobile-thru. We then designed an experiment to test this mobile-thru and used the SDiD estimator to extract a causal effect. After calculating this causal effect, we used it to guide our business strategy to improve two areas of our business: operational efficiency and customer experience personalization.</p>
+<p>Overall, we hope this post illustrated the importance of combining causal models with business strategy. Causality is most useful when implemented in a framework of business strategy, and business strategy is most robust when tested via rigorous and robust models. The combination of both can provide great results for any business.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-agate_incredible_2024" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">J. Agate, <span>“The incredible history of the drive-thru,”</span> <em>Lovefood</em>, Jun. 2024, Accessed: Aug. 06, 2025. [Online]. Available: <a href="https://www.lovefood.com/gallerylist/98185/the-incredible-history-of-the-drive-thru">https://www.lovefood.com/gallerylist/98185/the-incredible-history-of-the-drive-thru</a></div>
+</div>
+<div id="ref-goyal_drive-thru_2025" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">A. Goyal, <span>“Drive-thru restaurant statistics: Trends, performance data &amp; consumer insights,”</span> <em>Restroworks</em>, Jun. 2025, Accessed: Aug. 06, 2025. [Online]. Available: <a href="https://www.restroworks.com/blog/drive-thru-restaurant-statistics/">https://www.restroworks.com/blog/drive-thru-restaurant-statistics/</a></div>
+</div>
+<div id="ref-chick-fil-a_2020" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Georgia Historical Society, <span>“Chick-fil-a.”</span> May 2020. Accessed: Aug. 06, 2025. [Online]. Available: <a href="https://georgiahistory.com/wp-content/uploads/2020/05/Chick-fil-A.pdf">https://georgiahistory.com/wp-content/uploads/2020/05/Chick-fil-A.pdf</a></div>
+</div>
+<div id="ref-Erlang1917" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">A. K. Erlang, <span>“Solution of some problems in the theory of probabilities of significance in automatic telephone exchanges,”</span> <em>Elektrotkeknikeren</em>, vol. 13, pp. 5–13, 1917.</div>
+</div>
+<div id="ref-Kendall1953" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">D. G. Kendall, <span>“Stochastic processes occurring in the theory of queues and their analysis by the method of the imbedded markov chain,”</span> <em>The Annals of Mathematical Statistics</em>, vol. 24, no. 3, pp. 338–354, 1953, doi: <a href="https://doi.org/10.1214/aoms/1177728975">10.1214/aoms/1177728975</a>.</div>
+</div>
+<div id="ref-thaler2008nudge" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">R. H. Thaler and C. R. Sunstein, <em>Nudge: Improving decisions about health, wealth, and happiness</em>. New Haven, CT: Yale University Press, 2008.</div>
+</div>
+<div id="ref-homans1958social" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">G. C. Homans, <span>“Social behavior as exchange,”</span> <em>American Journal of Sociology</em>, vol. 63, no. 6, pp. 597–606, 1958.</div>
+</div>
+<div id="ref-Card1994Minimum" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">D. Card and A. B. Krueger, <span>“Minimum wages and employment: A case study of the fast-food industry in new jersey and pennsylvania,”</span> <em>The American Economic Review</em>, vol. 84, no. 4, pp. 772–793, 1994.</div>
+</div>
+<div id="ref-Goodman-Bacon2021" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[9] </div><div class="csl-right-inline">A. Goodman-Bacon, <span>“Difference-in-differences with variation in treatment timing,”</span> <em>Journal of Econometrics</em>, vol. 225, no. 2, pp. 254–277, 2021, doi: <a href="https://doi.org/10.1016/j.jeconom.2021.01.002">10.1016/j.jeconom.2021.01.002</a>.</div>
+</div>
+<div id="ref-Abadie2010" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[10] </div><div class="csl-right-inline">A. Abadie, A. Diamond, and J. Hainmueller, <span>“Synthetic control methods for comparative case studies: Estimating the effect of california’s tobacco control program,”</span> <em>Journal of the American Statistical Association</em>, vol. 105, no. 490, pp. 493–505, 2010, doi: <a href="https://doi.org/10.1198/jasa.2009.ap08746">10.1198/jasa.2009.ap08746</a>.</div>
+</div>
+<div id="ref-Arkhangelsky2021" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[11] </div><div class="csl-right-inline">D. Arkhangelsky, S. Athey, D. A. Hirshberg, G. W. Imbens, and S. Wager, <span>“Synthetic difference-in-differences,”</span> <em>American Economic Review</em>, vol. 111, no. 12, pp. 4088–4118, 2021, doi: <a href="https://doi.org/10.1257/aer.20190159">10.1257/aer.20190159</a>.</div>
+</div>
+<div id="ref-rubin1974estimating" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[12] </div><div class="csl-right-inline">D. B. Rubin, <span>“Estimating causal effects of treatments in randomized and nonrandomized studies,”</span> <em>Journal of Educational Psychology</em>, vol. 66, no. 5, pp. 688–701, 1974.</div>
+</div>
+<div id="ref-Porter1985" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[13] </div><div class="csl-right-inline">M. E. Porter, <em>Competitive advantage: Creating and sustaining superior performance</em>. New York, NY: Free Press, 1985.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
