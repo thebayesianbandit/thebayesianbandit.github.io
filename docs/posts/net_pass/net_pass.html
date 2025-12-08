@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2025-06-07">
 
-<title>The Bayesian Bandit - Brandon Scott</title>
+<title>The Bayesian Bandit - Can I get your password? An empirical approach to account sharing policies</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,21 +25,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -61,14 +64,14 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">The Bayesian Bandit</span>
     </a>
   </div>
@@ -79,11 +82,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html" rel="" target="">
+    <a class="nav-link" href="../../index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./about.html" rel="" target="" aria-current="page">
+    <a class="nav-link" href="../../about.html" rel="" target="">
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
@@ -108,49 +111,139 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Can I get your password? An empirical approach to account sharing policies</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">operations</div>
+                <div class="quarto-category">causal inference</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 7, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#the-founding" id="toc-the-founding" class="nav-link" data-scroll-target="#the-founding">The Founding</a></li>
+  <li><a href="#the-achilles-heel" id="toc-the-achilles-heel" class="nav-link" data-scroll-target="#the-achilles-heel">The Achilles Heel</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<div class="quarto-about-broadside column-page">
-  <div class="about-main">
-    <div class="about-entity" style="background-image: url('about_img.jpg')"></div>
-    <div class="about-contents"><header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Brandon Scott</h1>
-</div>
-<div class="quarto-title-meta">
-  </div>
-</header><main class="content" id="quarto-document-content">
-<p>I love learning and teaching so this blog is my motivation to learn new topics and learn how to best convey the messages I received. I hope to demonstrate in this blog an analytical way to approach problems. I like using a tool-box method in my posts, approaching a problem and demonstrating how various tools can be used to solve it. I hope you enjoy this blog as much as I enjoy writing it!</p>
-<section id="education" class="level2">
-<h2 data-anchor-id="education">Education</h2>
-<p>Brigham Young University MBA (Marketing) | September 2024 - September 2025 (dropout)</p>
-<p>Texas A&amp;M University M.S. in Statistics | January 2023 - May 2024</p>
-<p>Utah Valley University M.S. in Computer Science | September 2021 - April 2022 (transferred)</p>
-<p>Brigham Young University B.S. in Actuarial Science | September 2017 - April 2021</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="abstract" class="level1">
+<h1>Abstract</h1>
+<p>Password sharing was a staple of modern video streaming services, particularly when the market was dominated by few players. Now, with many new streaming entrants, account sharing has become a wound in corporate revenue. In this post, we take the perspective of a video streaming company tackling this problem. We analyze account sharing data along with the impact on the company bottom line. We then walk through different ways of amending this problem through strategic frameworks and empirical models. We conclude by discussing how our findings should guide company policy on account usage.</p>
 </section>
-<section id="experience" class="level2">
-<h2 data-anchor-id="experience">Experience</h2>
-<p>Uber | Data Analyst | October 2022 - July 2023 AdvancedMD | Senior Business Analyst | July 2021 - October 2022</p>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<section id="the-founding" class="level2">
+<h2 class="anchored" data-anchor-id="the-founding">The Founding</h2>
+<p><img src="https://images.ctfassets.net/4cd45et68cgf/7LrExJ6PAj6MSIPkDyCO86/542b1dfabbf3959908f69be546879952/Netflix-Brand-Logo.png" class="img-fluid"></p>
+<p>In 1997, Netflix was founded by Reed Hastings and Marc Randolph. The two set out to provide a new way of movie watching, specifically for movie lovers. From a strategic point of view, Reed and Marc wanted to serve a niche market by providing a more accommodating service.</p>
+<p>From their perspective, companies like Blockbuster experienced high fixed costs (e.g., physical store locations), with their main stream of revenue coming from newly released movies and late fees. Thus, the shelf life of movies (with regard to lifetime value) was short-lived, as many would rent the new releases, watch them once or twice, forget to return the movie, and Blockbuster would rack up the late fees. What was once an incentive to get valuable inventory back on the shelves turned into the most important line of business for Blockbuster.</p>
+<p>Reed and Marc decided that there could be a better way to serve the entertainment-seeking public. Instead of designing a business around late fees, physical locations, and the short shelf life of movies, they decided to essentially flip the model. The business would be a centralized warehouse serving subscribers. Instead of customers being tied to a deadline for returning movies, they could keep them for as long as they liked by paying a monthly subscription. This would allow movie lovers to watch multiple movies for a flat monthly fee.</p>
+<p>Another key component of their business would be providing movie recommendations. Reed and Marc wanted to help customers discover their entire inventory of movies, not just the popular ones. Their theory was that if they could help customers find other movies they might enjoy, customers would be more willing to try different titles and become more attached to the company.</p>
+<p>With these insights and ideas, Reed and Marc iterated and grew Netflix. Netflix became very popular, outgrowing Blockbuster and becoming the king of home entertainment. Because their business model was setup well for iterating, Netflix eventually migrated from the physical DVD world to the digital world of streaming. With this move, Netflix became the streaming king, with approximately 200 million subscribers in 2020.</p>
+</section>
+<section id="the-achilles-heel" class="level2">
+<h2 class="anchored" data-anchor-id="the-achilles-heel">The Achilles Heel</h2>
+<p>Netflix, as an established entertainment service, launched their streaming service in 2007. With first-mover advantage, Netflix established themselves as the king of streaming. Others would soon follow with their own streaming services: Hulu launched in 2010, HBO in 2015, and Disney+ and Apple TV+ in 2019, just to name a few. Even with all of these other services taking a piece of the pie, Netflix continued to show substantial growth year-over-year (see <strong>?@tbl-sub-1</strong> for details).</p>
+<table class="table">
+<caption>Netflix Subscribers YoY {#tbl-sub-1} (source: Netflix Investor Relations Letter)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Year</th>
+<th style="text-align: center;">Number of Subscribers (in million)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">2020</td>
+<td style="text-align: center;">192.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2019</td>
+<td style="text-align: center;">151.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2018</td>
+<td style="text-align: center;">124.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2017</td>
+<td style="text-align: center;">99</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2016</td>
+<td style="text-align: center;">79.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2015</td>
+<td style="text-align: center;">62.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2014</td>
+<td style="text-align: center;">47.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2013</td>
+<td style="text-align: center;">35.6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2012</td>
+<td style="text-align: center;">25.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2011</td>
+<td style="text-align: center;">21.5</td>
+</tr>
+</tbody>
+</table>
+<p>However, growth began to slow. In 2021, Netflix grew 14% in subscribers, but that figure dropped to only 5% growth in 2022. What could have been slowing Netflix’s subscriber growth? One of the greatest causes was password sharing.</p>
+<p><img src="https://akm-img-a-in.tosshub.com/businesstoday/images/story/202305/screenshot_2023-05-24_061719-sixteen_nine.jpg?size=948:533" class="img-fluid"></p>
 
 
 </section>
-</main></div>
-  </div>
-  <div class="about-links">
-  <a href="https://www.linkedin.com/in/brandon-scott-5a7139211/" class="about-link" rel="" target="">
-    <i class="bi bi-linkedin"></i>
-     <span class="about-link-text">LinkedIn</span>
-  </a>
-  <a href="https://github.com/thebayesianbandit" class="about-link" rel="" target="">
-    <i class="bi bi-github"></i>
-     <span class="about-link-text">Github</span>
-  </a>
-</div>
-</div>
- <!-- /main -->
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -171,6 +264,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
   const isCodeAnnotation = (el) => {
     for (const clz of el.classList) {
       if (clz.startsWith('code-annotation-')) {                     
