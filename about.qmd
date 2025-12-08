@@ -11,7 +11,7 @@ about:
       href: https://www.linkedin.com/in/brandon-scott-5a7139211/
     - icon: github
       text: Github
-      href: https://github.com/devscotte
+      href: https://github.com/thebayesianbandit
 
 ---
 
@@ -19,7 +19,7 @@ I love learning and teaching so this blog is my motivation to learn new topics a
 
 ## Education
 Brigham Young University
-MBA (Marketing) | September 2024 - April 2026
+MBA (Marketing) | September 2024 - September 2025 (dropout)
 
 Texas A&M University
 M.S. in Statistics | January 2023 - May 2024
