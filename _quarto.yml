@@ -10,7 +10,7 @@ website:
         text: Home
       - href: about.qmd
         text: About
-      - href: https://thebayesianbandit.com/causal_book/
+      - href: https://thebayesianbandit.com/sports_book/
         text: Book 
       - icon: github
         href: https://github.com/thebayesianbandit
