@@ -61,6 +61,8 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -158,6 +160,11 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#the-founding" id="toc-the-founding" class="nav-link" data-scroll-target="#the-founding">The Founding</a></li>
   <li><a href="#the-achilles-heel" id="toc-the-achilles-heel" class="nav-link" data-scroll-target="#the-achilles-heel">The Achilles Heel</a></li>
   </ul></li>
+  <li><a href="#model-and-analysis" id="toc-model-and-analysis" class="nav-link" data-scroll-target="#model-and-analysis">Model and Analysis</a>
+  <ul class="collapse">
+  <li><a href="#using-control-theory-as-a-framework" id="toc-using-control-theory-as-a-framework" class="nav-link" data-scroll-target="#using-control-theory-as-a-framework">Using Control Theory as a Framework</a></li>
+  <li><a href="#framework-to-model" id="toc-framework-to-model" class="nav-link" data-scroll-target="#framework-to-model">Framework to Model</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -184,9 +191,10 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-achilles-heel" class="level2">
 <h2 class="anchored" data-anchor-id="the-achilles-heel">The Achilles Heel</h2>
-<p>Netflix, as an established entertainment service, launched their streaming service in 2007. With first-mover advantage, Netflix established themselves as the king of streaming. Others would soon follow with their own streaming services: Hulu launched in 2010, HBO in 2015, and Disney+ and Apple TV+ in 2019, just to name a few. Even with all of these other services taking a piece of the pie, Netflix continued to show substantial growth year-over-year (see <strong>?@tbl-sub-1</strong> for details).</p>
+<p>Netflix, as an established entertainment service, launched their streaming service in 2007. With first-mover advantage, Netflix established themselves as the king of streaming. Others would soon follow with their own streaming services: Hulu launched in 2010, HBO in 2015, and Disney+ and Apple TV+ in 2019, just to name a few. Even with all of these other services taking a piece of the pie, Netflix continued to show substantial growth year-over-year (see <a href="#tbl-sub-1">Table&nbsp;2.1</a> for details).</p>
+<div id="tbl-sub-1" class="anchored">
 <table class="table">
-<caption>Netflix Subscribers YoY {#tbl-sub-1} (source: Netflix Investor Relations Letter)</caption>
+<caption>Table&nbsp;2.1: Netflix Subscribers YoY</caption>
 <thead>
 <tr class="header">
 <th style="text-align: center;">Year</th>
@@ -236,8 +244,40 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+</div>
 <p>However, growth began to slow. In 2021, Netflix grew 14% in subscribers, but that figure dropped to only 5% growth in 2022. What could have been slowing Netflix’s subscriber growth? One of the greatest causes was password sharing.</p>
 <p><img src="https://akm-img-a-in.tosshub.com/businesstoday/images/story/202305/screenshot_2023-05-24_061719-sixteen_nine.jpg?size=948:533" class="img-fluid"></p>
+<p>A huge part of the Netflix streaming culture was the ability to share your password with friends or family who didn’t live in the same location as you. While there were policies in place to limit this sharing (e.g., each plan had a limited number of devices that could be signed into a single account), the general pattern was that one friend or family member would have an account, and each person in their social circle would share access to watch Netflix. This made Netflix even more “popular” since it seemed that not only could Netflix deliver top content, but even those who didn’t have to pay could access it.</p>
+<p>However, with the slowing growth of Netflix’s subscriber count and the increase in competition, Netflix found itself at a crossroads. For so long, Netflix had set the standard of video streaming by allowing paying subscribers to be deemed “heroes” in their social circle by allowing (and even encouraging) password sharing. Now, Netflix needed to decide if this part of their company policy needed correction in order to continue to grow. In short, Netflix faced three key questions.</p>
+<ol type="1">
+<li>Should Netflix enact a password sharing policy to limit the amount of people accessing a single account?</li>
+<li>If Netflix should enact a password sharing policy, how can the policy be designed to minimize churn and maximize new subscriber additions?</li>
+<li>How can we measure this policy change to ensure it was a direct cause for subscriber growth?</li>
+</ol>
+</section>
+</section>
+<section id="model-and-analysis" class="level1">
+<h1>Model and Analysis</h1>
+<section id="using-control-theory-as-a-framework" class="level2">
+<h2 class="anchored" data-anchor-id="using-control-theory-as-a-framework">Using Control Theory as a Framework</h2>
+<p>Netflix as a company is a complex system that has many different levers that we could pull. To simplify the system in a way that helps us to answer our three core strategy questions, we can model Netflix using control theory. This is illustrated in <a href="#fig-control-1">Figure&nbsp;3.1</a> below.</p>
+<div id="fig-control-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="netflix_control.jpg" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3.1: Netflix as a control system</figcaption><p></p>
+</figure>
+</div>
+<p>Netflix has certain Key Performance Indicators (KPIs) that are public-facing and, in a way, determine the company’s worth. Metrics like annual revenue and number of customers are generally found in public financial reports and are used to judge whether Netflix is a good company to invest in, thus determining its worth. In addition to these metrics, Netflix has its own internal metrics that guide its decision-making. Some important ones are year-over-year (YoY) growth in different areas like subscribers and revenue. These metrics guide policy decisions to influence company performance. For example, if attrition (customer churn) is high, Netflix may begin researching ways to decrease it. These initiatives are then implemented, and the respective metrics are recorded based on these new company policies. This flow follows the theory behind <a href="#fig-control-1">Figure&nbsp;3.1</a>. It is an iterative cycle of measuring performance, creating policies to change performance, and measuring that change.</p>
+<p>In our current situation, Netflix attributed a lot of its growing popularity to the “share your password” policy. However, now that growth is slowing, Netflix needs to find ways to stimulate growth from what they can control. Thus, a new password policy could be an appropriate change to begin to stimulate subscriber growth once again in the company. But how can Netflix determine if changing this policy would be effective without trying it on their customer base?</p>
+</section>
+<section id="framework-to-model" class="level2">
+<h2 class="anchored" data-anchor-id="framework-to-model">Framework to Model</h2>
+<p>What we need now is a model to help us understand how a change in this policy would affect the bottom line of Netflix. Building theoretical models is the first step in the process of identifying the levers we would be pulling and the effect of these levers on our business outcomes. There are many different ways we could approach this model, but in this case, we will use microeconomic theory to model our consumer behavior.</p>
+<p>In micro theory, we assume that consumers are <strong>rational agents</strong>. The short definition of this is that we believe our consumers have limited budgets to fulfill their tastes and preferences in order to maximize their <strong>utility</strong>. In the context of Netflix, we believe our consumers gain benefit (utility) from using our service because their tastes and preferences are aligned with our offerings. What we need now is a way to quantitatively measure this utility gain from our service. This is shown in <a href="#eq-util-1">Equation&nbsp;3.1</a>.</p>
+<p><span id="eq-util-1"><span class="math display">\[
+u(x) = 1
+\tag{3.1}\]</span></span></p>
+<p><strong>Note</strong>: This entire analysis, while rooted in historical facts, uses entirely synthetic data created specifically for educational purposes.</p>
 
 
 </section>
