@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Brandon Scott">
-<meta name="dcterms.date" content="2026-02-20">
+<meta name="dcterms.date" content="2026-03-04">
 
 <title>The Bayesian Bandit - Sold! Building a prototype Graph Neural Network for Ad Relevance</title>
 <style>
@@ -22,7 +22,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -64,6 +83,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -140,7 +161,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 20, 2026</p>
+        <p class="date">March 4, 2026</p>
       </div>
     </div>
     
@@ -158,7 +179,19 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#ad-auctions" id="toc-ad-auctions" class="nav-link" data-scroll-target="#ad-auctions">Ad Auctions</a></li>
+  <li><a href="#ad-systems" id="toc-ad-systems" class="nav-link" data-scroll-target="#ad-systems">Ad Systems</a></li>
+  <li><a href="#optimizing-bids-and-clicks" id="toc-optimizing-bids-and-clicks" class="nav-link" data-scroll-target="#optimizing-bids-and-clicks">Optimizing Bids and Clicks</a>
+  <ul class="collapse">
+  <li><a href="#the-theory-of-auctions" id="toc-the-theory-of-auctions" class="nav-link" data-scroll-target="#the-theory-of-auctions">The Theory of Auctions</a></li>
+  <li><a href="#algorithmic-auctions" id="toc-algorithmic-auctions" class="nav-link" data-scroll-target="#algorithmic-auctions">Algorithmic Auctions</a></li>
+  <li><a href="#ad-relevance-through-graph-learning" id="toc-ad-relevance-through-graph-learning" class="nav-link" data-scroll-target="#ad-relevance-through-graph-learning">Ad Relevance through Graph Learning</a></li>
+  </ul></li>
+  <li><a href="#predictions-via-graphs" id="toc-predictions-via-graphs" class="nav-link" data-scroll-target="#predictions-via-graphs">Predictions via Graphs</a>
+  <ul class="collapse">
+  <li><a href="#graph-attention-networks-gat" id="toc-graph-attention-networks-gat" class="nav-link" data-scroll-target="#graph-attention-networks-gat">Graph Attention Networks (GAT)</a></li>
+  <li><a href="#training-and-results" id="toc-training-and-results" class="nav-link" data-scroll-target="#training-and-results">Training and Results</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -180,8 +213,89 @@ ul.task-list li input[type="checkbox"] {
 <p>Following the lead of search giants like Google, Pinterest introduced <strong>promoted pins</strong> in 2013. This allowed companies to promote content via <strong>ad auctions</strong>, turning user discovery into a scalable business model. By the time the platform went public in 2019, Pinterest was grossing nearly $1.2 billion in annual ad revenue.</p>
 <p>Today, that number is nearing $4.2 billion in revenue from ads. While Pinterest does have other streams of revenue, their primary revenue driver is their ad platform. Hence, Pinterest spends large amounts of money into the infrastructure and R&amp;D of their largest moneymaker.</p>
 </section>
-<section id="ad-auctions" class="level1">
-<h1>Ad Auctions</h1>
+<section id="ad-systems" class="level1">
+<h1>Ad Systems</h1>
+<p>The magic of Pinterest’s ad tech isn’t just a feat of engineering. While the platform’s infrastructure serves as the backbone, the logic driving it stems from deep research in <strong>auction theory</strong> and <strong>algorithmic game theory</strong>.</p>
+<p>Before diving into the world of research in these two fields, let’s view the process of how these ads are shown from a high-level perspective.</p>
+<p><img src="ad_diag.jpg" class="img-fluid"></p>
+<p>In the diagram above, a session begins when a user opens the app, triggering the Information Retrieval (IR) engine to load contextual and user data alongside the current ad stack (the inventory of ads eligible for delivery). Because millions of ads compete for space simultaneously, Pinterest—and other ad-tech giants—uses this data to filter the stack. This IR stage essentially narrows the vast pool of available ads down to a relevant subset likely to interest the specific user.</p>
+<p>This new list of a few thousand ads is loaded into the ranking engine, where various metrics are calculated (e.g.&nbsp;the probability of a click or a purchase). All of this data is then fed into the auction. The auction system uses these predictions, alongside each advertiser’s bid, to calculate a final score that determines the winner. A common example of this ranking metric is expected cost per mille (eCPM), as shown in <a href="#eq-ecpm-1">Equation&nbsp;3.1</a>.</p>
+<p><span id="eq-ecpm-1"><span class="math display">\[
+\text{eCPM} = (\text{Bid} \times P(\text{Action}))
+\tag{3.1}\]</span></span></p>
+<p>Depending on the auction format (such as a second-price auction), the winner pays the designated amount and the feed is instantly populated with that ad.</p>
+<p>This process is repeated millions of times a day. Every time a user opens the app, the entire sequence executes in milliseconds. Every second, Pinterest’s top-line revenue depends on this system running with both accuracy and efficiency.</p>
+</section>
+<section id="optimizing-bids-and-clicks" class="level1">
+<h1>Optimizing Bids and Clicks</h1>
+<section id="the-theory-of-auctions" class="level2">
+<h2 class="anchored" data-anchor-id="the-theory-of-auctions">The Theory of Auctions</h2>
+<p>To better understand this business model, let’s dive into how auction theory and its algorithmic implementation provide the tools Pinterest needs to stay profitable. Most of us have encountered an auction at some point: an item is presented, and if it piques our interest, we place a bid to win it. From the auctioneer’s perspective, the goal is to offer items of value to the audience and reap the financial rewards of those competing bids.</p>
+<p>From the bidder’s perspective, the goal is to acquire an item at the lowest possible price to maximize consumer surplus. Meanwhile, the auctioneer aims to maximize the financial payout by extracting as much “willingness to pay” from the audience as possible. Of course, different auction formats can be weighted to favor one side over the other. To find a balance that benefits the entire system, we must look at the problem through the lens of optimizing <strong>social welfare</strong>.</p>
+<p>In 1961, economist <strong>William Vickrey</strong> introduced an auction format designed to optimize social welfare. This second-price auction <span class="citation" data-cites="vickrey1961counterspeculation"><a href="#ref-vickrey1961counterspeculation" role="doc-biblioref">[1]</a></span> became renowned for proving that if the winner pays the second-highest price rather than their own bid, participants are incentivized to bid their true valuation instead of “shading” their bids to save money. The formal proof for this is shown below.</p>
+<p><strong>1. Case: Underbidding (<span class="math inline">\(b_i &lt; v_i\)</span>)</strong> <span class="math display">\[
+\begin{array}{l|c|c}
+\text{Condition} &amp; u_i(v_i, B) &amp; u_i(b_i, B) \\ \hline
+B &lt; b_i &amp; v_i - B &amp; v_i - B \\
+b_i &lt; B &lt; v_i &amp; v_i - B &gt; 0 &amp; 0 \\
+B &gt; v_i &amp; 0 &amp; 0 \\
+\end{array}
+\]</span> Result: <span class="math inline">\(u_i(v_i, B) \geq u_i(b_i, B)\)</span>.</p>
+<p><strong>2. Case: Overbidding (<span class="math inline">\(b_i &gt; v_i\)</span>)</strong> <span class="math display">\[
+\begin{array}{l|c|c}
+\text{Condition} &amp; u_i(v_i, B) &amp; u_i(b_i, B) \\ \hline
+B &lt; v_i &amp; v_i - B &amp; v_i - B \\
+v_i &lt; B &lt; b_i &amp; 0 &amp; v_i - B &lt; 0 \\
+B &gt; b_i &amp; 0 &amp; 0 \\
+\end{array}
+\]</span> Result: <span class="math inline">\(u_i(v_i, B) \geq u_i(b_i, B)\)</span>.</p>
+<p>In essence, Vickrey’s math explains the nature of bidding: if you underbid, you risk losing an item that was worth more to you than the winning price (resulting in lost utility). Conversely, if you overbid, you run the risk of winning but paying more than your true valuation—another form of utility loss. If you format the auction where participants can bid their true value <span class="math inline">\(v_i\)</span> but only pay the second highest bid <span class="math inline">\(b_i\)</span>, then participants can play honestly since their strategy is separate from their cost.</p>
+<p><strong>Note</strong>: This is from the simple, single-item auction that Vickrey proposed. To generalize this to a multi-item auction, we’d use the VCG auction <span class="citation" data-cites="Groves1973"><a href="#ref-Groves1973" role="doc-biblioref">[2]</a></span> and <span class="citation" data-cites="Clarke1971"><a href="#ref-Clarke1971" role="doc-biblioref">[3]</a></span>.</p>
+</section>
+<section id="algorithmic-auctions" class="level2">
+<h2 class="anchored" data-anchor-id="algorithmic-auctions">Algorithmic Auctions</h2>
+<p>While Vickrey and VCG auctions are elegant on paper, scaling them to the magnitude required by platforms like Pinterest requires algorithmizing the process. To adapt the Vickrey second-price auction for high-volume environments, platforms utilize the <strong>Generalized Second-Price (GSP) auction</strong> <span class="citation" data-cites="Edelmanetal2007"><a href="#ref-Edelmanetal2007" role="doc-biblioref">[4]</a></span> and <span class="citation" data-cites="Varian2007"><a href="#ref-Varian2007" role="doc-biblioref">[5]</a></span>. The general algorithm for a GSP is enumerated below.</p>
+<ol type="1">
+<li>Initialize Inputs: Define a set of bidders <span class="math inline">\(\mathcal{N} = \{1, 2, \dots, n\}\)</span> and a set of available slots <span class="math inline">\(k\)</span>. Each bidder <span class="math inline">\(i\)</span> submits a bid <span class="math inline">\(b_i\)</span>.</li>
+<li>Rank Bidders: Sort the bidders in descending order such that:<span class="math display">\[b_{(1)} \ge b_{(2)} \ge \dots \ge b_{(n)}\]</span>where <span class="math inline">\(b_{(j)}\)</span> denotes the bid of the player in the <span class="math inline">\(j\)</span>-th position.</li>
+<li>Allocate Slots: Assign the bidder with the <span class="math inline">\(j\)</span>-th highest bid to the <span class="math inline">\(j\)</span>-th slot, for all <span class="math inline">\(j \in \{1, \dots, \min(n, k)\}\)</span>.</li>
+<li>Calculate Per-Click Payment: For a bidder <span class="math inline">\(i\)</span> assigned to slot <span class="math inline">\(j\)</span>, the price per click <span class="math inline">\(p_j\)</span> is determined by the bid of the player in the position immediately below them:<span class="math display">\[p_j = b_{(j+1)}\]</span></li>
+</ol>
+<p>Essentially, we sell <span class="math inline">\(k\)</span> slots to the highest bidders from our set of bidders <span class="math inline">\(\mathcal{N}\)</span>. The highest bidder gets the first slot (the best slot) followed by the next bid, etc. The payment each bidder pays is the bid of the next highest bid (hence the second-price nature of the auction).</p>
+</section>
+<section id="ad-relevance-through-graph-learning" class="level2">
+<h2 class="anchored" data-anchor-id="ad-relevance-through-graph-learning">Ad Relevance through Graph Learning</h2>
+<p>As previously noted, a successful auction must optimize for both revenue and relevance. Without relevant content, the user experience suffers, which eventually devalues the platform’s ad inventory. Conversely, when ads are highly relevant, the probability of engagement increases, raising the underlying value of those slots. So, bid rankings are not determined by monetary value alone. They incorporate an ad relevance score. By calculating a weighted product of the bid price and its relevance to a specific user, the platform determines the final auction bid to be used in ranking (as shown in <a href="#eq-ecpm-1">Equation&nbsp;3.1</a>).</p>
+<p>The challenge, then, is determining how a platform like Pinterest can best predict which ads will be most relevant to a specific user. One powerful approach is to model user interactions as a graph.</p>
+<p><img src="pin_user.jpg" class="img-fluid"></p>
+<p>While the illustration above is a simplified representation of a true production graph, it accurately reflects the complex relationships we can model. In this structure, users and content categories act as <strong>nodes</strong>, and interactions form <strong>edges</strong> that link them. Every time a user engages with a pin, they create a new edge between themselves and that object’s category. Importantly, these edges are dynamic: as engagement with a specific category increases, the weight of that edge grows, meaning a stronger connection between the user and that interest.</p>
+<p>Graphs are powerful for this type of modeling because they allow us to <strong>predict user behavior based on structural patterns</strong>. If a user’s network is concentrated, with heavy weights on only a few edges, they are likely to continue deepening those specific niche interests. Conversely, if a user maintains a diverse network with broad connections, the probability of them engaging with a “new” category is much higher. By analyzing these topological patterns, we can determine whether to serve a user more of what they love or introduce them to something new.</p>
+</section>
+</section>
+<section id="predictions-via-graphs" class="level1">
+<h1>Predictions via Graphs</h1>
+<p>Modeling behavior with graphs is cool, but how do we turn this structure into actual predictions? Specifically, how do we predict which content a user will engage with next? Fortunately, graphs can work just like tabular data. Instead of predicting a simple scalar variable <span class="math inline">\(y\)</span>, our goal is to predict <strong>the next edge a user will generate</strong>. From the picture above, this means predicting if the user will follow a current edge path to a certain category or if they will create a new one.</p>
+<p><strong>Note</strong>: If you’d like to know how Pinterest actually generates pins for a given user, see their blog post <a href="https://medium.com/pinterest-engineering/pinsage-a-new-graph-convolutional-neural-network-for-web-scale-recommender-systems-88795a107f48"><strong>here</strong>.</a></p>
+<p>Mathematically, we formulate our problem using graph notation. Let <span class="math inline">\(G = (V,E)\)</span>, where <span class="math inline">\(V\)</span> is the set of all of our vertices in a graph (users and content) and <span class="math inline">\(E\)</span> is the set of all edges between our vertices. To simplify our problem, we’ll assume that that users cannot have edges connecting each other (i.e.&nbsp;users are only connected to content). Therefore, a path <span class="math inline">\(e\)</span> exists between a user <span class="math inline">\(u\)</span> and a pin <span class="math inline">\(p\)</span> if a user has interacted with said content. The goal then is to learn an <strong>embedding function</strong> that yields a <span class="math inline">\(d\)</span> dimensional vector for every <span class="math inline">\(u \in V\)</span>. In normal english again, we want to learn a mapping that would produce a list of items that are relevant to each user in our user pool.</p>
+<section id="graph-attention-networks-gat" class="level2">
+<h2 class="anchored" data-anchor-id="graph-attention-networks-gat">Graph Attention Networks (GAT)</h2>
+<p>There are many different ways we can implement a solution to our problem formulation above. Many popular methods involve using <strong>graph neural networks (GNNs)</strong>, specifically <strong>graph convolutional neural networks (GCNs)</strong> to handle the complexities and scale of graph data. While a generic GCN would perform adequately on this kind of data, we can do even better by leveraging a new framework known as <strong>graph attention networks (GAT)</strong> <span class="citation" data-cites="Velickovicetal2017"><a href="#ref-Velickovicetal2017" role="doc-biblioref">[6]</a></span>.</p>
+<p>In a generic GCN, the model assumes that neighbors of a given node (i.e.&nbsp;content viewed by a given user) are weighted equally. While a valid assumption, this introduces problems when we begin to train the model on older data and it continues to assume homogeneity in weights across all neighbors. Basically, a generic GCN would still value your pin from 3 years ago the same as a pin from yesterday.</p>
+<p>To account for these more dynamic weighting problems, we turn to GATs for their specific attention to these details. GATs are setup in a way where context, time, etc. are all taken into account when calculating the embedding function. The process of how a GAT does this is enumerated below.</p>
+<ol type="1">
+<li>Apply a linear transformation on a given node’s features with <span class="math inline">\(W\)</span> as the weight matrix: <span class="math inline">\(h'_i = W h_i\)</span></li>
+<li>Calculate the “importance” of a node <span class="math inline">\(j\)</span> to a given node <span class="math inline">\(i\)</span> using an attention mechanism <span class="math inline">\(a\)</span>: <span class="math inline">\(e_{ij} = \text{LeakyReLU}\left(\vec{a}^T [Wh_i \, \Vert \, Wh_j]\right)\)</span></li>
+<li>Normalize coefficients so we can compare across neighborhoods: <span class="math inline">\(\alpha_{ij} = \text{softmax}_j(e_{ij}) = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}_i} \exp(e_{ik})}\)</span></li>
+<li>The output vector is created via a weighted sum of it’s neighbors features: <span class="math inline">\(h'_i = \sigma\left(\sum_{j \in \mathcal{N}_i} \alpha_{ij} Wh_j\right)\)</span></li>
+</ol>
+<p>Essentially, the GAT framework prioritizes the recent over the past. As a user browses more frequently in the present, the GAT places more weight on their most recent activity and such presents more content based on their current interests.</p>
+</section>
+<section id="training-and-results" class="level2">
+<h2 class="anchored" data-anchor-id="training-and-results">Training and Results</h2>
+<p><strong>Note</strong>: Just as a reminder, this is all fictional/synthetic data.</p>
+<p>Our data consists of 10,000 users and 50,000 items. Using these data points, we simulate interactions between the users and items based on user interests (e.g.&nbsp;someone interested in home decor is more likely to interact with a home decor item). Using this data, we create a heterogenous graph to model the interactions between user and item nodes. We also allow for ad nodes to be included as special item nodes.</p>
+<p>After creating our heterogenous graph, we prepare this data for training by converting the feature space into their proper tensor representations. Once that is prepared, we define our GAT model. This is a 2-depth model with neighbor features going into 32 hidden channels then being outputted into 16 channels. To decode these embeddings, we define a RelevanceLinkPredictor model to calculate, well, the relevance of the link for a given user-ad pair. These two models are then formed as part of the full GNN model, where we encode our data and decode it at the end to obtain probability of a click.</p>
+<p>After training our model, we use an AUC score to determine how well our model does at predicting relevant ads for our users. The AUC score we obtained is shown below.</p>
 <div class="cell" data-tags="[]" data-execution_count="24">
 <div class="cell-output cell-output-stdout">
 <pre><code>Epoch: 010, Loss: 89.9706
@@ -196,116 +310,8 @@ Epoch: 050, Loss: 2.0209</code></pre>
 <pre><code>Test AUC: 0.6428</code></pre>
 </div>
 </div>
-<div class="cell" data-tags="[]" data-execution_count="27">
-<div class="cell-output cell-output-display" data-execution_count="27">
-<div><style>
-.dataframe > thead > tr,
-.dataframe > tbody > tr {
-  text-align: right;
-  white-space: pre-wrap;
-}
-</style>
-<small>shape: (24, 5)</small>
-<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th">user_id</th>
-<th data-quarto-table-cell-role="th">target_id</th>
-<th data-quarto-table-cell-role="th">category</th>
-<th data-quarto-table-cell-role="th">is_ad</th>
-<th data-quarto-table-cell-role="th">user_gnn_id</th>
-</tr>
-<tr class="odd">
-<th>i64</th>
-<th>i64</th>
-<th>str</th>
-<th>bool</th>
-<th>u32</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1000</td>
-<td>17607</td>
-<td>"Home"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="even">
-<td>1000</td>
-<td>10296</td>
-<td>"Food"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="odd">
-<td>1000</td>
-<td>21024</td>
-<td>"Food"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="even">
-<td>1000</td>
-<td>100</td>
-<td>"Movies"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="odd">
-<td>1000</td>
-<td>3575</td>
-<td>"Movies"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="even">
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-<tr class="odd">
-<td>1000</td>
-<td>4291</td>
-<td>"Food"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="even">
-<td>1000</td>
-<td>22716</td>
-<td>"Movies"</td>
-<td>true</td>
-<td>8959</td>
-</tr>
-<tr class="odd">
-<td>1000</td>
-<td>19724</td>
-<td>"Animals"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-<tr class="even">
-<td>1000</td>
-<td>5088</td>
-<td>"Movies"</td>
-<td>true</td>
-<td>8959</td>
-</tr>
-<tr class="odd">
-<td>1000</td>
-<td>36567</td>
-<td>"Animals"</td>
-<td>false</td>
-<td>8959</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
+<p>Our AUC score of .64 indicates that our model is capturing some, but not all of the relevant signals from our data. Considering this is all synthetic data and we didn’t provide “great” signals in the data, this makes sense. In practice, we’d like to get this score closer to .8 or .9, but not too high where it wouldn’t generalize well (i.e.&nbsp;overfit the training data).</p>
+<p>Another fun test is understanding how our model predicts. To do this, we choose a random user below.</p>
 <div class="cell" data-tags="[]" data-execution_count="28">
 <div class="cell-output cell-output-display" data-execution_count="28">
 <div><style>
@@ -340,6 +346,7 @@ Epoch: 050, Loss: 2.0209</code></pre>
 </div>
 </div>
 </div>
+<p>Here, we have a user that is part of our “younger” demographic who mainly uses this platform to interact with food items. Below are some of the ads this user has interacted with in the past.</p>
 <div class="cell" data-tags="[]" data-execution_count="29">
 <div class="cell-output cell-output-display" data-execution_count="29">
 <div><style>
@@ -419,6 +426,7 @@ Epoch: 050, Loss: 2.0209</code></pre>
 </div>
 </div>
 </div>
+<p>Our user has interacted with a diverse area of items. This data is what our GAT uses to understand what ads would be most relevant for this user, along with their interest profile. To see how our model would rank the first 10 ads in our ad depot, we send those ads through the model with our user and get the following rankings.</p>
 <div class="cell" data-tags="[]" data-execution_count="30">
 <div class="cell-output cell-output-display" data-execution_count="30">
 <pre><code>[(2, 1.0),
@@ -433,11 +441,38 @@ Epoch: 050, Loss: 2.0209</code></pre>
  (7, 0.0514786)]</code></pre>
 </div>
 </div>
+<p>The highest ranking ads would be 2, 1, and 0 with very high probability, followed by others with much lower probability. Looking back at <a href="#eq-ecpm-1">Equation&nbsp;3.1</a>, we would take these probabilites along with the bids for these ads to calculate the “final bid” for each advertiser.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we traced the evolution of Pinterest from a visual discovery engine to a multi-billion dollar ad platform. We explored why ad revenue is the core of the company’s profitability and why scaling that revenue requires a combination of economics and engineering. By bridging auction theory with graph neural networks, we saw how Pinterest optimizes for both high-yield bids and a premium user experience. Finally, we demonstrated how modeling user-item interactions through GAT allows the platform to predict relevance with high accuracy, ensuring the right ad reaches the right user.</p>
+<p>While there are many ways to model ad relevance, we hope this post has provided a clear blueprint on how to view the ads business. By combining robust economic theory with sophisticated data structures like graphs, you can better understand your own customers and build a scalable system that balances profitability with user value.</p>
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-vickrey1961counterspeculation" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">W. Vickrey, <span>“Counterspeculation, auctions, and competitive sealed tenders,”</span> <em>The Journal of Finance</em>, vol. 16, no. 1, pp. 8–37, 1961.</div>
+</div>
+<div id="ref-Groves1973" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">T. Groves, <span>“Incentives in teams,”</span> <em>Econometrica</em>, vol. 41, no. 4, pp. 617–631, 1973, doi: <a href="https://doi.org/10.2307/1914085">10.2307/1914085</a>.</div>
+</div>
+<div id="ref-Clarke1971" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">E. H. Clarke, <span>“Multipart pricing of public goods,”</span> <em>Public Choice</em>, vol. 11, no. 1, pp. 17–33, 1971, doi: <a href="https://doi.org/10.1007/BF01726210">10.1007/BF01726210</a>.</div>
+</div>
+<div id="ref-Edelmanetal2007" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">B. Edelman, M. Ostrovsky, and M. Schwarz, <span>“Internet advertising and the generalized second-price auction: Selling billions of dollars worth of keywords,”</span> <em>American Economic Review</em>, vol. 97, no. 1, pp. 242–259, 2007, doi: <a href="https://doi.org/10.1257/aer.97.1.242">10.1257/aer.97.1.242</a>.</div>
+</div>
+<div id="ref-Varian2007" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">H. R. Varian, <span>“Position auctions,”</span> <em>International Journal of Industrial Organization</em>, vol. 25, no. 6, pp. 1163–1178, 2007, doi: <a href="https://doi.org/10.1016/j.ijindorg.2006.10.002">10.1016/j.ijindorg.2006.10.002</a>.</div>
+</div>
+<div id="ref-Velickovicetal2017" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">P. Veličković, G. Cucurull, A. Casanova, A. Romero, P. Liò, and Y. Bengio, <span>“Graph attention networks,”</span> <em>arXiv</em>, 2017, doi: <a href="https://doi.org/10.48550/arxiv.1710.10903">10.48550/arxiv.1710.10903</a>.</div>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
