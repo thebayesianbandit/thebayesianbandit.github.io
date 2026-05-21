@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2026-05-20">
+
+<title>The Bayesian Bandit - Spot(ify) the Price: A Walkthrough on Pricing a Subscription Service</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/sports_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Spot(ify) the Price: A Walkthrough on Pricing a Subscription Service</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">python</div>
+                <div class="quarto-category">optimization</div>
+                <div class="quarto-category">operations</div>
+                <div class="quarto-category">marketing</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 20, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#the-melody-of-money-the-business-model-of-spotify" id="toc-the-melody-of-money-the-business-model-of-spotify" class="nav-link" data-scroll-target="#the-melody-of-money-the-business-model-of-spotify">The Melody of Money: The Business Model of Spotify</a>
+  <ul class="collapse">
+  <li><a href="#the-two-sides-of-the-same-song" id="toc-the-two-sides-of-the-same-song" class="nav-link" data-scroll-target="#the-two-sides-of-the-same-song">The Two-Sides of the Same Song</a></li>
+  <li><a href="#the-value-of-music" id="toc-the-value-of-music" class="nav-link" data-scroll-target="#the-value-of-music">The Value of Music</a></li>
+  </ul></li>
+  <li><a href="#margins-in-music-the-unit-economics-of-spotify" id="toc-margins-in-music-the-unit-economics-of-spotify" class="nav-link" data-scroll-target="#margins-in-music-the-unit-economics-of-spotify">Margins in Music: The Unit Economics of Spotify</a>
+  <ul class="collapse">
+  <li><a href="#ltv-and-cac-are-top-hits" id="toc-ltv-and-cac-are-top-hits" class="nav-link" data-scroll-target="#ltv-and-cac-are-top-hits">LTV and CAC are Top Hits</a></li>
+  <li><a href="#the-cost-to-stream-royalties" id="toc-the-cost-to-stream-royalties" class="nav-link" data-scroll-target="#the-cost-to-stream-royalties">The Cost to Stream: Royalties</a></li>
+  <li><a href="#spotify-is-the-fed" id="toc-spotify-is-the-fed" class="nav-link" data-scroll-target="#spotify-is-the-fed">Spotify is the Fed?</a></li>
+  </ul></li>
+  <li><a href="#the-pricing-decision" id="toc-the-pricing-decision" class="nav-link" data-scroll-target="#the-pricing-decision">The Pricing Decision</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p><img src="https://1000logos.net/wp-content/uploads/2017/11/Spotify-Logo.png" class="img-fluid"></p>
+<p>Innovation generally comes from friction in problems that we encounter. Trains were invented to travel faster. Cell phones to help us communicate on the go. For Daniel Ek, it was boredom. By age 23, Daniel found himself looking for his next adventure. He decided that the music industry would be a fun one, since it had been disrupted by the dot-com boom. Sites like Napster and Limewire were “profiting” from piracy. Ek knew that in order to beat the current industry trend, he needed to win through stellar user experience while still being in the bounds of the law.</p>
+<p>After much negotiation with the music industry, Ek launched <strong>Spotify</strong> in Europe in 2008. Ek’s vision for Spotify was simple: ease of playback. No downloading. Just click and listen. Instead of a model like iTunes (yes, iTunes, not Apple Music quite yet), where a portion of the fee to download music was sent to music labels, Spotify would transfer royalties on a monthly basis to music labels based on the “usage” of the music on the platform.</p>
+<p>With popularity fueling the momentum of Spotify in Europe, the company gained enough attention from music labels in the United States to expand. In 2011, Spotify entered the US market and started to take off. By 2015, Spotify had ~75 million active users and was growing quickly. With product additions like <em>Discover Weekly</em>, Spotify began positioning itself as not only a music library but also a music curator.</p>
+<p>Currently, Spotify boasts a whopping <strong>~600 million active users globally</strong>. With a ~30% market share of the music/audio industry, Spotify is well alone at the top. Their stock price is worth over $400 a share, and they continue to post profitable quarters.</p>
+</section>
+<section id="the-melody-of-money-the-business-model-of-spotify" class="level1">
+<h1>The Melody of Money: The Business Model of Spotify</h1>
+<section id="the-two-sides-of-the-same-song" class="level2">
+<h2 class="anchored" data-anchor-id="the-two-sides-of-the-same-song">The Two-Sides of the Same Song</h2>
+<p>While the product of Spotify is impressive and innovative in its own respect, without a proper business model, it wouldn’t be the king of streaming it is today. What makes Spotify an interesting case study is the difficulty of the market it operates in. As already mentioned, with the dot-com boom, the music industry was in a bit of chaos. Music labels wanted to make money off the songs they produced but didn’t have the tech stack necessary to share and scale their songs. Web applications wanted to share music without the hassle of organizing royalty deals with each individual label. What the market was looking for was a platform that could provide solutions and ease the tensions between the two sides of the music economy.</p>
+<p>In this light, Spotify is no longer just an audio streaming application. It is a <strong>two-sided marketplace platform</strong>. Therefore, in order for Spotify to be a successful business, it needs to balance the competing needs of its marketplace. That is, it must provide an audio experience at the right price for consumers while also paying for the right music at the right price from the music labels.</p>
+<p><img src="https://images.ctfassets.net/lzny33ho1g45/6ebKRHM9SbzlYpmrAqp7Vo/b1675943b918dec3e3b68a8a257bbf36/image1.png" class="img-fluid"></p>
+</section>
+<section id="the-value-of-music" class="level2">
+<h2 class="anchored" data-anchor-id="the-value-of-music">The Value of Music</h2>
+<p>We’ve established the environment or domain in which Spotify operates. Before jumping into the unit economics specifics of how Spotify prices its products, it is helpful to view the business in the context of <strong>the value stick</strong>.</p>
+<p><img src="https://www.hbs.edu/ctfassets/public/images/q5d87vBSiEWu3mtFJ55ld/value_stick_logo_version.jpg" class="img-fluid"></p>
+<p>In the value stick framework, we break down the business operations for a firm like Spotify into four key areas: a consumer’s willingness to pay (WTP), the price we set as a firm, the cost we incur from our suppliers, and the willingness to sell (WTS) of our suppliers. Viewing Spotify’s business this way is helpful because it guides our decision-making on several business offerings: should we accept low margins to increase customer delight and bank on low margins with high volume? Do we increase our margins and settle for lower volume? Is it possible to lower costs to increase firm margin while maintaining a consistent price?</p>
+<p>For Spotify, the goal was to balance speed of adoption with the stickiness of retention. Essentially, they needed a product that was easy to try and use, where users could easily transition to a more “premium” product if they desired. To do this, Spotify adopted the <strong>freemium</strong> approach.</p>
+<p>From the perspective of the value stick, Spotify essentially moved to a two-value-stick approach. One stick represents high “customer delight” through a free version supported by ads. The other reflects high firm margin via a fixed monthly fee for ad-free audio experiences, among other perks. The freemium approach would allow users to get experience with the platform “free of charge” but not the frictionless experience of premium.</p>
+<p>On the supplier side, the costs remain the same across the “dual” value stick proposition. Whether listeners are on the free or premium tier, the supplier surplus remains the same, hopefully encouraging artists to join the platform.</p>
+</section>
+</section>
+<section id="margins-in-music-the-unit-economics-of-spotify" class="level1">
+<h1>Margins in Music: The Unit Economics of Spotify</h1>
+<p>Note: For simplicity, we use “synthetic” numbers merely for demonstration of understanding the unit economics of this kind of business model. For a full run down of Spotify’s financials, see <a href="https://investors.spotify.com/financials/default.aspx">here.</a></p>
+<p>We’ve established the environment and value proposition of Spotify to appeal to both artists and listeners. Now, we can dive into the fun part of defining and evaluating the <strong>revenue and cost structure of the business</strong>. We start with the simplest equation in business: the profit equation.</p>
+<p><span id="eq-prof-1"><span class="math display">\[
+P = R - C
+\tag{3.1}\]</span></span></p>
+<p><span class="math inline">\(P\)</span> represents the profit, <span class="math inline">\(R\)</span> represents the revenue, and <span class="math inline">\(C\)</span> reperesents the cost. Once we define <span class="math inline">\(R\)</span> and <span class="math inline">\(C\)</span>, we know what Spotify’s profit will be.</p>
+<p>Based on what we established from the previous section, Spotify has two primary streams of revenue: ads and premium membership. Ads generate revenue based on results from the real time bid ad auction (see my last <a href="https://thebayesianbandit.com/posts/ad_plat/ad_plat.html">post</a> for an explanation on ad auctions). Our premium membership would be set at a fixed flat rate billed on a monthly basis. From a cost perspective, we have our fixed costs on things like servers, sales and marketing, etc., along with our variable costs on artist royalty.</p>
+<section id="ltv-and-cac-are-top-hits" class="level2">
+<h2 class="anchored" data-anchor-id="ltv-and-cac-are-top-hits">LTV and CAC are Top Hits</h2>
+<p>Great, so we have ideas on where the money will come from, now are we ready for the numbers? Not quite. In order to determine the optimal way to generate revenue and manage costs (i.e., set prices and costs), we need to identify the metrics they would be impacting. For a company like Spotify that is dealing with a two-sided marketplace, the asset they are selling to each side is, well, the other side. Artists want to be on a platform where they can be discovered (a high volume of listeners), and listeners want to be where their artists are and discover new music. So, naturally, Spotify should be focused on two key metrics: <strong>Lifetime Value (LTV)</strong> and <strong>Customer Acquisition Cost (CAC)</strong>.</p>
+<p>Let’s begin with LTV. LTV essentially measures the expected revenue or profit for a given customer base. Suppose we expect our customers to last 12 months and spend about $1. Then, our expected LTV would be $12. That’s really all there is to LTV. For a company like Spotify, we’d adjust this formula a bit to account for the subscription aspect of the business. Additionally, since we have two types of customers we’d like to model, we’ll use two different LTVs. The formulas for those are shown below.</p>
+<p><span id="eq-ltv-1"><span class="math display">\[
+LTV_{premium} = \frac{\text{Revenue} - \text{Variable Costs}}{\text{Churn Rate}}
+\tag{3.2}\]</span></span></p>
+<p><span id="eq-ltv-2"><span class="math display">\[
+LTV_{Free} = \frac{\text{Average Ad Revenue} - \text{Variable Costs}}{\text{Churn Rate}}
+\tag{3.3}\]</span></span></p>
+<p>Our two LTVs tell similar stories regarding how we want to optimize revenue. Both are affected by churn rate and variable costs. Premium generates revenue from membership fees, and freemium generates its revenue from ad revenue. In a perfect world, we could just keep increasing revenue (the price of premium or the price of ad space), but that doesn’t happen here. As we learn from basic microeconomic theory, as we increase price, we decrease demand, which means our churn rate increases. The speed at which this occurs is the price elasticity of demand (PED).</p>
+<p><span class="math display">\[
+PED = \frac{\Delta Q}{\Delta P}
+\]</span></p>
+<p>The general rule is that if the absolute value of the PED is greater than 1, we are dealing with elastic demand (customers are sensitive to price changes). If the ratio is less than 1, it is inelastic demand (customers are insensitive to price changes). Obviously, churn rate is affected by other elements of the business, but price is one of the biggest drivers of a change in churn rate.</p>
+<p>In short, our two LTVs serve as “North Star” metrics when it comes to decisions regarding revenue and costs. If revenue does not keep up with variable costs, we have a problem. If the churn rate grows faster than our gross profit, we have a problem. LTV is excellent for understanding the fundamental relationship between our revenue streams and cost streams.</p>
+<p>If LTV is understanding how our revenue is impacted by costs and churn, then CAC is understanding how our costs and acquistion impact our revenue. While there are a few ways we can calculate CAC, we’ll focus on the single formula below.</p>
+<p><span class="math display">\[
+CAC = \frac{\text{Marketing Spend} + \text{Freemium Costs}}{\text{Total New Premium Members}}
+\]</span></p>
+<p>Essentially, this CAC tells us how much we spend on average to acquire a single new premium-paying member. The reason we chose to focus on premium-paying members is the consistency of the revenue generation. While freemium members generate ad revenue, the primary goal of the business is to convert these freemium members into premium members. Hence, we want to focus our strategies on how much it currently costs us to move freemium or non-users into premium-paying customers.</p>
+<p>To connect the LTV and the CAC, we want to focus on the LTV of premium members to our single CAC. When we take the ratio of the two, we essentially get our <strong>ROI on customer acquisition</strong>.</p>
+<p><span class="math display">\[
+ROI = \frac{LTV_{premium}}{CAC}
+\]</span></p>
+<p>The reason this is the “final” metric for understanding our profit model is that it represents the sustainability of current revenue and spending efforts. The higher the ratio, the more we gain in LTV compared to our acquisition cost. Conversely, the lower the ratio, the closer we are to spending more on customers than they are providing in value.</p>
+</section>
+<section id="the-cost-to-stream-royalties" class="level2">
+<h2 class="anchored" data-anchor-id="the-cost-to-stream-royalties">The Cost to Stream: Royalties</h2>
+<p>Now that we’ve established our “North Star” metrics and how they align in understaning ROI, we can begin to dive into how we should price our Spotify product. To simplify this approach, we’ll just focus on pricing our premium membership. We’ll assume that freemium members break even with their variable costs.</p>
+<p>The first thing we need to address is a quick backtrack: why does LTV only include variable costs? To understand why LTV guides our pricing strategy, we must recognize that LTV is an <strong>incremental view of profitability</strong>. Essentially, LTV provides a unit-economics perspective on how a customer’s business increases company revenue relative to the costs they generate. So, we measure a customer’s revenue against their respective variable costs to determine if their lifetime value exceeds the incremental costs they incur for the company.</p>
+<p>Now that we’ve cleared that up, let’s get back to business (literally). In order to know how to price, we need to know how quickly our variable costs scale with regard to user usage. In the case of Spotify, we need to know how quickly music royalties scale from streaming music.</p>
+<p>Without getting into too many details of the process of negotiating these royalties (that’s a whole post in of itself), it suffices to say that the record labels have a lot of the power in the negotiations. Spotify and other music streaming services operate on a <strong>pro-rata</strong> model. The gist of this is that music labels get a specific cut of the revenue generated by the business. For most businesses in this industry, the typical is about a 70-30 split. So, for every dollar of revenue Spotify earns, record labels get 70 cents <span class="citation" data-cites="spotify2024loud"><a href="#ref-spotify2024loud" role="doc-biblioref">[1]</a></span>.</p>
+<p><img src="spot_meme.jpg" class="img-fluid"></p>
+<p>Wait, so the biggest cost of Spotify isn’t variable? How does that help us know how to maximize LTV and minimize CAC? Don’t we need variable costs? While on paper this 70% tax appears to be non-negotiable, Spotify’s platform power allows it to become a kind of variable cost.</p>
+<p>The basic deal between these streaming companies and music label is this: Spotify sets aside around 70% of their revenue into a general royalties pot. The royalties are then paid out based on their respective usage. If I listen to 5 hours of Ludwig Goransson, the record label representing him gets those votes towards its revenue share. At the designated payout time (typically on a monthly basis), the pot is divided according to the “votes” of the users.</p>
+<p>This is where the economics of the pool gets interesting. If the pool is divided by usage and Spotify has the power to influence what people listen to, then <strong>Spotify has the power to influence where the money goes</strong>. While a big part of the reason Spotify invests so much into R&amp;D to enhance music recommendations so that users have a good experience, it is equally important for Spotify to recommend songs that play in their favor.</p>
+</section>
+<section id="spotify-is-the-fed" class="level2">
+<h2 class="anchored" data-anchor-id="spotify-is-the-fed">Spotify is the Fed?</h2>
+<p>No, Spotify isn’t the Fed… but they are for music labels. As previously mentioned, Spotify has significant control over what songs get promoted. So, while the 70% cut is there, there are real incentives for independent artists and music labels alike to gain “favor” with these recommendation algorithms. How do they “gain favor”? Simple: they give Spotify a cut of their cut.</p>
+<p>If an independent artist or music label wants their tracks to be a bit more “promoted” in different playlists or discovery engines, they can provide a “kickback” to Spotify <span class="citation" data-cites="spotifyartists2024discovery"><a href="#ref-spotifyartists2024discovery" role="doc-biblioref">[2]</a></span>. For this promotion, Spotify gets about 30% of an artists payout back.</p>
+<p>There are other tactics that Spotify employs to try to minimize their payouts or contractual obligations (see <span class="citation" data-cites="mlcvspotify2024"><a href="#ref-mlcvspotify2024" role="doc-biblioref">[3]</a></span> or <span class="citation" data-cites="spotify2024monetization"><a href="#ref-spotify2024monetization" role="doc-biblioref">[4]</a></span>). For now, it suffices to say that with this simple example, Spotify has figured out how to turn a fixed contract cost into a variable cost through the power of their platform. Thus, we can update our LTV formula to be a <strong>weighted average</strong>.</p>
+<p><span id="eq-ltv-3"><span class="math display">\[
+LTV = \frac{\text{Revenue} - (w_{org} c_{org}) + (w_{disc} c_{disc})}{\text{Churn}}
+\tag{3.4}\]</span></span></p>
+<p><span class="math inline">\(w_{org}\)</span> is the proportion of usage that a given user spends on “organic” content (content that is not discounted). <span class="math inline">\(w_{disc}\)</span> then is the proportion of usage that a given user spends on discounted content. The respective <span class="math inline">\(c\)</span> variables are the cost associated with that content. In this view, our fixed contract cost of 70% has now become a true variable cost.</p>
+</section>
+</section>
+<section id="the-pricing-decision" class="level1">
+<h1>The Pricing Decision</h1>
+<p>Let’s take a moment to recall what we’ve done so far. We’ve learned a bit of the backstory of Spotify, determined the environment in which it operates, and identified some north star metrics for business growth. With regard to profitability, we showed that the major cost for Spotify is their fixed royalty cost. By changing that fixed cost to a variable one using their platform influence, Spotify can get back some of that royalty cost.</p>
+<p>From the LTV perspective, the costs have essentially been figured out as a function of revenue. That leaves us with revenue and churn left to discuss. Revenue is something we entirely decide so it’s a tactical input we can manipulate in this equation. Churn on the other hand, is also a function of revenue. As mentioned earlier, as price increases, demand decreases (and thus churn increases).</p>
+<p>This problem can become very tricky if we let too many variables become influential, so let’s simplify the problem a bit. Let’s assume the weighted average costs are constant with <span class="math inline">\(w_{org}\)</span> = .7 and <span class="math inline">\(w_{disc}\)</span> = .3. Now all we have to do is find the right price point that offsets that negative effects of churn. Simple enough, right?</p>
+<p>Let’s walk throught the math of it. What kind of math do we need to find an optimal point of a “consistent” function? Good ol calculus. If we take the derivative of the LTV equation with respect to revenue, set it equal to 0, and solve, we get an equation that can guide our decision in setting <span class="math inline">\(R\)</span>. Below is the derivation.</p>
+<p><span class="math display">\[\ln(CLTV) = \ln\left(\frac{R - V}{\lambda(R)}\right)\]</span> <span class="math display">\[\rightarrow \ln(CLTV) = \ln(R - V) - \ln(\lambda(R))\]</span> <span class="math display">\[\rightarrow \frac{\partial \ln(CLTV)}{\partial R} = \frac{1}{R - V} - \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R}\]</span> <span class="math display">\[\rightarrow \frac{1}{R - V} - \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R} = 0\]</span> <span class="math display">\[\rightarrow \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R} = \frac{1}{R - V}\]</span> <span id="eq-opt-1"><span class="math display">\[\rightarrow R - V = \frac{\lambda(R)}{\frac{\partial \lambda}{\partial R}} \tag{4.1}\]</span></span></p>
+<p>We took the natural log of our equation to make the derivation easier. All this math basically is summed up at the last line. <span class="math inline">\(R-V\)</span> is our profit margin. <span class="math inline">\(\lambda(R)\)</span> is our churn rate. <span class="math inline">\(\frac{\partial \lambda}{\partial R}\)</span> is the rate of change of churn with respect to price. Put simply, it is how fast your churn rate spikes for a given price change. Since we don’t know the actual function behind the churn rate, we can only “guess” as to what the derivative of the churn rate function is.</p>
+<p>While the equation might be nice to look at, the story is even better. This equation says that our profit margin is equal to the ratio of our current churn rate and the rate at which churn changes. This means that our profit margin <strong>is always bounded by the current churn and the change in churn due to price changes</strong>. So, the power comes in <strong>maximizing the ratio on the right side</strong>.</p>
+<p>This may seem like counterintuitive thinking since we want low churn and low changes in churn rate. Yes, we do want that, but if this equation holds true, we want the equation that can maximize the difference between <span class="math inline">\(R\)</span> and <span class="math inline">\(V\)</span>.</p>
+<p>Let’s roll with a simple example. Let’s say our current churn rate is .02, meaning 2% of our users churn each month. If the rate at which people churn with a $1 price increase is low, say .001, then our ratio is <strong>20</strong>. This means that our profit margin can be at most <strong>$20</strong>. So, if we were to be able to approximate the rate of churn, we could use these values to get a value that maximizes our profit margin which in turn maximizes our LTV.</p>
+<p>Now, suppose we were able to accurately “predict” what our rate of churn would be and our variable cost in the future. Using the approach above, we can plot as a function of <span class="math inline">\(R\)</span> (price) where this optimal point would be. Below in <a href="#fig-margin-1">Figure&nbsp;4.1</a>, we show this based on a variable cost of 8, churn rate of .02, and a rate of churn .001. (Note: We assume a quadratic churn function in the graph below, so the numbers will be slightly different than in the example above.)</p>
+<div class="cell" data-tags="[]" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-margin-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="spotify_fin_files/figure-html/fig-margin-1-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4.1: LTV of a given customer based on price and churn</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This scenario assumes we start with a base price equal to our variable cost. As we increase this price, our margin obviously grows and contiues to outgrow the effect of churn increase due to price. It eventually reaches the peak of this function (as shown in <a href="#eq-opt-1">Equation&nbsp;4.1</a>). This is the most we could increase our profit margin to without churn out pacing our profit gains. (Note: In this example with a quadratic churn function, the optimal profit margin is around $12.</p>
+<p>But this is so important to see! While a lot of assumptions were baked into this equation/scenario, it illustrates the key point that Spotify can control their profit margins <strong>by influencing churn</strong>. If they provide a product that is so good that it would hurt more to leave than to pay an extra $1, then their profit margin can continue to grow!</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>We made it! If you made it through the entire post and are new to the pricing world, you’ve probably begun to realize just how much goes into pricing a product. Pricing is an absolutely important strategic decision to make and requiress looking at the entire system of the busines. To do this, we identified the core environment in which Spotify operates. We then touched on how Spotify positions itself in this market through the lens of a value stick. We proceeded to go into the “math” of the operation of money-making by introducing the profit equation, north star metrics for Spotify, followed by analyzing the cost structure of Spotify. Finally, we derived an equation that, after settling on some other key unknowns, showed that our profit margin can be maximized by controlling for churn.</p>
+<p>Overall, we hope this post has demonstrated an rigorous, analytical, and holistic approach to pricing. While we didn’t dive into every detail and every scenario, the process we showed should have given you a taste for the weight of these kinds of decisions in business.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-spotify2024loud" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">Spotify AB, <span>“Loud &amp; clear: Spotify’s music economics report.”</span> [Online]. Available: <a href="https://loudandclear.byspotify.com/">https://loudandclear.byspotify.com/</a></div>
+</div>
+<div id="ref-spotifyartists2024discovery" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">Spotify for Artists, <em>Discovery mode: Terms and conditions for algorithmic promotion</em>. Spotify AB, 2024. Available: <a href="https://artists.spotify.com/en/help/article/discovery-mode">https://artists.spotify.com/en/help/article/discovery-mode</a></div>
+</div>
+<div id="ref-mlcvspotify2024" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Mechanical Licensing Collective, <span>“The MLC v. Spotify USA inc., case no. 1:24-cv-03779.”</span> United States District Court for the Southern District of New York, 2024.</div>
+</div>
+<div id="ref-spotify2024monetization" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">Spotify Policy Group, <span>“Modernizing music payouts: The 1,000-stream threshold policy,”</span> Spotify AB, Policy Update, 2024.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
