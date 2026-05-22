@@ -34,3 +34,12 @@ B.S. in Actuarial Science | September 2017 - April 2021
 Uber | Data Analyst | October 2022 - July 2023
 AdvancedMD | Senior Business Analyst | July 2021 - October 2022
 
+### Support This Site
+
+If you enjoy the content of this site, feel free to support!
+```{=html}
+<div style="margin-top: 20px;">
+  <a href="https://www.buymeacoffee.com/thebayesianbandit" target="_blank" class="btn btn-outline-primary" role="button">
+    <i class="bi bi-ice-cream"></i> Buy Me an Ice Cream
+  </a>
+</div>

@@ -18,6 +18,8 @@ website:
         href: https://www.linkedin.com/in/brandon-scott-5a7139211/
 format:
   html:
+    bootstrap-icons: true
+
     theme: 
      - lux
      - theme.scss
