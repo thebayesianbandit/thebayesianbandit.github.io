@@ -80,8 +80,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -208,7 +222,7 @@ div.csl-indent {
 </section>
 <section id="designing-the-problem-via-control" class="level1">
 <h1>Designing the Problem via Control</h1>
-<p>Before going into the details of how each algorithm operates within this problem, we first present how to formulate the problem to achieve optimal solutions. One way to approach this problem is by viewing it as a <strong>control problem</strong>. Control theory offers a rich framework by which we can design our problem and solutions. In essence, control theory aims to stabilize/optimize some system that we’ll denote as <span class="math inline">\(P\)</span> (commonly known as the Plant). The system creates outputs that include feedback signals that are fed back to a <strong>controller</strong> denoted as <span class="math inline">\(C\)</span>. <a href="#fig-control-diag">Figure&nbsp;3.1</a> is an example control diagram.</p>
+<p>Before going into the details of how each algorithm operates within this problem, we first present how to formulate the problem to achieve optimal solutions. One way to approach this problem is by viewing it as a <strong>control problem</strong>. Control theory offers a rich framework by which we can design our problem and solutions. In essence, control theory aims to stabilize/optimize some system that we’ll denote as <span class="math inline">P</span> (commonly known as the Plant). The system creates outputs that include feedback signals that are fed back to a <strong>controller</strong> denoted as <span class="math inline">C</span>. <a href="#fig-control-diag">Figure&nbsp;3.1</a> is an example control diagram.</p>
 <div id="fig-control-diag" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="http://www.polytechnichub.com/wp-content/uploads/2017/04/closed_loop.jpg" class="img-fluid figure-img"></p>
@@ -231,13 +245,13 @@ div.csl-indent {
 <li>Driver Assigned Orders</li>
 </ol>
 <p>For question two, we are essentially defining <strong>the states</strong> of important elements in our system. In control theory, this fundamental approach is known as representing a system using state-space equations. The formal equations are found in <a href="#eq-cont-1">Equation&nbsp;3.1</a>.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \dot{\mathbf{x}}(t) = \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t)
-\]</span> <span id="eq-cont-1"><span class="math display">\[
+</span> <span id="eq-cont-1"><span class="math display">
 \mathbf{y}(t) = \mathbf{C}\mathbf{x}(t) + \mathbf{D}\mathbf{u}(t)
-\tag{3.1}\]</span></span></p>
-<p><a href="#eq-cont-1">Equation&nbsp;3.1</a> states that the rate of change of the state vector <span class="math inline">\(\dot{x}(t)\)</span> at time <span class="math inline">\(t\)</span> is equal to the current state vector <span class="math inline">\(x(t)\)</span> multiplied by the dynamics matrix <span class="math inline">\(A\)</span>, plus the input vector <span class="math inline">\(u(t)\)</span> multiplied by the input matrix <span class="math inline">\(B\)</span>. The system’s output, <span class="math inline">\(y(t)\)</span>, is equal to the current state vector of the system <span class="math inline">\(x(t)\)</span> multiplied by the output matrix <span class="math inline">\(C\)</span> plus input vector <span class="math inline">\(u(t)\)</span> multiplied by the feedthrough matrix <span class="math inline">\(D\)</span>. Relating these equations back to our control diagram, the controller observes <span class="math inline">\(y(t)\)</span> and compares it against a predetermined reference or baseline. Based on that judgement, the controller sends inputs <span class="math inline">\(u(t)\)</span> back to the system. This input, along with the current state of the system, determines the instantaneous rate of change of the system’s state. This state then produces output <span class="math inline">\(y(t)\)</span>, and the process repeats itself.</p>
-<p>A classic example of this is cruise control in a car. The controller observes the car’s speed and compares it against the set cruise speed. It then sends inputs to the engine to adjust the speed accordingly. These inputs, alongside other dynamics (e.g., drag, incline), influence the car’s state, which in turn contributes to the measured output <span class="math inline">\(y(t)\)</span>.</p>
+\tag{3.1}</span></span></p>
+<p><a href="#eq-cont-1">Equation&nbsp;3.1</a> states that the rate of change of the state vector <span class="math inline">\dot{x}(t)</span> at time <span class="math inline">t</span> is equal to the current state vector <span class="math inline">x(t)</span> multiplied by the dynamics matrix <span class="math inline">A</span>, plus the input vector <span class="math inline">u(t)</span> multiplied by the input matrix <span class="math inline">B</span>. The system’s output, <span class="math inline">y(t)</span>, is equal to the current state vector of the system <span class="math inline">x(t)</span> multiplied by the output matrix <span class="math inline">C</span> plus input vector <span class="math inline">u(t)</span> multiplied by the feedthrough matrix <span class="math inline">D</span>. Relating these equations back to our control diagram, the controller observes <span class="math inline">y(t)</span> and compares it against a predetermined reference or baseline. Based on that judgement, the controller sends inputs <span class="math inline">u(t)</span> back to the system. This input, along with the current state of the system, determines the instantaneous rate of change of the system’s state. This state then produces output <span class="math inline">y(t)</span>, and the process repeats itself.</p>
+<p>A classic example of this is cruise control in a car. The controller observes the car’s speed and compares it against the set cruise speed. It then sends inputs to the engine to adjust the speed accordingly. These inputs, alongside other dynamics (e.g., drag, incline), influence the car’s state, which in turn contributes to the measured output <span class="math inline">y(t)</span>.</p>
 <p>While these explanations have been incredibly simplified, they illustrate the important principle that a system can be adjusted in a closed-loop by providing crucial feedback to the controller on its current operation. In our scenario, we want to know the locations and destinations of drivers, the status of food preparation, and other relevant parameters, in order to optimally assign orders within the queue and achieve our business objectives.</p>
 </section>
 <section id="what-actions-can-we-take-to-adjust-the-system" class="level2">
@@ -263,25 +277,25 @@ div.csl-indent {
 </section>
 <section id="an-example-via-queue-theory" class="level2">
 <h2 class="anchored" data-anchor-id="an-example-via-queue-theory">An example via queue theory</h2>
-<p>To illustrate this, let’s pose the simple scenario of a single deliverer working for Food-Ez. Utilizing queue theory, we’ll assume this is an M/M/1 queue where the arrival process is modeled by a Poisson distribution with parameter <span class="math inline">\(\lambda = 1\)</span> (per hour), the service distribution is an exponential distribution with <span class="math inline">\(\mu = 2\)</span> (per hour), and there is a single server (deliverer).</p>
-<p>With these metrics, we can calculate system utilization (or driver utilization in our case). This is defined as <span class="math inline">\(\rho = \frac{\lambda}{\mu}\)</span>, or the ratio between arrival rate and service rate. In our case, for a deliverer in the bipartite matching system, we get 50% driver utilization. While this is not bad, the average queue wait time for an order is defined as <span class="math inline">\(W_{q} = \frac{L_{q}}{\lambda}\)</span>, where <span class="math inline">\(L_{q}\)</span> is average length of queue. The average length of the queue here is .5 so in our scenario, queue wait time is about .5 hours or 30 minutes. Since our deliverer can only handle one order at a time, every order on average would have to wait 30 minutes in the queue.</p>
+<p>To illustrate this, let’s pose the simple scenario of a single deliverer working for Food-Ez. Utilizing queue theory, we’ll assume this is an M/M/1 queue where the arrival process is modeled by a Poisson distribution with parameter <span class="math inline">\lambda = 1</span> (per hour), the service distribution is an exponential distribution with <span class="math inline">\mu = 2</span> (per hour), and there is a single server (deliverer).</p>
+<p>With these metrics, we can calculate system utilization (or driver utilization in our case). This is defined as <span class="math inline">\rho = \frac{\lambda}{\mu}</span>, or the ratio between arrival rate and service rate. In our case, for a deliverer in the bipartite matching system, we get 50% driver utilization. While this is not bad, the average queue wait time for an order is defined as <span class="math inline">W_{q} = \frac{L_{q}}{\lambda}</span>, where <span class="math inline">L_{q}</span> is average length of queue. The average length of the queue here is .5 so in our scenario, queue wait time is about .5 hours or 30 minutes. Since our deliverer can only handle one order at a time, every order on average would have to wait 30 minutes in the queue.</p>
 <p>In a different approach, let’s say a deliverer can now take two orders concurrently and assume it is no further than a 10 minute drive to complete. In this case, a deliverer can fulfill 2 orders in about 40 minutes (1 order / 30 mins was the rate before). Converting this to hours, a deliverer can now fulfill 3 orders per hour, thus changing our deliverer utilization rate from 50% to 33%. More importantly, the queue wait time decreases from 30 minutes to 10 minutes (average queue length in this scenario is ~.167 orders, which is then divided by 1 order per hour). Not only could our drivers stay more busy if arrival rates increased, but our customers would have to wait only a third of the old time (if our simple assumptions hold)!</p>
 </section>
 </section>
 <section id="optimizing-dispatch-using-integer-programming" class="level1">
 <h1>Optimizing Dispatch using Integer Programming</h1>
 <p>So far we have demonstrated from a high-level the current operations of Food-Ez: a customer places an order, the controller (using a dispatch algorithm) matches orders to restaurants and deliverers to orders such that we minimize delivery time from order placement to order delivery. To accommodate other business objectives, we need a new optimization framework for our dispatch algorithm. Once implemented, we can substitute the current dispatch algorithm for the newly enhanced one and it should fit into our control design seamlessly. Our proposed solution for accomodating multiple business objectives is <strong>integer programming with a weighted sum score</strong> <span class="citation" data-cites="Gomory1958"><a href="#ref-Gomory1958" role="doc-biblioref">[4]</a></span> (Note: <span class="citation" data-cites="doordash_optimization_2020"><a href="#ref-doordash_optimization_2020" role="doc-biblioref">[1]</a></span> uses a mixed integer program approach due to the more complex and wholistic approach to addressing the dispatch problem, but for our simple scenario, we reduce the problem to an integer program). Our formulation is found in <a href="#eq-int-1">Equation&nbsp;5.1</a>.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \min_{x} \sum_{i=1}^{N}\sum_{j=1}^{D} c_{ij(t)}x_{ij}
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \sum_{j=1}^{D} x_{ij} = 1 \; \forall i \in \{1, \dots, N\}
-\]</span> <span id="eq-int-1"><span class="math display">\[
+</span> <span id="eq-int-1"><span class="math display">
 \sum_{i=1}^{N} x_{ij} \le 2 \; \forall j \in \{1, \dots, D\}
-\tag{5.1}\]</span></span></p>
-<p><span id="eq-int-2"><span class="math display">\[
+\tag{5.1}</span></span></p>
+<p><span id="eq-int-2"><span class="math display">
 c_{ij}(t) = \sum_{m=1}^{W} w_{m}p_{m}
-\tag{5.2}\]</span></span></p>
-<p>Let <span class="math inline">\(N\)</span> be the set of unassigned orders and let <span class="math inline">\(D\)</span> be the set of available drivers. We filter these sets such that only orders not yet assigned (orders can only be assigned and accepted once) and drivers with fewer than two active orders are considered. Once we have our viable sets, we aim to minimize the cost function (objective function) where <span class="math inline">\(c_{ij}\)</span> is the cost associated with assigning the <span class="math inline">\(ith\)</span> order to the <span class="math inline">\(jth\)</span> driver. <span class="math inline">\(x_{ij}\)</span> is the decision variable in our program, which is a binary variable of whether we assign the <span class="math inline">\(ith\)</span> order to the <span class="math inline">\(jth\)</span> driver. The cost associated with each order is determine by <a href="#eq-int-2">Equation&nbsp;5.2</a>, where we define the cost as a weighted sum of different predictors. In our scenario with Food-Ez, we define four key variables below.</p>
+\tag{5.2}</span></span></p>
+<p>Let <span class="math inline">N</span> be the set of unassigned orders and let <span class="math inline">D</span> be the set of available drivers. We filter these sets such that only orders not yet assigned (orders can only be assigned and accepted once) and drivers with fewer than two active orders are considered. Once we have our viable sets, we aim to minimize the cost function (objective function) where <span class="math inline">c_{ij}</span> is the cost associated with assigning the <span class="math inline">ith</span> order to the <span class="math inline">jth</span> driver. <span class="math inline">x_{ij}</span> is the decision variable in our program, which is a binary variable of whether we assign the <span class="math inline">ith</span> order to the <span class="math inline">jth</span> driver. The cost associated with each order is determine by <a href="#eq-int-2">Equation&nbsp;5.2</a>, where we define the cost as a weighted sum of different predictors. In our scenario with Food-Ez, we define four key variables below.</p>
 <ol type="1">
 <li>Route Time (total time duration of driver arriving to restaurant, picking up the order, and dropping off the order)</li>
 <li>Wait Time (total prep time of the order)</li>

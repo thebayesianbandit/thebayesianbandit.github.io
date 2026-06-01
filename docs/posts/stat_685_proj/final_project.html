@@ -64,8 +64,22 @@ ul.task-list li input[type="checkbox"] {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -1049,14 +1063,14 @@ Actual number of students for fall 2023: 58933</code></pre>
 </section>
 <section id="bayesian-modeling" class="level1">
 <h1>Bayesian Modeling</h1>
-<p>To continue with our analysis, we add a Bayesian twist to it by deciding on a prior belief of percent change in enrollment. For our analysis (and from a brief Google search), we say that the percent change in enrollment between semesters is likely to be normally distributed with some mean <span class="math inline">\(\mu\)</span> and some variance <span class="math inline">\(\sigma^{2}\)</span>. Normally, in frequentist approaches, we would set <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^{2}\)</span> by finding the MLE of each from our data and proposing that as our findings. In our Bayesian approach, we place uncertainty on these parameters by assigning each a prior distribution to express our beliefs of each parameter. For our analysis, we will assume the following distributions for <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^{2}\)</span>.</p>
-<p><span class="math display">\[
+<p>To continue with our analysis, we add a Bayesian twist to it by deciding on a prior belief of percent change in enrollment. For our analysis (and from a brief Google search), we say that the percent change in enrollment between semesters is likely to be normally distributed with some mean <span class="math inline">\mu</span> and some variance <span class="math inline">\sigma^{2}</span>. Normally, in frequentist approaches, we would set <span class="math inline">\mu</span> and <span class="math inline">\sigma^{2}</span> by finding the MLE of each from our data and proposing that as our findings. In our Bayesian approach, we place uncertainty on these parameters by assigning each a prior distribution to express our beliefs of each parameter. For our analysis, we will assume the following distributions for <span class="math inline">\mu</span> and <span class="math inline">\sigma^{2}</span>.</p>
+<p><span class="math display">
 \mu \sim N(0.03, 0.02)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma \sim HN(0.02)
-\]</span></p>
-<p>We propose that <span class="math inline">\(\mu\)</span> is normally distributed with mean = 0.03 and sd = 0.02 with our <span class="math inline">\(\sigma\)</span> being distributed in a half-normal distribution with parameter 0.02. With these priors, we believe that on average, the percent change in enrollment increases about 3% YoY. However, to express our uncertainty about this value, we use a wider sd of 0.02. Utilizing priors allow us to incorporate more data into our model while also allowing the model to vary due to our uncertainty of our prior beliefs.</p>
+</span></p>
+<p>We propose that <span class="math inline">\mu</span> is normally distributed with mean = 0.03 and sd = 0.02 with our <span class="math inline">\sigma</span> being distributed in a half-normal distribution with parameter 0.02. With these priors, we believe that on average, the percent change in enrollment increases about 3% YoY. However, to express our uncertainty about this value, we use a wider sd of 0.02. Utilizing priors allow us to incorporate more data into our model while also allowing the model to vary due to our uncertainty of our prior beliefs.</p>
 <p>Now that we have set our priors, we setup our Bayesian model using <a href="https://num.pyro.ai/en/stable/getting_started.html">numpyro</a> to perform our analysis. We use a NUTS sampler with 100 burn-in samples and 3000 MC samples. Below are the results of our sampling.</p>
 <section id="model-1-overall-pct_change-in-enrollment" class="level2">
 <h2 class="anchored" data-anchor-id="model-1-overall-pct_change-in-enrollment">Model 1: Overall pct_change in Enrollment</h2>
@@ -1070,7 +1084,7 @@ Actual number of students for fall 2023: 58933</code></pre>
 Number of divergences: 62</code></pre>
 </div>
 </div>
-<p>Training our model on just the percent change between 2021-2022 fall terms, we see our model has shifted the mean of our parameter <span class="math inline">\(\mu\)</span> from 0.03 to 0.02. Additionally, our sd shrunk as well from 0.02 to 0.01. Our r_hat values of 1.00 and high n_eff scores are good indicators that our model achieved stationarity and good mixing. To continue to confirm that our model has good MCMC diagnostics, we view the trace plots for each of our parameters of interest (see <a href="#fig-trace-1">Figure&nbsp;4.1</a>).</p>
+<p>Training our model on just the percent change between 2021-2022 fall terms, we see our model has shifted the mean of our parameter <span class="math inline">\mu</span> from 0.03 to 0.02. Additionally, our sd shrunk as well from 0.02 to 0.01. Our r_hat values of 1.00 and high n_eff scores are good indicators that our model achieved stationarity and good mixing. To continue to confirm that our model has good MCMC diagnostics, we view the trace plots for each of our parameters of interest (see <a href="#fig-trace-1">Figure&nbsp;4.1</a>).</p>
 <div class="cell" data-tags="[]" data-execution_count="59">
 <div class="cell-output cell-output-display">
 <div id="fig-trace-1" class="quarto-figure quarto-figure-center anchored">
@@ -1120,9 +1134,9 @@ Number of divergences: 62</code></pre>
 <section id="posterior-predictive-distribution-change-in-enrollment" class="level2">
 <h2 class="anchored" data-anchor-id="posterior-predictive-distribution-change-in-enrollment">Posterior Predictive Distribution (% Change in Enrollment)</h2>
 <p>As mentioned previously, we can now make predictions utilizing our posterior distributions. This is done by integrating out all of our parameters of interest (see <a href="#eq-pred-1">Equation&nbsp;4.1</a>).</p>
-<p><span id="eq-pred-1"><span class="math display">\[
+<p><span id="eq-pred-1"><span class="math display">
 p(\overset{\sim}{y}|y_{1}...y_{n}) = \int_{\Theta} p(\overset{\sim}{y}|\theta)p(\theta|y)
-\tag{4.1}\]</span></span></p>
+\tag{4.1}</span></span></p>
 <p>What <a href="#eq-pred-1">Equation&nbsp;4.1</a> says is that in order for us to derive the posterior predictive distribution, integrate across all possible parameters of interest (in our case, mu and sigma) to derive a single distribution, conditioned upon our observed data. Our resulting posterior predictive distribution is found in <a href="#fig-post-pred-1">Figure&nbsp;4.4</a>.</p>
 <div class="cell" data-tags="[]" data-execution_count="69">
 <div class="cell-output cell-output-display">
@@ -1163,9 +1177,9 @@ Actual Enrollment: 58933</code></pre>
 <h2 class="anchored" data-anchor-id="more-exploration-for-enhanced-bayesian-modeling">More exploration (For enhanced Bayesian Modeling)</h2>
 <p>While the above model successfully performed better than our “frequentist” approach, it still has not accomplished our ultimate goal of forecasting down to the classroom level. How can we utilize our first model as a viable resource to build a second model that can forecast down to the classroom level?</p>
 <p>The question to explore now is “do we believe that the percent share of enrollment by class varies or is relatively constant?”. Essentially, if we discover that classes are generally consistent in how much percent of enrollment they take each fall term, then we can build a model that forecasts from our first model and utilizes class specific information to predict its percent share of enrollment. For example, suppose we have an intro level math class that for 3 fall terms had percent share of enrollment of: 2%, 3%, 4%. Utilizing our first model that predicts the entire university enrollment, we can generate a posterior predictive distribution that can predict the percent change in percent share of enrollment and multiply that change in value by the first predicted value (total university enrollment) to get a class specific enrollment value. <a href="#eq-mod-1">Equation&nbsp;4.2</a> shows the more pretty math behind this intuition.</p>
-<p><span id="eq-mod-1"><span class="math display">\[
+<p><span id="eq-mod-1"><span class="math display">
 \text{class level enrollment} = (\text{LY } \% \text{ enrollment} * (1 + \% \text{ change in enrollment})) * (\text{forecasted enrollment})
-\tag{4.2}\]</span></span></p>
+\tag{4.2}</span></span></p>
 <p>Below is an example table of the data we will utilize to forecast percent share of total enrollment by class.</p>
 <div class="cell" data-scrolled="true" data-tags="[]" data-execution_count="76">
 <div class="cell-output cell-output-display" data-execution_count="76">
@@ -1490,16 +1504,16 @@ Actual Enrollment: 58933</code></pre>
 <section id="model-2-bayesian-hierarchical-model-class-size" class="level2">
 <h2 class="anchored" data-anchor-id="model-2-bayesian-hierarchical-model-class-size">Model 2: Bayesian Hierarchical Model (class size)</h2>
 <p>As noted in some of the EDA above, the effects of each class size vary. While they are different, they aren’t completely different (as noted in <a href="#fig-dist-1">Figure&nbsp;4.6</a>). To account for each class size effect individually, we utilize a hierarchical model to allow each class size to pull from a common distribution but to allow their respective effects to take update our prior beliefs. Below is the mathematical representation of our hierarchical model.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \theta \sim N(\mu_{j}, \sigma_{j})
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \mu_{j} \sim N(0, 0.2)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_{j} \sim HN(0.2)
-\]</span></p>
-<p>Modeling it this way essentially allows our parameter of interest, <span class="math inline">\(\theta\)</span> to account for between-group variability based on the <span class="math inline">\(\mu_{j}\)</span> and <span class="math inline">\(\sigma_{j}\)</span> values while each respective <span class="math inline">\(\mu{j}\)</span> and <span class="math inline">\(\sigma_{j}\)</span> accounts for the within-group variability. This kind of flexibility will allow our model to predict down to specific classes based on the corresponding class size. After fitting our model to the data, we obtain the below results.</p>
+</span></p>
+<p>Modeling it this way essentially allows our parameter of interest, <span class="math inline">\theta</span> to account for between-group variability based on the <span class="math inline">\mu_{j}</span> and <span class="math inline">\sigma_{j}</span> values while each respective <span class="math inline">\mu{j}</span> and <span class="math inline">\sigma_{j}</span> accounts for the within-group variability. This kind of flexibility will allow our model to predict down to specific classes based on the corresponding class size. After fitting our model to the data, we obtain the below results.</p>
 <div class="cell" data-tags="[]" data-execution_count="107">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1631,33 +1645,33 @@ Actual Value for MATH 308: 967</code></pre>
 <section id="model-3-bayesian-hierarchical-linear-model-college-and-class-size" class="level2">
 <h2 class="anchored" data-anchor-id="model-3-bayesian-hierarchical-linear-model-college-and-class-size">Model 3: Bayesian Hierarchical Linear Model (college and class size)</h2>
 <p>While our Bayesian hierarchical model proved to be a useful model in our system for forecasting class enrollment, we believe we can do better given the amount of information we have. Another useful piece of information that we can utilize is college. Specifying to which college each class size pertains can help our model distinguish more clearly the percent change in percent share of enrollment for a specific class. Our model will then be an additive model, where we have two covariates (college and class size) predicting our response (% change in % share of enrollment). Below is the mathematical form of our model.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y_{ijk} = X_{ijk}\beta_{jk} + \epsilon_{ijk}
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \epsilon_{ijk} \sim N(0, \sigma^{2})
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 Y_{jk} \sim MVN(X_{jk}\beta_{jk}, \sigma^{2}I)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta_{j} \sim N(\mu_{m},\sigma_{m}^{2})  
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta_{k} \sim N(\mu_{t}, \sigma_{t}^{2})
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \mu_{m} \sim N(0, 0.5)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_{m} \sim HN(0.5)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \mu_{t} \sim N(0, 0.5)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_{t} \sim HN(0.5)
-\]</span></p>
+</span></p>
 <p>After fitting our model to the data and using a NUTS sampler w/ 500 warmup and 5000 samples, we achieve the below results.</p>
 <div class="cell" data-tags="[]" data-execution_count="131">
 <div class="cell-output cell-output-stdout">

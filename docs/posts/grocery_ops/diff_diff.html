@@ -83,8 +83,22 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -232,27 +246,27 @@ div.csl-indent {
 <li>Customer returns all items to cart and transaction ends.</li>
 </ol>
 <p>The time to move one unit (ie one customer) through the above process is known as <strong>cycle time (CT)</strong>. In MW stores, there are 4 self-checkout registers available for customers to use. In the optimal scenario, each station would begin and end in parallel and the demand for each station would immediately be filled. The total output from these 4 stations over a specified time interval is defined as <strong>throughput rate (TPR)</strong>. The relations between CT and TPR are shown in <a href="#eq-op-1">Equation&nbsp;3.1</a>.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 CT = \text{average time to process one unit}
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 TPR = \frac{\text{num units produced}}{\text{total time elapsed}}
-\]</span> <span id="eq-op-1"><span class="math display">\[
+</span> <span id="eq-op-1"><span class="math display">
 TPR = \frac{1}{CT}
-\tag{3.1}\]</span></span></p>
+\tag{3.1}</span></span></p>
 <p>From <a href="#eq-op-1">Equation&nbsp;3.1</a>, TPR is the reciprocal of CT. Since we have CT, we know TPR must equal 1 / 120 seconds. To gain a more practical view of the operations, we’ll convert this to minutes and say that our TPR is 1 / 2 minutes, or half a customer per minute is our TPR. Additionally, since we have 4 stations, we multiply this TPR by 4 to get 2 customers per minute on average. This is the assumed peak efficiency of our current system.</p>
 </section>
 <section id="queue-theory" class="level2">
 <h2 class="anchored" data-anchor-id="queue-theory">Queue Theory</h2>
 <p>In the previous section, we established the peak efficiency the system can handle through CT and TPR. One of the big assumptions we placed on this system was a steady-state flow, meaning there would be immediate demand for each station once they became free. In the real-world, steady state is nearly impossible to achieve. Additionally (and possibly more importantly for us), understanding the current wait time of customers will help us to identify how speeding up the above system can help decrease wait time. This branch of operations is known as <strong>queue theory</strong>.</p>
 <p>While we will not provide an exhaustive tutorial on queue theory in this post, we will provide the necessary overview for this section. To do this, we begin with <strong>Kendall’s Notation</strong><span class="citation" data-cites="Kendall1953"><a href="#ref-Kendall1953" role="doc-biblioref">[1]</a></span>. Kendall’s notation provides a framework where we identify the 3 core components of queue creation, shown in <a href="#eq-op-2">Equation&nbsp;3.2</a>.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 A: \text{arrival process distribution (how often customers arrive)}
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 B: \text{service time distribution (how long it takes to serve a customer)}
-\]</span> <span id="eq-op-2"><span class="math display">\[
+</span> <span id="eq-op-2"><span class="math display">
 C: \text{number of servers}
-\tag{3.2}\]</span></span></p>
-<p>From the previous section, we learned B (defined as our CT) and C (4 self-checkout stations). We must now identify A. Let <span class="math inline">\(\lambda\)</span> denote the average arrival rate of customers. In the context of our problem, we will suppose <span class="math inline">\(\lambda\)</span> to be the average arrival rate during our peak hours (since slow hours do not tend to have any kind of queue). The arrival distribution (which we model as a poisson distribution) is shown below in <a href="#fig-arr-1">Figure&nbsp;3.2</a>.</p>
+\tag{3.2}</span></span></p>
+<p>From the previous section, we learned B (defined as our CT) and C (4 self-checkout stations). We must now identify A. Let <span class="math inline">\lambda</span> denote the average arrival rate of customers. In the context of our problem, we will suppose <span class="math inline">\lambda</span> to be the average arrival rate during our peak hours (since slow hours do not tend to have any kind of queue). The arrival distribution (which we model as a poisson distribution) is shown below in <a href="#fig-arr-1">Figure&nbsp;3.2</a>.</p>
 <div class="cell" data-tags="[]" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div id="fig-arr-1" class="quarto-figure quarto-figure-center anchored">
@@ -263,19 +277,19 @@ C: \text{number of servers}
 </div>
 </div>
 </div>
-<p>On average (during peak hours), we have about 2 customers arriving per minute. To better know the amount of time our registers are busy, we calculate <strong>system utilization</strong>, commonly denoted by <span class="math inline">\(\rho\)</span>. The formula for <span class="math inline">\(\rho\)</span> is found in <a href="#eq-op-3">Equation&nbsp;3.3</a>.</p>
-<p><span id="eq-op-3"><span class="math display">\[
+<p>On average (during peak hours), we have about 2 customers arriving per minute. To better know the amount of time our registers are busy, we calculate <strong>system utilization</strong>, commonly denoted by <span class="math inline">\rho</span>. The formula for <span class="math inline">\rho</span> is found in <a href="#eq-op-3">Equation&nbsp;3.3</a>.</p>
+<p><span id="eq-op-3"><span class="math display">
 \rho = \frac{\lambda}{c\mu}
-\tag{3.3}\]</span></span></p>
-<p>System utilization is the defined as the ratio between the average arrival rate and the TPR we previously calculted. In our case, <span class="math inline">\(\rho\)</span> comes out to be .95, or 95%. According to queue theory, a system is stable if <span class="math inline">\(\rho\)</span> is &lt; 1. Our current system is therefore stable and allows us to use <strong>M/M/c</strong> formulas to calculate relevant wait time and queue length metrics. The formulas used all depend on <strong>Little’s Law</strong><span class="citation" data-cites="Little1961"><a href="#ref-Little1961" role="doc-biblioref">[2]</a></span>, illustrated in <a href="#eq-op-4">Equation&nbsp;3.4</a>.</p>
-<p><span id="eq-op-4"><span class="math display">\[
+\tag{3.3}</span></span></p>
+<p>System utilization is the defined as the ratio between the average arrival rate and the TPR we previously calculted. In our case, <span class="math inline">\rho</span> comes out to be .95, or 95%. According to queue theory, a system is stable if <span class="math inline">\rho</span> is &lt; 1. Our current system is therefore stable and allows us to use <strong>M/M/c</strong> formulas to calculate relevant wait time and queue length metrics. The formulas used all depend on <strong>Little’s Law</strong><span class="citation" data-cites="Little1961"><a href="#ref-Little1961" role="doc-biblioref">[2]</a></span>, illustrated in <a href="#eq-op-4">Equation&nbsp;3.4</a>.</p>
+<p><span id="eq-op-4"><span class="math display">
 L = \lambda W
-\tag{3.4}\]</span></span></p>
-<p>L represents the number of customers in the queue, <span class="math inline">\(\lambda\)</span> is the arrival rate of the customers, and W is the wait time of the customers. For our system specifically, we use an adapted version of <a href="#eq-op-4">Equation&nbsp;3.4</a>, as shown in <a href="#eq-op-5">Equation&nbsp;3.5</a>.</p>
-<p><span id="eq-op-5"><span class="math display">\[
+\tag{3.4}</span></span></p>
+<p>L represents the number of customers in the queue, <span class="math inline">\lambda</span> is the arrival rate of the customers, and W is the wait time of the customers. For our system specifically, we use an adapted version of <a href="#eq-op-4">Equation&nbsp;3.4</a>, as shown in <a href="#eq-op-5">Equation&nbsp;3.5</a>.</p>
+<p><span id="eq-op-5"><span class="math display">
 L_{q} = \frac{P_w \rho}{1-\rho}
-\tag{3.5}\]</span></span></p>
-<p><a href="#eq-op-5">Equation&nbsp;3.5</a> utilizes <strong>Erlang’s formula</strong><span class="citation" data-cites="Erlang1917"><a href="#ref-Erlang1917" role="doc-biblioref">[3]</a></span> to get <span class="math inline">\(P_w\)</span>, which is the probability of an arriving customer having to wait in the queue. This is scaled by result of <span class="math inline">\(\frac{\rho}{1-\rho}\)</span>. The result gives us the average length of the queue at any point in time (during peak hours). While we won’t cover the full derivation and calculation of <span class="math inline">\(P_w\)</span>, we provide that the value of it is approximately .9. Plugging this value in with our <span class="math inline">\(\rho\)</span> value, we get <span class="math inline">\(L_q\)</span> is equal to about 16.93, or about 17 people on average are waiting in the queue during peak shopping hours. That’s a lot of people!</p>
+\tag{3.5}</span></span></p>
+<p><a href="#eq-op-5">Equation&nbsp;3.5</a> utilizes <strong>Erlang’s formula</strong><span class="citation" data-cites="Erlang1917"><a href="#ref-Erlang1917" role="doc-biblioref">[3]</a></span> to get <span class="math inline">P_w</span>, which is the probability of an arriving customer having to wait in the queue. This is scaled by result of <span class="math inline">\frac{\rho}{1-\rho}</span>. The result gives us the average length of the queue at any point in time (during peak hours). While we won’t cover the full derivation and calculation of <span class="math inline">P_w</span>, we provide that the value of it is approximately .9. Plugging this value in with our <span class="math inline">\rho</span> value, we get <span class="math inline">L_q</span> is equal to about 16.93, or about 17 people on average are waiting in the queue during peak shopping hours. That’s a lot of people!</p>
 <p>To calculate the average time a customer waits in the queue, we utilize <a href="#eq-op-4">Equation&nbsp;3.4</a> by rearranging the equation to solve for W. After performing some calculations, we get W is equal to 8.91 minutes. MW customers on average wait almost 9 minutes in line during peak shopping hours!</p>
 </section>
 </section>
@@ -283,18 +297,18 @@ L_{q} = \frac{P_w \rho}{1-\rho}
 <h1>Establishing Causality</h1>
 <p>In the previous section, we laid out the current system design of MW stores, specifically for the checkout experience. We identified through our current models that customers experience long lines (on average 17 customers in queue) and consequently long wait times (about 9 minutes waiting in queue). To address this issue in the system, MW launched a pilot program in the Seattle store to see if giving customers scanner guns at self-checkout would decrease queue wait time. Essentially, if we can decrease CT, we can increase TPR and thus move people through the queue more quickly.</p>
 <p>What MW is attempting to gain is <strong>causal inference</strong> from their intervention. MW hopes to know that if they implement this program across all their stores, then their chcekout times will decrease. The gold standard when it comes to establishing cause-effect relationships is performing a <strong>randomized controlled trial (RCT)</strong>. This is also known as A/B testing in some scenarios. In our scenario, we could randomly assign some stores to be control (i.e.&nbsp;no change in the system) and other stores to the treatment (the scanner guns). We then measure their difference in outcomes and attribute any difference in outcome to the treatment effect, assuming that the RCT was designed properly and followed the core assumptions of causal inference.</p>
-<p>While in theory this is the easiest route, in practice it is not always the best approach. For MW, this would mean having to buy scanner guns for <span class="math inline">\(n\)</span> number of stores that needed the treatment, without knowing if they would be going ahead with the program or not. Furthermore, training staff at each treatment location on how to implement scanner guns would also generate more costs. Identifying causal inference in business needs to be balanced with the expected costs of experiments.</p>
+<p>While in theory this is the easiest route, in practice it is not always the best approach. For MW, this would mean having to buy scanner guns for <span class="math inline">n</span> number of stores that needed the treatment, without knowing if they would be going ahead with the program or not. Furthermore, training staff at each treatment location on how to implement scanner guns would also generate more costs. Identifying causal inference in business needs to be balanced with the expected costs of experiments.</p>
 <section id="experiment-design-1-difference-in-differences" class="level2">
 <h2 class="anchored" data-anchor-id="experiment-design-1-difference-in-differences">Experiment Design 1: Difference-in-Differences</h2>
 <p>One approach we can take to help MW is to assign just one store the treatment and compare it with another store that is fairly comparable to the treated store. This approach is know as the <strong>Difference-in-Differences (DiD)</strong><span class="citation" data-cites="Card1994Minimum"><a href="#ref-Card1994Minimum" role="doc-biblioref">[4]</a></span> model. DiD is known as a quasi-experimental design since it doesn’t rely on random assignment. Instead, it “mimics” the effects of RCTs by accounting for unobserved confounders by measuring the change in outcomes to a similar unit. Specifically, this is known as the <strong>parallel trends</strong> assumption. DiD assumes that both the treated unit and the control unit follow parallel trends had there not been any intervention. Mathematically, this is represented as a linear model as shown in <a href="#eq-did-1">Equation&nbsp;4.1</a>.</p>
-<p><span id="eq-did-1"><span class="math display">\[
+<p><span id="eq-did-1"><span class="math display">
 Y_{i} = \beta_{0} + \beta_{1}SEA_{i} + \beta_{2}POST_{i} + \beta_{3}(SEA_{i}*POST_{i}) + \epsilon_{i}
-\tag{4.1}\]</span></span></p>
-<p><span class="math inline">\(Y_{i}\)</span> is the outcome being measured (average checkout time), <span class="math inline">\(SEA_{i}\)</span> is a dummy variable indicating whether the observation is in Seattle or not. <span class="math inline">\(POST_{i}\)</span> is a dummy variable indicating whether or not the observation occurred after the intervention. We then have the interaction term where <span class="math inline">\(\beta_{3}\)</span> would show the average treatment effect between Seattle and the control city after the intervention was applied.</p>
-<p>To get a little more granular into how a simple OLS regression model derives causal effects from this design, consider the basic case of the potential outcomes framework<span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[5]</a></span>. We extend this to DiD by saying each observation takes on an outcome of <span class="math inline">\(Y_{D}(T)\)</span>, where D is the treatment assignment (1 for Seattle and 0 for the control) and T is the time period (1 for post intervention and 0 for pre intervention). In the counterfactual world, we would be able to calculate the <strong>average treatment effect of treated (ATT)</strong> by computing <span class="math inline">\(E[Y_{1}(1) - Y_{0}(1)|D=1]\)</span>. However, <span class="math inline">\(Y_{0}(1)\)</span> is the counterfactual for any given observation where we observe the treated in post intervention. To work around this, we replace the missing counterfactual by setting it equal to <span class="math inline">\(E[Y_{0}(0)|D=1] + (E[Y_{0}(1)|D=0] - E[Y_{0}(0)|D=0])\)</span>. With a bit of rearranging to the original “preferred” equation, we arrive at <a href="#eq-did-2">Equation&nbsp;4.2</a>.</p>
-<p><span id="eq-did-2"><span class="math display">\[
+\tag{4.1}</span></span></p>
+<p><span class="math inline">Y_{i}</span> is the outcome being measured (average checkout time), <span class="math inline">SEA_{i}</span> is a dummy variable indicating whether the observation is in Seattle or not. <span class="math inline">POST_{i}</span> is a dummy variable indicating whether or not the observation occurred after the intervention. We then have the interaction term where <span class="math inline">\beta_{3}</span> would show the average treatment effect between Seattle and the control city after the intervention was applied.</p>
+<p>To get a little more granular into how a simple OLS regression model derives causal effects from this design, consider the basic case of the potential outcomes framework<span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[5]</a></span>. We extend this to DiD by saying each observation takes on an outcome of <span class="math inline">Y_{D}(T)</span>, where D is the treatment assignment (1 for Seattle and 0 for the control) and T is the time period (1 for post intervention and 0 for pre intervention). In the counterfactual world, we would be able to calculate the <strong>average treatment effect of treated (ATT)</strong> by computing <span class="math inline">E[Y_{1}(1) - Y_{0}(1)|D=1]</span>. However, <span class="math inline">Y_{0}(1)</span> is the counterfactual for any given observation where we observe the treated in post intervention. To work around this, we replace the missing counterfactual by setting it equal to <span class="math inline">E[Y_{0}(0)|D=1] + (E[Y_{0}(1)|D=0] - E[Y_{0}(0)|D=0])</span>. With a bit of rearranging to the original “preferred” equation, we arrive at <a href="#eq-did-2">Equation&nbsp;4.2</a>.</p>
+<p><span id="eq-did-2"><span class="math display">
 ATT = (E[Y(1)| D=1] - E[Y(0)| D=1]) - (E[Y(1)| D=0] - E[Y(0)| D=0])
-\tag{4.2}\]</span></span></p>
+\tag{4.2}</span></span></p>
 <p>In essence, we take the difference between the treatment post and pre intervention and the difference between the control post and pre intervention, then take the difference of those differences. Hence, we arrive at the name “difference-in-differences”.</p>
 </section>
 <section id="did-results" class="level2">
@@ -428,11 +442,11 @@ ATT = (E[Y(1)| D=1] - E[Y(0)| D=1]) - (E[Y(1)| D=0] - E[Y(0)| D=0])
 <p>As explained in the DiD section, one of the key assumtions behind the DiD model is the parallel trends assumption. In order for our model to be valid, we need to find an adequate enough control unit that follows a close enough parallel trend, along with the other usual assumptions of causality. This assumption is regularly broken in the real world as it is difficult to find a control unit that satisfies the model assumptions.</p>
 <p>Instead of attempting to find a single control unit to compare our control to, we can “create” our own control by using <strong>synthetic control methods</strong><span class="citation" data-cites="Abadie2003"><a href="#ref-Abadie2003" role="doc-biblioref">[6]</a></span>. We create a synthetic control by taking a weighted average of all our possible controls (i.e.&nbsp;our donor pool) that best mimics the pre-intervention behavior of our treatment unit. An popular example of this is also found in <span class="citation" data-cites="Abadie2010"><a href="#ref-Abadie2010" role="doc-biblioref">[7]</a></span> where the authors used SCM to model the effect of Califronia’s tobacco tax policy.</p>
 <p>In our example, we would take a weighted average of our other 10 stores to form a synthetic control to compare against Seattle. Let’s quickly walk through what the math looks like in SCM.</p>
-<p>SCM attempts to estimate the counterfactual <span class="math inline">\(Y_{t}^{N}\)</span>, that is, the response of our treatment unit had the intervention never happened (i.e.&nbsp;the response of Seattle had it never received scanner guns). SCM estimates this counterfactual through a weighted average across the responses of the donor pool, as shown in <a href="#eq-scm-1">Equation&nbsp;4.3</a>.</p>
-<p><span id="eq-scm-1"><span class="math display">\[
+<p>SCM attempts to estimate the counterfactual <span class="math inline">Y_{t}^{N}</span>, that is, the response of our treatment unit had the intervention never happened (i.e.&nbsp;the response of Seattle had it never received scanner guns). SCM estimates this counterfactual through a weighted average across the responses of the donor pool, as shown in <a href="#eq-scm-1">Equation&nbsp;4.3</a>.</p>
+<p><span id="eq-scm-1"><span class="math display">
 Y_{t}^{N} \approx \sum_{j=2}^{J+1} w_{j} Y_{jt}
-\tag{4.3}\]</span></span></p>
-<p>The weights are calculated by finding the minimum distance between <span class="math inline">\(X_{1}\)</span> (the pre-intervention characteristics of the treated unit) and <span class="math inline">\(X_{0}W\)</span> (the pre-intervention characteristics of a control unit). This minimization is subject to two constraints: all weights must be greater than or equal to 0 and all weights must sum to 1. Once these weights are calculated, they are applied to the post-intervention responses of the control units. The distance between the treated unit and the synthetic control is then the estimated ATT.</p>
+\tag{4.3}</span></span></p>
+<p>The weights are calculated by finding the minimum distance between <span class="math inline">X_{1}</span> (the pre-intervention characteristics of the treated unit) and <span class="math inline">X_{0}W</span> (the pre-intervention characteristics of a control unit). This minimization is subject to two constraints: all weights must be greater than or equal to 0 and all weights must sum to 1. Once these weights are calculated, they are applied to the post-intervention responses of the control units. The distance between the treated unit and the synthetic control is then the estimated ATT.</p>
 <p>In our analysis, we used <code>pysyncon</code><span class="citation" data-cites="pysyncon"><a href="#ref-pysyncon" role="doc-biblioref">[8]</a></span> to create our synthetic control. After preparing our data for it, we obtained the following weights.</p>
 <div class="cell" data-tags="[]" data-execution_count="19">
 <div class="cell-output cell-output-display" data-execution_count="19">

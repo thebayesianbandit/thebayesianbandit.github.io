@@ -114,8 +114,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -228,59 +242,59 @@ div.csl-indent {
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p>Co-clustering can be defined as a family of algorithms that simultaneously clusters rows and columns. Suppose we have a matrix A that contains n rows and m columns, as shown below.</p>
-<p><span class="math display">\[A = \begin{bmatrix}
+<p><span class="math display">A = \begin{bmatrix}
     a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1m} \\
     a_{21} &amp; a_{22} &amp; \cdots &amp; a_{2m} \\
     \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
     a_{n1} &amp; a_{n2} &amp; \cdots &amp; a_{nm}
-\end{bmatrix}\]</span></p>
-<p>Our objective with <span class="math inline">\(A\)</span> would be to identify distinct groups of data that exhibit great similarities to one another. One way to expose these groupings would be through a clustering algorithm like K-means. However, the down side to K-means is the single modality nature of the algorithm. That is, rows and columns would be clustered independetly of each other. In real-world scenarios, there are generally relationships between the rows and columns that we’d want to capture as part of our analysis. For example, suppose the rows of <span class="math inline">\(A\)</span> were customers and the columns of <span class="math inline">\(A\)</span> were products available. <span class="math inline">\(a_{ij}\)</span> would then represent the quantities purchased by the <span class="math inline">\(i\)</span>th customer for the <span class="math inline">\(j\)</span>th product. We’d want to capture in our analysis the relationships between customers and the products. This is where co-clustering comes in.</p>
+\end{bmatrix}</span></p>
+<p>Our objective with <span class="math inline">A</span> would be to identify distinct groups of data that exhibit great similarities to one another. One way to expose these groupings would be through a clustering algorithm like K-means. However, the down side to K-means is the single modality nature of the algorithm. That is, rows and columns would be clustered independetly of each other. In real-world scenarios, there are generally relationships between the rows and columns that we’d want to capture as part of our analysis. For example, suppose the rows of <span class="math inline">A</span> were customers and the columns of <span class="math inline">A</span> were products available. <span class="math inline">a_{ij}</span> would then represent the quantities purchased by the <span class="math inline">i</span>th customer for the <span class="math inline">j</span>th product. We’d want to capture in our analysis the relationships between customers and the products. This is where co-clustering comes in.</p>
 <p>Co-clustering are families of algorithms that simultaneously cluster rows and columns. Contuining with the example above of rows representing customers and columns representing products, suppose we have the following data.</p>
-<span class="math display">\[\begin{pmatrix}
+<span class="math display">\begin{pmatrix}
     3 &amp; 3 &amp; 0 \\
     4 &amp; 4 &amp; 0 \\
     0 &amp; 0 &amp; 1
-\end{pmatrix}\]</span>
-<p><span class="math inline">\(a_{ij}\)</span> once again represents the purchases by the <span class="math inline">\(i\)</span>th customer for the <span class="math inline">\(j\)</span>th product. In normal clustering approaches (like in K means clustering), we would ignore the column structure of this matrix and instead focus on the row structure only. Thus, we would probably end up with two clusters, with the the first two rows pertaining to one cluster and the last row pertaining to another. This approach, while helpful in identifying data points that closely resemble each other, does not take into account the complete picture offered by the matrix.</p>
+\end{pmatrix}</span>
+<p><span class="math inline">a_{ij}</span> once again represents the purchases by the <span class="math inline">i</span>th customer for the <span class="math inline">j</span>th product. In normal clustering approaches (like in K means clustering), we would ignore the column structure of this matrix and instead focus on the row structure only. Thus, we would probably end up with two clusters, with the the first two rows pertaining to one cluster and the last row pertaining to another. This approach, while helpful in identifying data points that closely resemble each other, does not take into account the complete picture offered by the matrix.</p>
 <p>In co-clustering, we would analyze both the row structure <b>and</b> the column structure. We would continue to use the row structure, as illustrated in the previous example, but we would also include column clusters, more than likely clustering the first two columns together and the last one by itself. Thinking back to what this data set represents, we can now show at a more granular level what customers have similar purchase histories, as well as what products are purchased together. Thus, we have a better understanding of a customer journey and their interactions with our products.</p>
 </section>
 <section id="information-theoretic-co-clustering" class="level1">
 <h1>Information Theoretic Co-Clustering</h1>
 <p>Now that we have a solid foundation on what co-clustering is and its potential uses, we explore the co-clustering algorithm “Information Theoretic Co-Clustering” <span class="citation" data-cites="dhillon2003information">(<a href="#ref-dhillon2003information" role="doc-biblioref">Dhillon, Mallela, and Modha 2003</a>)</span>. For a more detailed explanation, please refer to the paper link above or the referenced paper in the works cited.</p>
 <p>The ITCC algorithm poses the challenge of clustering as an optimization problem using relative entropy, as shown below in <a href="#eq-entropy">Equation&nbsp;3.1</a>.</p>
-<p><span id="eq-entropy"><span class="math display">\[\begin{equation}
+<p><span id="eq-entropy"><span class="math display">\begin{equation}
 D_{KL}(P||Q) = \sum_{x} \sum_{y} P(x, y) \log \left( \frac{P(x, y)}{Q(x, y)} \right) \label{eq:kl_joint_discrete}
-\end{equation} \tag{3.1}\]</span></span></p>
-<p>Essentially, we are trying to find a prototype or approximate joint distribution <span class="math inline">\(Q(x,y)\)</span> to minimizes the distance from <span class="math inline">\(P(x,y)\)</span>. To do this, the ITCC algorithm attempts to calculate this minimized approximated joint disribution <span class="math inline">\(Q(x,y)\)</span> by monotonically decreasing the objective function (the objective function being mutual information loss, thus minimizing the information lost between the true joint distribution and the approximate joint distribution).</p>
-<p>To calculate this approximate joint distribution, a set number of row clusters and column clusters are assigned. Then, rows and columns are assigned to a specific cluster number, up to n row clusters and m column clusters. A joint cluster distribution is then calculated, which we will denote as <span class="math inline">\(P(\hat{x},\hat{y})\)</span>. The approximate joint distribution <span class="math inline">\(Q(x,y)\)</span> is the calculated using <span class="math inline">\(P(\hat{x},\hat{y}\)</span> and other conditional distributions. <span class="math inline">\(Q(x,y)\)</span> is calculated by finding rows and columns that minimize <a href="#eq-entropy">Equation&nbsp;3.1</a>, relative to the conditional <span class="math inline">\(P(X|\hat{Y})\)</span> and <span class="math inline">\(P(Y|\hat{X})\)</span>. A more structured run through of the algorithm is found below.</p>
+\end{equation} \tag{3.1}</span></span></p>
+<p>Essentially, we are trying to find a prototype or approximate joint distribution <span class="math inline">Q(x,y)</span> to minimizes the distance from <span class="math inline">P(x,y)</span>. To do this, the ITCC algorithm attempts to calculate this minimized approximated joint disribution <span class="math inline">Q(x,y)</span> by monotonically decreasing the objective function (the objective function being mutual information loss, thus minimizing the information lost between the true joint distribution and the approximate joint distribution).</p>
+<p>To calculate this approximate joint distribution, a set number of row clusters and column clusters are assigned. Then, rows and columns are assigned to a specific cluster number, up to n row clusters and m column clusters. A joint cluster distribution is then calculated, which we will denote as <span class="math inline">P(\hat{x},\hat{y})</span>. The approximate joint distribution <span class="math inline">Q(x,y)</span> is the calculated using <span class="math inline">P(\hat{x},\hat{y}</span> and other conditional distributions. <span class="math inline">Q(x,y)</span> is calculated by finding rows and columns that minimize <a href="#eq-entropy">Equation&nbsp;3.1</a>, relative to the conditional <span class="math inline">P(X|\hat{Y})</span> and <span class="math inline">P(Y|\hat{X})</span>. A more structured run through of the algorithm is found below.</p>
 <ol>
 <li>
-Initialize co-cluster for rows (<span class="math inline">\(C_X\)</span>) and co-cluster for columns (<span class="math inline">\(C_Y\)</span>)
+Initialize co-cluster for rows (<span class="math inline">C_X</span>) and co-cluster for columns (<span class="math inline">C_Y</span>)
 </li>
 <li>
-Calculate <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((\hat{X}, \hat{Y})\)</span>, <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((X|\hat{X})\)</span>, <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((Y|\hat{Y})\)</span>, and <span class="math inline">\(q^{(0)}\)</span> <span class="math inline">\((Y|\hat{x})\)</span>
+Calculate <span class="math inline">q^{(0)}</span> <span class="math inline">(\hat{X}, \hat{Y})</span>, <span class="math inline">q^{(0)}</span> <span class="math inline">(X|\hat{X})</span>, <span class="math inline">q^{(0)}</span> <span class="math inline">(Y|\hat{Y})</span>, and <span class="math inline">q^{(0)}</span> <span class="math inline">(Y|\hat{x})</span>
 </li>
 <li>
-Compute new column clusters for each row x where <span class="math inline">\(C^{t+1}_{X}(x)=\)</span> <span class="math inline">\(argmin_{\hat{x}}\)</span> <span class="math inline">\(D(p(Y|x) || q^{(t)}(Y|\hat{x}))\)</span>
+Compute new column clusters for each row x where <span class="math inline">C^{t+1}_{X}(x)=</span> <span class="math inline">argmin_{\hat{x}}</span> <span class="math inline">D(p(Y|x) || q^{(t)}(Y|\hat{x}))</span>
 </li>
 <li>
-Compute distributions <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((\hat{X}, \hat{Y})\)</span>, <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((X|\hat{X})\)</span>, <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((Y|\hat{Y})\)</span>, and <span class="math inline">\(q^{(t+1)}\)</span> <span class="math inline">\((X|\hat{y})\)</span>
+Compute distributions <span class="math inline">q^{(t+1)}</span> <span class="math inline">(\hat{X}, \hat{Y})</span>, <span class="math inline">q^{(t+1)}</span> <span class="math inline">(X|\hat{X})</span>, <span class="math inline">q^{(t+1)}</span> <span class="math inline">(Y|\hat{Y})</span>, and <span class="math inline">q^{(t+1)}</span> <span class="math inline">(X|\hat{y})</span>
 </li>
 <li>
-Compute new column clusters for each column y where <span class="math inline">\(C^{t+2}_{Y}(y)=\)</span> <span class="math inline">\(argmin_{\hat{y}}\)</span> <span class="math inline">\(D(p(X|y) || q^{(t+1)}(X|\hat{y}))\)</span>
+Compute new column clusters for each column y where <span class="math inline">C^{t+2}_{Y}(y)=</span> <span class="math inline">argmin_{\hat{y}}</span> <span class="math inline">D(p(X|y) || q^{(t+1)}(X|\hat{y}))</span>
 </li>
 <li>
-Compute distributions <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((\hat{X}, \hat{Y})\)</span>, <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((X|\hat{X})\)</span>, <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((Y|\hat{Y})\)</span>, and <span class="math inline">\(q^{(t+2)}\)</span> <span class="math inline">\((Y|\hat{x})\)</span>
+Compute distributions <span class="math inline">q^{(t+2)}</span> <span class="math inline">(\hat{X}, \hat{Y})</span>, <span class="math inline">q^{(t+2)}</span> <span class="math inline">(X|\hat{X})</span>, <span class="math inline">q^{(t+2)}</span> <span class="math inline">(Y|\hat{Y})</span>, and <span class="math inline">q^{(t+2)}</span> <span class="math inline">(Y|\hat{x})</span>
 </li>
 <li>
-Stop and return current row and column clusters (<span class="math inline">\(C_X,C_Y\)</span>) if the change in the objective function value is small. Else, repeat starting at step 2.
+Stop and return current row and column clusters (<span class="math inline">C_X,C_Y</span>) if the change in the objective function value is small. Else, repeat starting at step 2.
 </li>
-<p>Essentially, the algorithm forms row and column cluster prototypes, calculates the appropriate distributions to get to the approximate joint distribution <span class="math inline">\(q(X,Y)\)</span>, then measures the distance between <span class="math inline">\(p(X,Y)\)</span> and <span class="math inline">\(q(X,Y\)</span> using <a href="#eq-entropy">Equation&nbsp;3.1</a>. The algorithm is able to be monotonically decreasing due to the fact that we always select the cluster that minimizes <a href="#eq-entropy">Equation&nbsp;3.1</a> (see steps 3 and 5 in the algorithm steps above).</p>
+<p>Essentially, the algorithm forms row and column cluster prototypes, calculates the appropriate distributions to get to the approximate joint distribution <span class="math inline">q(X,Y)</span>, then measures the distance between <span class="math inline">p(X,Y)</span> and <span class="math inline">q(X,Y</span> using <a href="#eq-entropy">Equation&nbsp;3.1</a>. The algorithm is able to be monotonically decreasing due to the fact that we always select the cluster that minimizes <a href="#eq-entropy">Equation&nbsp;3.1</a> (see steps 3 and 5 in the algorithm steps above).</p>
 </ol></section>
 <section id="code-walk-through" class="level1">
 <h1>Code Walk-Through</h1>
 <p>In this section, we’ll walk through the various code chunks that make up our ITCC algorithm. Full disclosure, this is a very crude approach to implementing this algorithm. There are far better implementations of this algorithm along with other co-clustering algorithms (e.g.&nbsp;scikit learn). This is merely an educational exercise by me to practice implementing clustering algorithms.</p>
-<p>To begin the code walk through, we will initialize our joint distribution <span class="math inline">\(P(X,Y)\)</span>, which is found below. This is the same joint distribution used in the ITCC paper.</p>
+<p>To begin the code walk through, we will initialize our joint distribution <span class="math inline">P(X,Y)</span>, which is found below. This is the same joint distribution used in the ITCC paper.</p>
 <div class="cell" data-tags="[]" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Initialize test array</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>test_arr <span class="op">=</span> np.array([<span class="fl">.05</span>, <span class="fl">.05</span>, <span class="fl">.05</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, </span>
@@ -290,8 +304,8 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>          <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="dv">0</span>, <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="fl">.04</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>          <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="fl">.04</span>, <span class="dv">0</span>, <span class="fl">.04</span>, <span class="fl">.04</span>]).reshape(<span class="dv">6</span>,<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Our <span class="math inline">\(P(X,Y)\)</span> is a 6x6 matrix. We will attempt to find the optimal 3 row clusters and 2 columns clusters using our ITCC implementation, just as performed in the ITCC paper. To do this, we will implement various functions that calculate the necessary distributions for eventually comparing <span class="math inline">\(P(X,Y)\)</span> and <span class="math inline">\(Q(X,Y)\)</span>.</p>
-<p>Our first function in the code walk through is calculating the joint distribution <span class="math inline">\(Q(\hat{X},\hat{Y})\)</span>, which is the joint distribution of the row and column clusters. The code to do this is found below.</p>
+<p>Our <span class="math inline">P(X,Y)</span> is a 6x6 matrix. We will attempt to find the optimal 3 row clusters and 2 columns clusters using our ITCC implementation, just as performed in the ITCC paper. To do this, we will implement various functions that calculate the necessary distributions for eventually comparing <span class="math inline">P(X,Y)</span> and <span class="math inline">Q(X,Y)</span>.</p>
+<p>Our first function in the code walk through is calculating the joint distribution <span class="math inline">Q(\hat{X},\hat{Y})</span>, which is the joint distribution of the row and column clusters. The code to do this is found below.</p>
 <div class="cell" data-tags="[]" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating joint distribution</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_joint(x: <span class="bu">dict</span>, y: <span class="bu">dict</span>, a: np.array) <span class="op">-&gt;</span> np.array:</span>
@@ -304,8 +318,8 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> joint_arr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The function accepts the row clusters, column clusters, and joint distribution <span class="math inline">\(P(X,Y)\)</span>. We chose to use dictionaries to illustrate the structure of co cluster prototypes with the co cluster number as the key and the value being a list of indices where the respective row(s) or column(s) lie. The function returns the mxn array, where m is the number of row clusters and n is the number of columns clusters.</p>
-<p>The next function we define is <span class="math inline">\(Q(X|\hat{X})\)</span>. This accepts the joint distribution <span class="math inline">\(P(X,Y)\)</span> and the dictionary for the row cluster prototypes. The function then returns a mxn matrix where m is the number of rows in the original matrix (or the total number of rows from all the row clusters) and n is the number of row clusters.</p>
+<p>The function accepts the row clusters, column clusters, and joint distribution <span class="math inline">P(X,Y)</span>. We chose to use dictionaries to illustrate the structure of co cluster prototypes with the co cluster number as the key and the value being a list of indices where the respective row(s) or column(s) lie. The function returns the mxn array, where m is the number of row clusters and n is the number of columns clusters.</p>
+<p>The next function we define is <span class="math inline">Q(X|\hat{X})</span>. This accepts the joint distribution <span class="math inline">P(X,Y)</span> and the dictionary for the row cluster prototypes. The function then returns a mxn matrix where m is the number of rows in the original matrix (or the total number of rows from all the row clusters) and n is the number of row clusters.</p>
 <div class="cell" data-tags="[]" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating conditional of x given x_hat</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_x_cond(jd: np.array, x_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
@@ -322,7 +336,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><span class="math inline">\(Q(\hat{X}|\hat{Y})\)</span> is the conditional distribution of the <span class="math inline">\(\hat{X}\)</span> given <span class="math inline">\(\hat{Y}\)</span>. This just becomes the joint distribution <span class="math inline">\(Q(\hat{X},\hat{Y})\)</span> divided by the marginal of <span class="math inline">\(Q(\hat{Y})\)</span>. The function returns a mxn matrix where m is the number of row clusters and n is the number of column clusters.</p>
+<p><span class="math inline">Q(\hat{X}|\hat{Y})</span> is the conditional distribution of the <span class="math inline">\hat{X}</span> given <span class="math inline">\hat{Y}</span>. This just becomes the joint distribution <span class="math inline">Q(\hat{X},\hat{Y})</span> divided by the marginal of <span class="math inline">Q(\hat{Y})</span>. The function returns a mxn matrix where m is the number of row clusters and n is the number of column clusters.</p>
 <div class="cell" data-tags="[]" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculation conditional of x_hat given y_hat</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_xhat_cond(jd: np.array) <span class="op">-&gt;</span> np.array:</span>
@@ -338,7 +352,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><span class="math inline">\(Q(X|\hat{Y})\)</span> is calculated as the product of <span class="math inline">\(Q(X|\hat{X})Q(\hat{X}|\hat{Y})\)</span>. This function accepts then the previously calculated <span class="math inline">\(Q(X|\hat{X})\)</span> distribution and the <span class="math inline">\(Q(\hat{X}|\hat{Y})\)</span> distribution. This function returns a mxn matrix where m is the number of rows from the original joint distribution <span class="math inline">\(P(X,Y)\)</span> and n is the the number of columns from the same said distribution.</p>
+<p><span class="math inline">Q(X|\hat{Y})</span> is calculated as the product of <span class="math inline">Q(X|\hat{X})Q(\hat{X}|\hat{Y})</span>. This function accepts then the previously calculated <span class="math inline">Q(X|\hat{X})</span> distribution and the <span class="math inline">Q(\hat{X}|\hat{Y})</span> distribution. This function returns a mxn matrix where m is the number of rows from the original joint distribution <span class="math inline">P(X,Y)</span> and n is the the number of columns from the same said distribution.</p>
 <div class="cell" data-tags="[]" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating x given y_hat</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_x_cond_yhat(x_xhat: np.array, xhat_yhat: np.array, x_ind: <span class="bu">dict</span>, y_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
@@ -353,7 +367,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            </span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(full_arr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We now arrive at defining the column distributions, first with <span class="math inline">\(Q(Y|\hat{Y})\)</span>. This function accepts the primary joint distribution and the dictionary of <span class="math inline">\(\hat{Y}\)</span>. The function returns a matrix of dimension mxn where m is the number of columns in the original joint distribution and n is the number of column clusters.</p>
+<p>We now arrive at defining the column distributions, first with <span class="math inline">Q(Y|\hat{Y})</span>. This function accepts the primary joint distribution and the dictionary of <span class="math inline">\hat{Y}</span>. The function returns a matrix of dimension mxn where m is the number of columns in the original joint distribution and n is the number of column clusters.</p>
 <div class="cell" data-tags="[]" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating conditional of y given y_hat</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_y_cond(jd: np.array, y_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
@@ -370,7 +384,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><span class="math inline">\(Q(\hat{Y}|\hat{X})\)</span> is calculated very similariy to <span class="math inline">\(Q(\hat{X}|\hat{Y})\)</span> and returns, like the previous function, the same dimension of the of the joint co cluster distribution.</p>
+<p><span class="math inline">Q(\hat{Y}|\hat{X})</span> is calculated very similariy to <span class="math inline">Q(\hat{X}|\hat{Y})</span> and returns, like the previous function, the same dimension of the of the joint co cluster distribution.</p>
 <div class="cell" data-tags="[]" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating conditional of y_hat given x_hat</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_yhat_cond(jd: np.array) <span class="op">-&gt;</span> np.array:</span>
@@ -386,7 +400,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cond_dist</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><span class="math inline">\(Q(Y|\hat{X})\)</span> is equal to the product of <span class="math inline">\(Q(Y|\hat{Y}) Q(\hat{Y}|\hat{X})\)</span>. This function accepts the <span class="math inline">\(Q(Y|\hat{Y})\)</span> distribution, <span class="math inline">\(Q(\hat{Y}|\hat{X})\)</span> distribution, the column cluster dictionary, and the row cluster dictionary. The function returns a mxn matrix of the same dimension of the original joint distribution.</p>
+<p><span class="math inline">Q(Y|\hat{X})</span> is equal to the product of <span class="math inline">Q(Y|\hat{Y}) Q(\hat{Y}|\hat{X})</span>. This function accepts the <span class="math inline">Q(Y|\hat{Y})</span> distribution, <span class="math inline">Q(\hat{Y}|\hat{X})</span> distribution, the column cluster dictionary, and the row cluster dictionary. The function returns a mxn matrix of the same dimension of the original joint distribution.</p>
 <div class="cell" data-tags="[]" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculating y given x_hat</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc_y_cond_xhat(y_yhat: np.array, yhat_xhat: np.array, y_ind: <span class="bu">dict</span>, x_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> np.array:</span>
@@ -401,7 +415,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            </span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(full_arr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><span class="math inline">\(C_X\)</span> represents our current row clusters. The function below takes in the distributions <span class="math inline">\(Q(Y|\hat{X}\)</span> and <span class="math inline">\(P(Y|X)\)</span>, along with the mappings of each row to row to cluster using the x_ind dictionary. This function utilizes <a href="#eq-entropy">Equation&nbsp;3.1</a> to find calculate the distance between these distributions. It then selects the cluster row prototype that minimizes the distance between a row of the true distribution and that of the approximate distribution. The function returns a dictionary with the new row cluster prototypes.</p>
+<p><span class="math inline">C_X</span> represents our current row clusters. The function below takes in the distributions <span class="math inline">Q(Y|\hat{X}</span> and <span class="math inline">P(Y|X)</span>, along with the mappings of each row to row to cluster using the x_ind dictionary. This function utilizes <a href="#eq-entropy">Equation&nbsp;3.1</a> to find calculate the distance between these distributions. It then selects the cluster row prototype that minimizes the distance between a row of the true distribution and that of the approximate distribution. The function returns a dictionary with the new row cluster prototypes.</p>
 <div class="cell" data-tags="[]" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculation next c_x</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> next_cx(y_xhat: np.array, y_x: np.array, x_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
@@ -422,7 +436,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> new_x_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Similarily to the function above <span class="math inline">\(C_Y\)</span> represents our current column clusters. The function utilizes <span class="math inline">\(Q(X|\hat{Y})\)</span> and <span class="math inline">\(P(X|Y)\)</span> along with the mappings found in y_ind, which contain the mappings of columns to column clusters. It then uses <a href="#eq-entropy">Equation&nbsp;3.1</a> to perform the same calculations used in <span class="math inline">\(C_X\)</span>. This function also returns a dictionary with the new mappings for column cluster prototypes.</p>
+<p>Similarily to the function above <span class="math inline">C_Y</span> represents our current column clusters. The function utilizes <span class="math inline">Q(X|\hat{Y})</span> and <span class="math inline">P(X|Y)</span> along with the mappings found in y_ind, which contain the mappings of columns to column clusters. It then uses <a href="#eq-entropy">Equation&nbsp;3.1</a> to perform the same calculations used in <span class="math inline">C_X</span>. This function also returns a dictionary with the new mappings for column cluster prototypes.</p>
 <div class="cell" data-tags="[]" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define function for calculation next c_y</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> next_cy(x_yhat: np.array, x_y: np.array, y_ind: <span class="bu">dict</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
@@ -443,7 +457,7 @@ Stop and return current row and column clusters (<span class="math inline">\(C_X
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>       </span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> new_y_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>This function is where we formally define the co-clustering algorithm utilizing the functions defined above as well as the steps outline for the ITCC algorithm above. We refer the reader to the above section “Information Theoretic Co-Clustering”. The function accepts the target distribution we wish to perform co-clustering on, as well as the number of row clusters <span class="math inline">\(k\)</span> and column clusters <span class="math inline">\(l\)</span>. The user can also specify the number of iterations. The function returns a tuple of form (dict, dict), where the first dictionary is the row cluster and the second is the column cluster.</p>
+<p>This function is where we formally define the co-clustering algorithm utilizing the functions defined above as well as the steps outline for the ITCC algorithm above. We refer the reader to the above section “Information Theoretic Co-Clustering”. The function accepts the target distribution we wish to perform co-clustering on, as well as the number of row clusters <span class="math inline">k</span> and column clusters <span class="math inline">l</span>. The user can also specify the number of iterations. The function returns a tuple of form (dict, dict), where the first dictionary is the row cluster and the second is the column cluster.</p>
 <div class="cell" data-tags="[]" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Define co-clustering algorithm</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> co_cluster(joint_dist: np.array, k: <span class="bu">int</span>, l: <span class="bu">int</span>, num_iter: <span class="bu">int</span>) <span class="op">-&gt;</span> (<span class="bu">dict</span>, <span class="bu">dict</span>):</span>

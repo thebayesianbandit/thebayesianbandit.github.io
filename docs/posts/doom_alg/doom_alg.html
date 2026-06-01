@@ -83,8 +83,22 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -306,33 +320,33 @@ div.csl-indent {
 </table>
 </div>
 <p>These scores are aggregated to create a item-user matrix, as depicted in <a href="#eq-rec-1">Equation&nbsp;3.1</a>. Note: For faster computation, we transform this into a sparse matrix using <code>scipy</code>.</p>
-<p><span id="eq-rec-1"><span class="math display">\[
+<p><span id="eq-rec-1"><span class="math display">
 \begin{pmatrix}
 2 &amp; -.5 &amp; 1 \\
 1 &amp; 1 &amp; 1 \\
 2 &amp; -2 &amp; 1
 \end{pmatrix}
-\tag{3.1}\]</span></span></p>
-<p><a href="#eq-rec-1">Equation&nbsp;3.1</a> is a <span class="math inline">\(n\)</span> by <span class="math inline">\(m\)</span> matrix where each row <span class="math inline">\(i\)</span> is an item and each column <span class="math inline">\(j\)</span> is a user. The goal of setting the matrix like this is to identify relationships between items. We want to identify which items are most similar to each other based on similar scores from users. To calculate this, we utilize <em>cosine similarity</em> <span class="citation" data-cites="Salton1975Vector"><a href="#ref-Salton1975Vector" role="doc-biblioref">[3]</a></span> as shown in <a href="#eq-rec-2">Equation&nbsp;3.2</a>.</p>
-<p><span id="eq-rec-2"><span class="math display">\[
+\tag{3.1}</span></span></p>
+<p><a href="#eq-rec-1">Equation&nbsp;3.1</a> is a <span class="math inline">n</span> by <span class="math inline">m</span> matrix where each row <span class="math inline">i</span> is an item and each column <span class="math inline">j</span> is a user. The goal of setting the matrix like this is to identify relationships between items. We want to identify which items are most similar to each other based on similar scores from users. To calculate this, we utilize <em>cosine similarity</em> <span class="citation" data-cites="Salton1975Vector"><a href="#ref-Salton1975Vector" role="doc-biblioref">[3]</a></span> as shown in <a href="#eq-rec-2">Equation&nbsp;3.2</a>.</p>
+<p><span id="eq-rec-2"><span class="math display">
 \text{similarity}(A, B) = \frac{A \cdot B}{\|A\| \|B\|}
-\tag{3.2}\]</span></span></p>
-<p><a href="#eq-rec-2">Equation&nbsp;3.2</a> allows us to measure the cosine of the angle between two item vectors. A smaller angle means higher similarity. Once these are all calculated, the results are stored in a <span class="math inline">\(n\)</span> by <span class="math inline">\(n\)</span> matrix, where each row and column corresponds to a specific item (i.e.&nbsp;an item-item matrix). We can then perform lookups on this matrix to recommend items that are most similar to those a user previously interacted positively with. Once we have <span class="math inline">\(r\)</span> number of recommendations for a user, these items with their respective scores are sent to our weighted-sum function for weighting based on important business objectives. This process of using item-item similarity and weighting according to business objectives is known as <em>collaborative filtering</em> <span class="citation" data-cites="Sarwar2001"><a href="#ref-Sarwar2001" role="doc-biblioref">[4]</a></span>.</p>
-<p><span id="eq-rec-3"><span class="math display">\[
+\tag{3.2}</span></span></p>
+<p><a href="#eq-rec-2">Equation&nbsp;3.2</a> allows us to measure the cosine of the angle between two item vectors. A smaller angle means higher similarity. Once these are all calculated, the results are stored in a <span class="math inline">n</span> by <span class="math inline">n</span> matrix, where each row and column corresponds to a specific item (i.e.&nbsp;an item-item matrix). We can then perform lookups on this matrix to recommend items that are most similar to those a user previously interacted positively with. Once we have <span class="math inline">r</span> number of recommendations for a user, these items with their respective scores are sent to our weighted-sum function for weighting based on important business objectives. This process of using item-item similarity and weighting according to business objectives is known as <em>collaborative filtering</em> <span class="citation" data-cites="Sarwar2001"><a href="#ref-Sarwar2001" role="doc-biblioref">[4]</a></span>.</p>
+<p><span id="eq-rec-3"><span class="math display">
 \text{Final Score} = w_{1}\text{Similarity Score} + w_{2}\text{Num Views} + w_{3}\text{Is Interest}
-\tag{3.3}\]</span></span></p>
+\tag{3.3}</span></span></p>
 <p>The final score of a video is weighted by three key attributes: the similarity score (produced from <a href="#eq-rec-1">Equation&nbsp;3.1</a>), the number of views a video has (the popularity of it), and a boolean variable indicating whether the video aligns with the user’s interests.</p>
 </section>
 <section id="rl-agent-architecture" class="level2">
 <h2 class="anchored" data-anchor-id="rl-agent-architecture">RL Agent Architecture</h2>
-<p>Our recommendation system currently outputs the top <span class="math inline">\(r\)</span> recommendations for a user based on their past interaction history. This is a great feature, but it does not capture the entire story of a user. Each time a user opens our app, they are in a different state of being. They could be bored, anxious, excited, or experiencing any other emotion. To better understand our users and present them content that aligns with their current state, we utilize reinforcement learning (RL) to model these states and their subsequent feedback. RL is the industry standard for capturing sequential decision making.</p>
+<p>Our recommendation system currently outputs the top <span class="math inline">r</span> recommendations for a user based on their past interaction history. This is a great feature, but it does not capture the entire story of a user. Each time a user opens our app, they are in a different state of being. They could be bored, anxious, excited, or experiencing any other emotion. To better understand our users and present them content that aligns with their current state, we utilize reinforcement learning (RL) to model these states and their subsequent feedback. RL is the industry standard for capturing sequential decision making.</p>
 <p>From a high-level, we refer back to <a href="#fig-sys-1">Figure&nbsp;3.1</a>. The RL agent takes in current session information (number of videos watched so far, number of skips, last video category show, etc), the candidate list of videos with their final scores, and current “predicted” user interests. The RL agent then chooses an action (i.e.&nbsp;which video to show), sends that video to the user, and records the interaction. As the RL agent continues to do this, it learns which states matches certain videos. The more data it has around the interactions between users and videos given current states, the more optimized its <strong>policy</strong> will be at choosing the correct next best video.</p>
 <p>To model this system, we use a <em>Deep Q Network (DQN)</em> <span class="citation" data-cites="Mnih2015HumanlevelCT"><a href="#ref-Mnih2015HumanlevelCT" role="doc-biblioref">[5]</a></span>. The DQN utilizes neural networks to approximate the <em>Q Function</em> <span class="citation" data-cites="Watkins1989Learning"><a href="#ref-Watkins1989Learning" role="doc-biblioref">[6]</a></span>, as shown in <a href="#eq-rl-1">Equation&nbsp;3.4</a>.</p>
-<p><span id="eq-rl-1"><span class="math display">\[Q^*(s, a) = \mathbb{E}_{s' \sim P(\cdot|s,a)} \left[ r + \gamma \max_{a'} Q^*(s', a') \right] \tag{3.4}\]</span></span></p>
-<p><a href="#eq-rl-1">Equation&nbsp;3.4</a> is the optimal Q-value function for a Q-learning algorithm. The equation basically says that the optimal Q-value for taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span> is equal the expectation of the sum of the immediate reward of taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span> and the optimal Q-value for the next state <span class="math inline">\(s\)</span> over all possible next actions <span class="math inline">\(a\)</span>. Simply put, this function estimates the expected future cumulative reward of taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span>.</p>
-<p>In our DQN, we estimate these Q-values using neural networks. The neural network takes the current state <span class="math inline">\(s\)</span> as input, passes it through the hidden layers, and produces <span class="math inline">\(r\)</span> number of Q-values. The DQN then chooses a video to show the user. To do this, we use an <em>epsilon-greedy</em> <span class="citation" data-cites="Sutton1998Reinforcement"><a href="#ref-Sutton1998Reinforcement" role="doc-biblioref">[7]</a></span> approach to balance exploration with exploitation. The video is then shown to the user, the user interacts with the video, the interaction is recorded, and the process begins again.</p>
+<p><span id="eq-rl-1"><span class="math display">Q^*(s, a) = \mathbb{E}_{s' \sim P(\cdot|s,a)} \left[ r + \gamma \max_{a'} Q^*(s', a') \right] \tag{3.4}</span></span></p>
+<p><a href="#eq-rl-1">Equation&nbsp;3.4</a> is the optimal Q-value function for a Q-learning algorithm. The equation basically says that the optimal Q-value for taking action <span class="math inline">a</span> in state <span class="math inline">s</span> is equal the expectation of the sum of the immediate reward of taking action <span class="math inline">a</span> in state <span class="math inline">s</span> and the optimal Q-value for the next state <span class="math inline">s</span> over all possible next actions <span class="math inline">a</span>. Simply put, this function estimates the expected future cumulative reward of taking action <span class="math inline">a</span> in state <span class="math inline">s</span>.</p>
+<p>In our DQN, we estimate these Q-values using neural networks. The neural network takes the current state <span class="math inline">s</span> as input, passes it through the hidden layers, and produces <span class="math inline">r</span> number of Q-values. The DQN then chooses a video to show the user. To do this, we use an <em>epsilon-greedy</em> <span class="citation" data-cites="Sutton1998Reinforcement"><a href="#ref-Sutton1998Reinforcement" role="doc-biblioref">[7]</a></span> approach to balance exploration with exploitation. The video is then shown to the user, the user interacts with the video, the interaction is recorded, and the process begins again.</p>
 <p>Our DQN learns via <strong>experience replay</strong>. The RL agent learns via mini-batches of experiences that are randomly sampled from a “memory storage”. This breaks correlation and improves training stability. The training is performed like many other DL algorithms where we attempt to minimize a loss function. In our prototype, we use <strong>mean squared error</strong>. The loss is calculated as the difference between our target Q-value and the predicted Q-value, as shown in <a href="#eq-rl-2">Equation&nbsp;3.5</a>.</p>
-<p><span id="eq-rl-2"><span class="math display">\[\min_{\theta} \mathcal{L}(\theta) = \min_{\theta} \mathbb{E} \left[ \left( Y - Q(s, a; \theta) \right)^2 \right] \tag{3.5}\]</span></span></p>
+<p><span id="eq-rl-2"><span class="math display">\min_{\theta} \mathcal{L}(\theta) = \min_{\theta} \mathbb{E} \left[ \left( Y - Q(s, a; \theta) \right)^2 \right] \tag{3.5}</span></span></p>
 <p>Since we don’t directly observe target Q-values in the real world, we estimate them via a <strong>target network</strong> in our RL agent. Our predicted Q-values are derived from an entirely different network known as the <strong>online network</strong>.</p>
 <p><strong>All specific technical details of the DQN, state and action space, etc. can be found at the github link in the abstract.</strong></p>
 </section>

@@ -83,8 +83,22 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -409,55 +423,55 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="utility-theory">Utility Theory</h2>
 <p>The theory for our modeling approach stems from microeconomics, namely utility theory <span class="citation" data-cites="bernoulli1738exposition"><a href="#ref-bernoulli1738exposition" role="doc-biblioref">[9]</a></span>. As previously discussed, the primary objective for airlines is to capture as much consumer surplus as possible by accurately estimating a customer’s WTP. WTP itself is derived from the principle that individuals seek to maximize their utility from the consumption of a good or service. Therefore, if an airline’s service provides a consumer with utility, the goal is to set a price that is optimally aligned with the value of that utility, thereby maximizing the revenue captured.</p>
 <p>In our simulation, given the discrete consumer choice between alternatives, we use the random utility model <span class="citation" data-cites="mcfadden1974conditional"><a href="#ref-mcfadden1974conditional" role="doc-biblioref">[10]</a></span>, as shown in <a href="#eq-rum-1">Equation&nbsp;4.1</a>.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 U_{ijt} = V_{ijt} + \epsilon_{ijt}
-\]</span> <span id="eq-rum-1"><span class="math display">\[
+</span> <span id="eq-rum-1"><span class="math display">
 \epsilon_{ijt} \overset{i.i.d.}{\sim} \text{Gumbel}(0,1)
-\tag{4.1}\]</span></span></p>
-<p><span class="math inline">\(U_{ijt}\)</span> is the utility derived by the <span class="math inline">\(i\)</span>th customer choosing the <span class="math inline">\(j\)</span>th alternative in the <span class="math inline">\(t\)</span>th scenario. This utility is composed of a deterministic portion <span class="math inline">\(V_{ijt}\)</span> (our “observed” utility from purchased ticket data) and a stochastic term <span class="math inline">\(\epsilon_{ijt}\)</span> that we assume follows a Gumbel distribution.</p>
+\tag{4.1}</span></span></p>
+<p><span class="math inline">U_{ijt}</span> is the utility derived by the <span class="math inline">i</span>th customer choosing the <span class="math inline">j</span>th alternative in the <span class="math inline">t</span>th scenario. This utility is composed of a deterministic portion <span class="math inline">V_{ijt}</span> (our “observed” utility from purchased ticket data) and a stochastic term <span class="math inline">\epsilon_{ijt}</span> that we assume follows a Gumbel distribution.</p>
 <p>While we don’t observe an exact “utility” estimate in this data (or in any data for that matter), we postulate that utility is derived as a linear combination of observed features. This is illustrated in <a href="#eq-rum-2">Equation&nbsp;4.2</a>.</p>
-<p><span id="eq-rum-2"><span class="math display">\[
+<p><span id="eq-rum-2"><span class="math display">
 V_{ijt} = \text{ASC}_{flight1,i,t} I(\text{Flight 1}) + \text{ASC}_{flight2,i,t} I(\text{Flight 2}) + \beta_{i,price,t} Price_{jt} + \beta_{i,stops,t} Stops_{jt} + \beta_{i,seat,t} Seat_{jt}
-\tag{4.2}\]</span></span></p>
-<p>The equation <a href="#eq-rum-2">Equation&nbsp;4.2</a> illustrates that the observed utility, <span class="math inline">\(V_{ijt}\)</span>, is a function of several key attributes of both the alternatives and the customer. Specifically, the utility is dependent on the flight’s price, the number of stops, and the type of seat purchased.</p>
+\tag{4.2}</span></span></p>
+<p>The equation <a href="#eq-rum-2">Equation&nbsp;4.2</a> illustrates that the observed utility, <span class="math inline">V_{ijt}</span>, is a function of several key attributes of both the alternatives and the customer. Specifically, the utility is dependent on the flight’s price, the number of stops, and the type of seat purchased.</p>
 <p>The utility we derive in <a href="#eq-rum-2">Equation&nbsp;4.2</a> is then used to calculate the probability of choosing a given alternative in a given scenario. This is illustrated in <a href="#eq-rum-3">Equation&nbsp;4.3</a>.</p>
-<p><span id="eq-rum-3"><span class="math display">\[
+<p><span id="eq-rum-3"><span class="math display">
 P(Y_{ijt} = 1) = \frac{exp(V_{ijt})}{\sum_{z=1}^{J}exp(V_{izt})}
-\tag{4.3}\]</span></span></p>
+\tag{4.3}</span></span></p>
 <p>Essentially, we assume that the probability of a consumer’s observed choice is a function of the utility of a given alternative ($V_{ijt}) relative to the utilities of all other available alternatives.</p>
 </section>
 <section id="hierarchical-bayesian" class="level2">
 <h2 class="anchored" data-anchor-id="hierarchical-bayesian">Hierarchical Bayesian</h2>
-<p>As mentioned at the outset of this section, we are modeling this scenario hierarchically. This approach is based on the belief that individuals derive their preferences from a “global” distribution, which is then adjusted based on personal differences. To implement this, we model each <span class="math inline">\(\beta\)</span> value as a draw from a global population distribution, as shown in <a href="#eq-bay-1">Equation&nbsp;4.4</a>.</p>
-<p><span id="eq-bay-1"><span class="math display">\[
+<p>As mentioned at the outset of this section, we are modeling this scenario hierarchically. This approach is based on the belief that individuals derive their preferences from a “global” distribution, which is then adjusted based on personal differences. To implement this, we model each <span class="math inline">\beta</span> value as a draw from a global population distribution, as shown in <a href="#eq-bay-1">Equation&nbsp;4.4</a>.</p>
+<p><span id="eq-bay-1"><span class="math display">
 \beta_{it} = \begin{pmatrix} \text{ASC}_{flight1,i,t} \\ \text{ASC}_{flight2,i,t} \\ \beta_{i,price,t} \\ \beta_{i,stops,t} \\ \beta_{i,seat,t} \end{pmatrix} \sim N(\mu_{t}, \Sigma)
-\tag{4.4}\]</span></span></p>
-<p>Each customer <span class="math inline">\(i\)</span> in scenario <span class="math inline">\(t\)</span> has a vector <span class="math inline">\(\beta\)</span> that is drawn from a multivariate normal distribution with mean <span class="math inline">\(\mu_{t}\)</span> and covariance <span class="math inline">\(\Sigma\)</span>. <span class="math inline">\(\mu_{t}\)</span> is our vector of population parameter estimates for the average preference for each attribute of a flight at time <span class="math inline">\(t\)</span>. <span class="math inline">\(\Sigma\)</span> represents the unobserved heterogeneity around <span class="math inline">\(\mu_{t}\)</span> (Note: we hold this value constant throughout to simplify modeling).</p>
-<p>We model <span class="math inline">\(\mu_{t}\)</span> as an AR(1) process, as shown in <a href="#eq-bay-2">Equation&nbsp;4.5</a>.</p>
-<p><span id="eq-bay-2"><span class="math display">\[
+\tag{4.4}</span></span></p>
+<p>Each customer <span class="math inline">i</span> in scenario <span class="math inline">t</span> has a vector <span class="math inline">\beta</span> that is drawn from a multivariate normal distribution with mean <span class="math inline">\mu_{t}</span> and covariance <span class="math inline">\Sigma</span>. <span class="math inline">\mu_{t}</span> is our vector of population parameter estimates for the average preference for each attribute of a flight at time <span class="math inline">t</span>. <span class="math inline">\Sigma</span> represents the unobserved heterogeneity around <span class="math inline">\mu_{t}</span> (Note: we hold this value constant throughout to simplify modeling).</p>
+<p>We model <span class="math inline">\mu_{t}</span> as an AR(1) process, as shown in <a href="#eq-bay-2">Equation&nbsp;4.5</a>.</p>
+<p><span id="eq-bay-2"><span class="math display">
 \mu_{kt} = \mu_{k,base} + \phi_{k}(\mu_{kt-1} - \mu_{k,base}) + \eta_{kt}
-\tag{4.5}\]</span></span></p>
-<p><span class="math inline">\(\mu_{kt}\)</span> is the average preference for attribute <span class="math inline">\(k\)</span> at time <span class="math inline">\(t\)</span>. This is a linear combination of three key components: The base preference (<span class="math inline">\(\mu_{k,base}\)</span>), the difference between the past average preference and the base preference scaled by autoregressive component <span class="math inline">\(\phi_{k}\)</span> (how much the past mean influences the current mean), and the random shock <span class="math inline">\(\eta_{kt}\)</span> which accounts for unobserved fluctuations in the average preference. (Note: We assume <span class="math inline">\(\eta_{kt}\)</span> is drawn from <span class="math inline">\(N(0,q_{k})\)</span>. Interested readers can see the code for <span class="math inline">\(q_{k}\)</span> prior).</p>
-<p>The <span class="math inline">\(\mu_{k,base}\)</span> parameter is estimated from the baseline population hyperparameters, as shown in <a href="#eq-bay-3">Equation&nbsp;4.6</a>.</p>
-<p><span id="eq-bay-3"><span class="math display">\[
+\tag{4.5}</span></span></p>
+<p><span class="math inline">\mu_{kt}</span> is the average preference for attribute <span class="math inline">k</span> at time <span class="math inline">t</span>. This is a linear combination of three key components: The base preference (<span class="math inline">\mu_{k,base}</span>), the difference between the past average preference and the base preference scaled by autoregressive component <span class="math inline">\phi_{k}</span> (how much the past mean influences the current mean), and the random shock <span class="math inline">\eta_{kt}</span> which accounts for unobserved fluctuations in the average preference. (Note: We assume <span class="math inline">\eta_{kt}</span> is drawn from <span class="math inline">N(0,q_{k})</span>. Interested readers can see the code for <span class="math inline">q_{k}</span> prior).</p>
+<p>The <span class="math inline">\mu_{k,base}</span> parameter is estimated from the baseline population hyperparameters, as shown in <a href="#eq-bay-3">Equation&nbsp;4.6</a>.</p>
+<p><span id="eq-bay-3"><span class="math display">
 \mu_{k,base} = \alpha_{k} + \delta_{kc}
-\tag{4.6}\]</span></span></p>
-<p><span class="math inline">\(\alpha_{k}\)</span> is the intercept for the baseline population mean for each attribute <span class="math inline">\(k\)</span>. This is then adjusted based on different customer demographics <span class="math inline">\(c\)</span> for each attribute <span class="math inline">\(k\)</span>. Each <span class="math inline">\(\alpha_{k}\)</span> and <span class="math inline">\(\delta_{kc}\)</span> has prior <span class="math inline">\(N(\mu, \sigma)\)</span> (interested readers can view the numpyro code for specific numbers).</p>
+\tag{4.6}</span></span></p>
+<p><span class="math inline">\alpha_{k}</span> is the intercept for the baseline population mean for each attribute <span class="math inline">k</span>. This is then adjusted based on different customer demographics <span class="math inline">c</span> for each attribute <span class="math inline">k</span>. Each <span class="math inline">\alpha_{k}</span> and <span class="math inline">\delta_{kc}</span> has prior <span class="math inline">N(\mu, \sigma)</span> (interested readers can view the numpyro code for specific numbers).</p>
 <p>The likelihood function based on all these parameters is modeled in <a href="#eq-bay-4">Equation&nbsp;4.7</a>.</p>
-<p><span id="eq-bay-4"><span class="math display">\[
+<p><span id="eq-bay-4"><span class="math display">
 L(Y|\beta, \mu, \Sigma, \phi, Q) = \prod_{i=1}^{N} \prod_{j=1}^{J} \prod_{t=1}^{T_{i}} P(Y_{ijt} = 1)
-\tag{4.7}\]</span></span></p>
+\tag{4.7}</span></span></p>
 <p>Once these parameters are estimated, we can calculate individual WTP using <a href="#eq-wtp-1">Equation&nbsp;4.8</a>.</p>
-<p><span id="eq-wtp-1"><span class="math display">\[
+<p><span id="eq-wtp-1"><span class="math display">
 \text{WTP}_{ikt} = -\frac{\beta_{ikt}}{\beta_{i,price,t}}
-\tag{4.8}\]</span></span></p>
+\tag{4.8}</span></span></p>
 <p>WTP is formally defined as the marginal rate of substitution between a non-monetary attribute and price. Within our logit framework, this is calculated as the ratio of an attribute’s coefficient to the absolute value of the price coefficient. A positive WTP indicates the amount a customer is willing to pay to gain an attribute, while a negative WTP represents the cost a customer is willing to incur to avoid an undesirable attribute.</p>
 <p>To model this data, we used <code>numpyro</code> <span class="citation" data-cites="phan2019composable"><a href="#ref-phan2019composable" role="doc-biblioref">[11]</a></span> using a NUTS kernel <span class="citation" data-cites="hoffman2014no"><a href="#ref-hoffman2014no" role="doc-biblioref">[12]</a></span> and collected 1000 samples.</p>
 </section>
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
 <p>In the context of airline pricing, we’d like to understand the WTP for customers avoiding layovers (stops) on their flights and the WTP for customers seeking a premium class seat. If we can identify different WTP for each customer, we can better personalize pricing based on these attributes to capture more revenue per customer.</p>
-<p>To illustrate the results of our model, we present the average WTP estimate for stops along with 95% credible interval for customer 5. These results are shown below for each scenario <span class="math inline">\(t\)</span>.</p>
+<p>To illustrate the results of our model, we present the average WTP estimate for stops along with 95% credible interval for customer 5. These results are shown below for each scenario <span class="math inline">t</span>.</p>
 <div class="cell" data-tags="[]" data-execution_count="26">
 <div class="cell-output cell-output-stdout">
 <pre><code>Average WTP stop for customer 5: -11.361211776733398
@@ -591,12 +605,12 @@ L(Y|\beta, \mu, \Sigma, \phi, Q) = \prod_{i=1}^{N} \prod_{j=1}^{J} \prod_{t=1}^{
 </section>
 <section id="price-offer-strategy" class="level2">
 <h2 class="anchored" data-anchor-id="price-offer-strategy">Price Offer Strategy</h2>
-<p>Our goal is to maximize the expected profit from a given price point for a particular customer. While we could set the price as the base fare plus the mean of the posterior distribution, a more optimal approach would be finding a price point <span class="math inline">\(p\)</span> that would maximize <a href="#eq-profit-1">Equation&nbsp;4.9</a>.</p>
-<p><span id="eq-profit-1"><span class="math display">\[
+<p>Our goal is to maximize the expected profit from a given price point for a particular customer. While we could set the price as the base fare plus the mean of the posterior distribution, a more optimal approach would be finding a price point <span class="math inline">p</span> that would maximize <a href="#eq-profit-1">Equation&nbsp;4.9</a>.</p>
+<p><span id="eq-profit-1"><span class="math display">
 E[p-c] = (p-c)P(WTP_{ikt} &gt; p)
-\tag{4.9}\]</span></span></p>
-<p><span class="math inline">\(p\)</span> is the price and <span class="math inline">\(c\)</span> is the cost associated with the flight. The probabilities from <a href="#eq-profit-1">Equation&nbsp;4.9</a> can be pulled from our posterior distributions.</p>
-<p>Assuming a cost <span class="math inline">\(c\)</span> of $200 and a base fare <span class="math inline">\(p\)</span> of $200, we determine the optimal price for a flight based on the WTP for avoiding a stop. To do this, we test integer price points ranging from $5 to $30 above the base fare. Using the posterior distribution derived from scenario 2 for customer 5, the resulting optimal price is shown below.</p>
+\tag{4.9}</span></span></p>
+<p><span class="math inline">p</span> is the price and <span class="math inline">c</span> is the cost associated with the flight. The probabilities from <a href="#eq-profit-1">Equation&nbsp;4.9</a> can be pulled from our posterior distributions.</p>
+<p>Assuming a cost <span class="math inline">c</span> of $200 and a base fare <span class="math inline">p</span> of $200, we determine the optimal price for a flight based on the WTP for avoiding a stop. To do this, we test integer price points ranging from $5 to $30 above the base fare. Using the posterior distribution derived from scenario 2 for customer 5, the resulting optimal price is shown below.</p>
 <div class="cell" data-tags="[]" data-execution_count="47">
 <div class="cell-output cell-output-stdout">
 <pre><code>Optimal price to maximize profit: $218</code></pre>

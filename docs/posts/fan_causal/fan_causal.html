@@ -83,8 +83,22 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -385,10 +399,10 @@ div.csl-indent {
 <section id="logistic-regression-to-estimate-average-treatment-effect-ate" class="level2">
 <h2 class="anchored" data-anchor-id="logistic-regression-to-estimate-average-treatment-effect-ate">Logistic Regression to estimate Average Treatment Effect (ATE)</h2>
 <p>After establishing our causal relationships via <a href="#fig-dag-1">Figure&nbsp;4.6</a>, we can begin to define a model that will estimate our <strong>average treatment effect (ATE)</strong>. A simple way we can do this is via logistic regression, as shown in <a href="#eq-log-1">Equation&nbsp;4.1</a>.</p>
-<p><span id="eq-log-1"><span class="math display">\[
+<p><span id="eq-log-1"><span class="math display">
 \log\left(\frac{p}{1-p}\right) = \beta^{T}X
-\tag{4.1}\]</span></span></p>
-<p><span class="math inline">\(X\)</span> is our design matrix, <span class="math inline">\(\beta\)</span> is our vector of coefficients, and the left hand side of the equation is our log-odds ratio. Logistic regression aims to maximize the log likelihood through finding the proper <span class="math inline">\(\beta\)</span> values. In other words, it aims to find the most likely <span class="math inline">\(\beta\)</span> values that would occur with the <span class="math inline">\(X\)</span> and <span class="math inline">\(y\)</span> combinations.</p>
+\tag{4.1}</span></span></p>
+<p><span class="math inline">X</span> is our design matrix, <span class="math inline">\beta</span> is our vector of coefficients, and the left hand side of the equation is our log-odds ratio. Logistic regression aims to maximize the log likelihood through finding the proper <span class="math inline">\beta</span> values. In other words, it aims to find the most likely <span class="math inline">\beta</span> values that would occur with the <span class="math inline">X</span> and <span class="math inline">y</span> combinations.</p>
 <p>In our scenario, we identified that we need to include major and parent alumni in our design matrix to isolate the effects of sports pass on likelihood of donation. However, since including other covariates wouldn’t introduce confoundness, we can include the rest of the covariates from <a href="#fig-dag-1">Figure&nbsp;4.6</a>. Our model output is shown below.</p>
 <div class="cell" data-tags="[]" data-execution_count="12">
 <div class="cell-output cell-output-display" data-execution_count="12">
@@ -498,9 +512,9 @@ div.csl-indent {
 </div>
 </div>
 <p>Our primary parameter of interest is sports_pass. Our log-odds increase in donation likelihood is 1.4989, which on the odds scale about 4.47. This means that on average, holding all else constant, those with sports passes have 4.47 higher odds of donating than those who do not have sports passes. While this insight is informative, a better metric of the causal effect of sport pass would be the ATE. The equation for ATE and the corresponding result are shown below.</p>
-<p><span id="eq-ate-1"><span class="math display">\[
+<p><span id="eq-ate-1"><span class="math display">
 \text{ATE} = E[Y(1) - Y(0)] = E[Y(1)] - E[Y(0)]
-\tag{4.2}\]</span></span></p>
+\tag{4.2}</span></span></p>
 <div class="cell" data-tags="[]" data-execution_count="22">
 <div class="cell-output cell-output-stdout">
 <pre><code>ATE: 0.22</code></pre>
@@ -519,9 +533,9 @@ div.csl-indent {
 <section id="conditional-average-treatment-effect-cate-via-causal-forests" class="level2">
 <h2 class="anchored" data-anchor-id="conditional-average-treatment-effect-cate-via-causal-forests">Conditional Average Treatment Effect (CATE) via Causal Forests</h2>
 <p>While our ATE estimate is a good indication of a causal relationship between sports pass and donor behavior, we don’t expect this effect to be consistent across different demographics. In order to quantify the impact of our treatment on different alumni demographics, we need to obtain the <strong>conditional average treatment effect (CATE)</strong>. The CATE is very similar to <a href="#eq-ate-1">Equation&nbsp;4.2</a>, but differs in that it is conditioned on a set of covariates, as shown in <a href="#eq-cate-1">Equation&nbsp;4.3</a>.</p>
-<p><span id="eq-cate-1"><span class="math display">\[
+<p><span id="eq-cate-1"><span class="math display">
 \text{CATE}(X) = E[Y(1) - Y(0) | X] = E[Y(1) | X] - E[Y(0) | X]
-\tag{4.3}\]</span></span></p>
+\tag{4.3}</span></span></p>
 <p>While we technically could obtain CATE estimates from our logistic regression model, one potential downfall to our logistic model is that it takes on a parametric form. In other words, we have strong assumptions about the nature of our data generating problem. To relax this assumption, we can use a nonparametric learner to understand the patterns in our data. In our case, we can utilize Causal Forests <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[5]</a></span>. We briefly walk through how Causal Forests estimate CATE below.</p>
 <ol type="1">
 <li>Create Causal Trees: This step involves creating multiple different trees just as a decision tree does, only these trees are to identify different subgroup effects.</li>

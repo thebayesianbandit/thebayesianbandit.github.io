@@ -83,8 +83,22 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -318,15 +332,15 @@ Name: proportion, dtype: float64</code></pre>
 <h2 class="anchored" data-anchor-id="model-specification">Model Specification</h2>
 <p>The goal of our model is to extract a valid causal estimate of our DJ feature on average time to skip. To do this, we need to specify a model that accounts for: the discontinuity between treated and untreated and the non-compliance of some in the treated group. The first part is just utilizing a linear regression model. The second part means we need to adjust this regression model to be a <strong>two-stage least squares (2SLS)</strong> <span class="citation" data-cites="Theil1953"><a href="#ref-Theil1953" role="doc-biblioref">[4]</a></span> model.</p>
 <p>A 2SLS model contains two parts: the first-stage regression and the second-stage regression (hence, two-stage). The first-stage model is found in <a href="#eq-2sls-1">Equation&nbsp;3.1</a>.</p>
-<p><span id="eq-2sls-1"><span class="math display">\[
+<p><span id="eq-2sls-1"><span class="math display">
 D_{i} = \gamma_{0} + \gamma_{1}X_{i} + \gamma_{2}T_{i} + \sum_{j=3}^{m}\gamma_{j}Z_{ji} + \epsilon_{i}
-\tag{3.1}\]</span></span></p>
-<p>The first-stage regression models the treatment status (1 for DJ, 0 for no DJ) for each individual <span class="math inline">\(i\)</span>. <span class="math inline">\(X_{i}\)</span> is our running variable (average session length) for each individual <span class="math inline">\(i\)</span>. <span class="math inline">\(T_{i}\)</span> is the instrument variable. We need the instrument variable to adjust for non-compliance since the treatment status is endogenous (i.e.&nbsp;correlated with the error term). To get an unbiased estimate, we use the instrument of assignment. That is, the treatment variable is a binary indicator of 1 if the user used the DJ and 0 otherwise. The instrument variable is a binary indicator of 1 if the user was assigned the DJ and 0 otherwise. The rest of the model are other covariates that help us to control for potential confounders (e.g.&nbsp;age, device type, etc.).</p>
+\tag{3.1}</span></span></p>
+<p>The first-stage regression models the treatment status (1 for DJ, 0 for no DJ) for each individual <span class="math inline">i</span>. <span class="math inline">X_{i}</span> is our running variable (average session length) for each individual <span class="math inline">i</span>. <span class="math inline">T_{i}</span> is the instrument variable. We need the instrument variable to adjust for non-compliance since the treatment status is endogenous (i.e.&nbsp;correlated with the error term). To get an unbiased estimate, we use the instrument of assignment. That is, the treatment variable is a binary indicator of 1 if the user used the DJ and 0 otherwise. The instrument variable is a binary indicator of 1 if the user was assigned the DJ and 0 otherwise. The rest of the model are other covariates that help us to control for potential confounders (e.g.&nbsp;age, device type, etc.).</p>
 <p>The second-stage of the 2SLS estimates our variable of interest. In this case, average time to first skip. The second-stage model is shown in <a href="#eq-2sls-2">Equation&nbsp;3.2</a>.</p>
-<p><span id="eq-2sls-2"><span class="math display">\[
+<p><span id="eq-2sls-2"><span class="math display">
 ln(Y_{i}) = \beta_{0} + \beta_{1}X_{i} + \beta_{2}\hat{D}_{i} + \sum_{j=3}^{m}\beta_{j}Z_{ji} + u_{i}
-\tag{3.2}\]</span></span></p>
-<p>In our model, we perform a log transformation to understand the percent change our treatment yields compared to the control group. The only real difference between <a href="#eq-2sls-1">Equation&nbsp;3.1</a> and <a href="#eq-2sls-2">Equation&nbsp;3.2</a> is <span class="math inline">\(\hat{D}\)</span>. This is the predicted treatment status from <a href="#eq-2sls-1">Equation&nbsp;3.1</a>. Using this model, we can calculate the <strong>local average treatment effect (LATE)</strong>, since we only want to measure the effect between those who complied with the treatment (i.e.&nbsp;those who actually used the DJ and were assigned it vs those who did not use the DJ and were not assigned it).</p>
+\tag{3.2}</span></span></p>
+<p>In our model, we perform a log transformation to understand the percent change our treatment yields compared to the control group. The only real difference between <a href="#eq-2sls-1">Equation&nbsp;3.1</a> and <a href="#eq-2sls-2">Equation&nbsp;3.2</a> is <span class="math inline">\hat{D}</span>. This is the predicted treatment status from <a href="#eq-2sls-1">Equation&nbsp;3.1</a>. Using this model, we can calculate the <strong>local average treatment effect (LATE)</strong>, since we only want to measure the effect between those who complied with the treatment (i.e.&nbsp;those who actually used the DJ and were assigned it vs those who did not use the DJ and were not assigned it).</p>
 </section>
 <section id="model-results" class="level2">
 <h2 class="anchored" data-anchor-id="model-results">Model Results</h2>
@@ -412,7 +426,7 @@ ln(Y_{i}) = \beta_{0} + \beta_{1}X_{i} + \beta_{2}\hat{D}_{i} + \sum_{j=3}^{m}\b
 </table>
 </div>
 </div>
-<p>At face value, the <code>use_dj</code> parameter shows a significant result. On average, users who used the AI DJ saw a log increase in average time to first skip of 0.7834. Additionally, those who used a laptop instead of a mobile device with the DJ saw a decrease in the DJ effect. That is, the DJ effect for laptop users was a log increase of ~0.63. To understand these values on a percentage scale, we can transform them by <span class="math inline">\((e^{X} - 1) * 100\)</span>. Below is the tranformation for <code>use_dj</code> for mobile and <code>use_dj</code> for laptop.</p>
+<p>At face value, the <code>use_dj</code> parameter shows a significant result. On average, users who used the AI DJ saw a log increase in average time to first skip of 0.7834. Additionally, those who used a laptop instead of a mobile device with the DJ saw a decrease in the DJ effect. That is, the DJ effect for laptop users was a log increase of ~0.63. To understand these values on a percentage scale, we can transform them by <span class="math inline">(e^{X} - 1) * 100</span>. Below is the tranformation for <code>use_dj</code> for mobile and <code>use_dj</code> for laptop.</p>
 <div class="cell" data-execution_count="21">
 <div class="cell-output cell-output-stdout">
 <pre><code>use_dj: 118.9002474395752

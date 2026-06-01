@@ -83,8 +83,22 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -199,21 +213,21 @@ div.csl-indent {
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p>Uplift modeling is a useful way of measuring the incremental impact of treatments compared to the control. Essentially, it measures <em>how</em> an individual will react to interventions. <a href="#eq-uplift-1">Equation&nbsp;2.1</a> shows the math behind the calculation.</p>
-<p><span id="eq-uplift-1"><span class="math display">\[
+<p><span id="eq-uplift-1"><span class="math display">
 \text{Uplift}_i = Y_i(1) - Y_i(0)
-\tag{2.1}\]</span></span></p>
+\tag{2.1}</span></span></p>
 <p><a href="#eq-uplift-1">Equation&nbsp;2.1</a> utilizes the potential outcomes framework derived by Rubin in <span class="citation" data-cites="rubin1974estimating"><a href="#ref-rubin1974estimating" role="doc-biblioref">[3]</a></span>. Since we can only ever observe the effects of treatment or control on an individual, the average treatment effect (ATE) <a href="#eq-uplift-2">Equation&nbsp;2.2</a> is the usual metric calculated to understand treatment impact in an experiment. Furthermore, to understand how the treatment effect changes amongst subgroups/subpopulations, the conditional average treatment effect (CATE) <a href="#eq-uplift-3">Equation&nbsp;2.3</a> is useful in identifying the heterogeneous treatment effect.</p>
-<p><span id="eq-uplift-2"><span class="math display">\[
+<p><span id="eq-uplift-2"><span class="math display">
 \tau = E[Y_i(1) - Y_i(0)]
-\tag{2.2}\]</span></span></p>
-<p><span id="eq-uplift-3"><span class="math display">\[
+\tag{2.2}</span></span></p>
+<p><span id="eq-uplift-3"><span class="math display">
 \tau(x_i) = E[Y_i(1) - Y_i(0) | X]
-\tag{2.3}\]</span></span></p>
+\tag{2.3}</span></span></p>
 <p>In the context of marketing, the CATE is of great interest since it helps marketing organizations identify how treatments fair with different customer segments. For example, a marketing team might run a A/B test with some customers receiving a special promo (treatment) while others receive nothing (control) to see if there is a change in purchase behavior.</p>
 <p>Uplift modeling follows the same basic assumptions of most causal inference models, namely: stable unit treatment value assumption (SUTVA), unconfoundness, and overlap. SUTVA means that there is no interference between treatment assignments and potential outcomes of individuals, as well as no unaccounted treatment versions in the study. Unconfoundness means the treatment assignment is independent of potential outcomes after conditioning on observed covariates (X) (see <a href="#eq-uncon-1">Equation&nbsp;2.4</a>). Overlap means that for every observed combination of covariates (X) in the data, there is a non-zero probability of being assigned to either treatment or control.</p>
-<p><span id="eq-uncon-1"><span class="math display">\[
+<p><span id="eq-uncon-1"><span class="math display">
 \{Y(1), Y(0)\} \perp T \mid X
-\tag{2.4}\]</span></span></p>
+\tag{2.4}</span></span></p>
 </section>
 <section id="problem-formulation" class="level1">
 <h1>Problem Formulation</h1>
@@ -268,9 +282,9 @@ div.csl-indent {
 </div>
 </div>
 </div>
-<p>While <a href="#fig-dag-1">Figure&nbsp;3.1</a> shows the flow of causality going through the number of items purchased to determine ticket size, we will focus our analysis and modeling on the ticket size and will ignore this step of the DAG. This is to more easily calculate <em>Net Value</em> of the transaction, where we will define this as <span class="math inline">\(NV = R - MC\)</span>, where <span class="math inline">\(NV\)</span> is net value, <span class="math inline">\(R\)</span> is revenue, and <span class="math inline">\(MC\)</span> is marketing costs. From this, we propose that the optimal treatment program (i.e.&nbsp;optimal policy) can be defined in <a href="#eq-opt-1">Equation&nbsp;3.1</a>.</p>
-<p><span id="eq-opt-1"><span class="math display">\[\pi^* \in \underset{\pi}{\operatorname{argmax}} \{V(\pi)\} , \quad \pi^*(x) = \mathbf{1} (\{\tau(x) &gt; 0\}) \tag{3.1}\]</span></span></p>
-<p><a href="#eq-opt-1">Equation&nbsp;3.1</a> states that the optimal policy <span class="math inline">\(\pi\)</span> is that which maximizes the some arbitrary value function <span class="math inline">\(V(\pi)\)</span>. Although the above question is generally for single treatment experiments, it can be extended to multiple treatments.</p>
+<p>While <a href="#fig-dag-1">Figure&nbsp;3.1</a> shows the flow of causality going through the number of items purchased to determine ticket size, we will focus our analysis and modeling on the ticket size and will ignore this step of the DAG. This is to more easily calculate <em>Net Value</em> of the transaction, where we will define this as <span class="math inline">NV = R - MC</span>, where <span class="math inline">NV</span> is net value, <span class="math inline">R</span> is revenue, and <span class="math inline">MC</span> is marketing costs. From this, we propose that the optimal treatment program (i.e.&nbsp;optimal policy) can be defined in <a href="#eq-opt-1">Equation&nbsp;3.1</a>.</p>
+<p><span id="eq-opt-1"><span class="math display">\pi^* \in \underset{\pi}{\operatorname{argmax}} \{V(\pi)\} , \quad \pi^*(x) = \mathbf{1} (\{\tau(x) &gt; 0\}) \tag{3.1}</span></span></p>
+<p><a href="#eq-opt-1">Equation&nbsp;3.1</a> states that the optimal policy <span class="math inline">\pi</span> is that which maximizes the some arbitrary value function <span class="math inline">V(\pi)</span>. Although the above question is generally for single treatment experiments, it can be extended to multiple treatments.</p>
 <p>Specifically, the business wants to experiment with 3 different treatments: free donut, free juice, and a 30% discount. Furthermore, they wish to know through which marketing channel is the treatment most effective, namely: social media, in-app notifications, and email. Therefore, we have 9 distinct treatments that we need to test against the control (i.e.&nbsp;receiving no promotion).</p>
 <p><strong>Assummptions</strong>: We list here some crucial assumptions for this analysis demonstration. First, we operate under the 3 assumptions stated above (SUTVA, unconfoundness, and overlap). Second, we operate under the assumption that there is no spill over effect amongst participants. Though this is not an exhaustive list of assumptions from this experiment, these are sufficient for the educational purposes of this post.</p>
 </section>
@@ -345,18 +359,18 @@ Name: user_id, dtype: int64</code></pre>
 <section id="uplift-modeling" class="level1">
 <h1>Uplift Modeling</h1>
 <p>As mentioned in the introduction, uplift modeling estimates <em>how</em> a customer will react to interventions. There are many ways to estimate the uplift of a treatment. In this section, we implement a x-learner <span class="citation" data-cites="Kunzel2017MetaLearners"><a href="#ref-Kunzel2017MetaLearners" role="doc-biblioref">[4]</a></span>. The x-learner belongs to a family of algorithms called <em>meta-learners</em> that specialize in utilizing machine learning approaches like random forests or boosting methods to estimate causal effects. While the x-learner was originally designed for binary treatments, <span class="citation" data-cites="zhao2019uplift"><a href="#ref-zhao2019uplift" role="doc-biblioref">[1]</a></span> demonstrates a way to extend the framework to multiple treatments. The stages of implementing the x-learner are shown below.</p>
-<p><span id="eq-x-1"><span class="math display">\[
+<p><span id="eq-x-1"><span class="math display">
 \mu_{t_{j}} = E[Y(t_{j})|X=x]
-\tag{5.1}\]</span></span></p>
-<p><span class="math display">\[
+\tag{5.1}</span></span></p>
+<p><span class="math display">
 D^{t_{0}}_{i} = \hat{\mu}_{t_{j}}(x) - Y_{i}
-\]</span> <span id="eq-x-2"><span class="math display">\[
+</span> <span id="eq-x-2"><span class="math display">
 D^{t_{j}}_{i} = Y_{i} - \hat{\mu}_{t_{0}}(x)
-\tag{5.2}\]</span></span></p>
-<p><span id="eq-x-3"><span class="math display">\[
+\tag{5.2}</span></span></p>
+<p><span id="eq-x-3"><span class="math display">
 \hat{\tau}^{t_{j}}(x) = \frac{\hat{e}_{t_{j}}(x)}{\hat{e}_{t_{j}}(x) + \hat{e}_{t_{0}}(x)}\hat{\tau}_{t_{0}}(x) + \frac{\hat{e}_{t_{0}}(x)}{\hat{e}_{t_{j}}(x) + \hat{e}_{t_{0}}(x)}\hat{\tau}_{t_{j}}(x)
-\tag{5.3}\]</span></span></p>
-<p>The first stage of the x-learner is just normal regression. We fit any regression type model to model the outcomes of <span class="math inline">\(Y\)</span> on covariates <span class="math inline">\(X\)</span> for each treatment <span class="math inline">\(t\)</span>. The second stage of the x-learner is where we impute the treatment effect <span class="math inline">\(D\)</span> by using the fitted regression models from <a href="#eq-x-1">Equation&nbsp;5.1</a>. This is essentially calculating counterfactual outcomes such that we can estimate individual treatment effects (ITEs). This is once again done for each treatment <span class="math inline">\(t\)</span>. We then “repeat” the process as before and create regression models that regress the treatment effects (or more properly, pseudo-effects) on the covariates <span class="math inline">\(X\)</span> to obtain functions <span class="math inline">\(\hat{\tau}_{t_{0}}\)</span> for the control and <span class="math inline">\(\hat{\tau}_{t_{j}}\)</span> for the j-th treatment. The third stage utilizes the propensity scores for each treatment to adjust the “weights” of each treatment. These weights adjust the outputs from the models generated from <a href="#eq-x-2">Equation&nbsp;5.2</a> to obtain our CATE for each treatment <span class="math inline">\(j\)</span>.</p>
+\tag{5.3}</span></span></p>
+<p>The first stage of the x-learner is just normal regression. We fit any regression type model to model the outcomes of <span class="math inline">Y</span> on covariates <span class="math inline">X</span> for each treatment <span class="math inline">t</span>. The second stage of the x-learner is where we impute the treatment effect <span class="math inline">D</span> by using the fitted regression models from <a href="#eq-x-1">Equation&nbsp;5.1</a>. This is essentially calculating counterfactual outcomes such that we can estimate individual treatment effects (ITEs). This is once again done for each treatment <span class="math inline">t</span>. We then “repeat” the process as before and create regression models that regress the treatment effects (or more properly, pseudo-effects) on the covariates <span class="math inline">X</span> to obtain functions <span class="math inline">\hat{\tau}_{t_{0}}</span> for the control and <span class="math inline">\hat{\tau}_{t_{j}}</span> for the j-th treatment. The third stage utilizes the propensity scores for each treatment to adjust the “weights” of each treatment. These weights adjust the outputs from the models generated from <a href="#eq-x-2">Equation&nbsp;5.2</a> to obtain our CATE for each treatment <span class="math inline">j</span>.</p>
 <p>To train our x-learner, we use the <code>causalML</code> library. We use an 80-20 split on 4000 observations (~2000 control vs ~2000 treated, split among 9 treatments). The base learner for our x-learner is a gradient boosting regressor from <code>sklearn</code>.</p>
 <p>While understanding the CATE due to all features in the dataset, for this business case specifically, understanding the CATE for each tier is of great importance. An understanding of what promotion is most effective with each tier is crucical for marketing strategy optimization. Below we output the CATE values for those in the none tier.</p>
 <div class="cell" data-tags="[]" data-execution_count="20">
@@ -415,7 +429,7 @@ D^{t_{j}}_{i} = Y_{i} - \hat{\mu}_{t_{0}}(x)
 <li>For a fully grown tree, for each terminal node, estimate CATE.</li>
 <li>Average CATE across all trees.</li>
 </ol>
-<p>For a more thorough explanation of the algorithm, see <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[2]</a></span>. The algorithm is then adapted to our scenario where we utilize IVs. In this case, the algorithm becomes generalized to incorporate <span class="math inline">\(Z\)</span>, our indicator variable of whether or not a customer was assigned a promotion or not. The algorithm then adjusts for this by estimating the local conditional average treatment effect (L-CATE).</p>
+<p>For a more thorough explanation of the algorithm, see <span class="citation" data-cites="wager2015estimation"><a href="#ref-wager2015estimation" role="doc-biblioref">[2]</a></span>. The algorithm is then adapted to our scenario where we utilize IVs. In this case, the algorithm becomes generalized to incorporate <span class="math inline">Z</span>, our indicator variable of whether or not a customer was assigned a promotion or not. The algorithm then adjusts for this by estimating the local conditional average treatment effect (L-CATE).</p>
 <p>Our causalIVforest is implemented using <code>econML</code>. Similar to above, we use a 80-20 split. We do not perform any hyperparameter tuning for the causalIVforest. We output the split of tiers in our test set below.</p>
 <div class="cell" data-tags="[]" data-execution_count="32">
 <div class="cell-output cell-output-display" data-execution_count="32">

@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  resources: 
+    - "**/*.mp4"
 
 website:
   title: "The Bayesian Bandit"
@@ -19,7 +21,7 @@ website:
 format:
   html:
     bootstrap-icons: true
-
+    html-math-method: katex
     theme: 
      - lux
      - theme.scss

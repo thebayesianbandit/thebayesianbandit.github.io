@@ -80,8 +80,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -227,36 +241,36 @@ div.csl-indent {
 <h1>Margins in Music: The Unit Economics of Spotify</h1>
 <p>Note: For simplicity, we use “synthetic” numbers merely for demonstration of understanding the unit economics of this kind of business model. For a full run down of Spotify’s financials, see <a href="https://investors.spotify.com/financials/default.aspx">here.</a></p>
 <p>We’ve established the environment and value proposition of Spotify to appeal to both artists and listeners. Now, we can dive into the fun part of defining and evaluating the <strong>revenue and cost structure of the business</strong>. We start with the simplest equation in business: the profit equation.</p>
-<p><span id="eq-prof-1"><span class="math display">\[
+<p><span id="eq-prof-1"><span class="math display">
 P = R - C
-\tag{3.1}\]</span></span></p>
-<p><span class="math inline">\(P\)</span> represents the profit, <span class="math inline">\(R\)</span> represents the revenue, and <span class="math inline">\(C\)</span> reperesents the cost. Once we define <span class="math inline">\(R\)</span> and <span class="math inline">\(C\)</span>, we know what Spotify’s profit will be.</p>
+\tag{3.1}</span></span></p>
+<p><span class="math inline">P</span> represents the profit, <span class="math inline">R</span> represents the revenue, and <span class="math inline">C</span> reperesents the cost. Once we define <span class="math inline">R</span> and <span class="math inline">C</span>, we know what Spotify’s profit will be.</p>
 <p>Based on what we established from the previous section, Spotify has two primary streams of revenue: ads and premium membership. Ads generate revenue based on results from the real time bid ad auction (see my last <a href="https://thebayesianbandit.com/posts/ad_plat/ad_plat.html">post</a> for an explanation on ad auctions). Our premium membership would be set at a fixed flat rate billed on a monthly basis. From a cost perspective, we have our fixed costs on things like servers, sales and marketing, etc., along with our variable costs on artist royalty.</p>
 <section id="ltv-and-cac-are-top-hits" class="level2">
 <h2 class="anchored" data-anchor-id="ltv-and-cac-are-top-hits">LTV and CAC are Top Hits</h2>
 <p>Great, so we have ideas on where the money will come from, now are we ready for the numbers? Not quite. In order to determine the optimal way to generate revenue and manage costs (i.e., set prices and costs), we need to identify the metrics they would be impacting. For a company like Spotify that is dealing with a two-sided marketplace, the asset they are selling to each side is, well, the other side. Artists want to be on a platform where they can be discovered (a high volume of listeners), and listeners want to be where their artists are and discover new music. So, naturally, Spotify should be focused on two key metrics: <strong>Lifetime Value (LTV)</strong> and <strong>Customer Acquisition Cost (CAC)</strong>.</p>
 <p>Let’s begin with LTV. LTV essentially measures the expected revenue or profit for a given customer base. Suppose we expect our customers to last 12 months and spend about $1. Then, our expected LTV would be $12. That’s really all there is to LTV. For a company like Spotify, we’d adjust this formula a bit to account for the subscription aspect of the business. Additionally, since we have two types of customers we’d like to model, we’ll use two different LTVs. The formulas for those are shown below.</p>
-<p><span id="eq-ltv-1"><span class="math display">\[
+<p><span id="eq-ltv-1"><span class="math display">
 LTV_{premium} = \frac{\text{Revenue} - \text{Variable Costs}}{\text{Churn Rate}}
-\tag{3.2}\]</span></span></p>
-<p><span id="eq-ltv-2"><span class="math display">\[
+\tag{3.2}</span></span></p>
+<p><span id="eq-ltv-2"><span class="math display">
 LTV_{Free} = \frac{\text{Average Ad Revenue} - \text{Variable Costs}}{\text{Churn Rate}}
-\tag{3.3}\]</span></span></p>
+\tag{3.3}</span></span></p>
 <p>Our two LTVs tell similar stories regarding how we want to optimize revenue. Both are affected by churn rate and variable costs. Premium generates revenue from membership fees, and freemium generates its revenue from ad revenue. In a perfect world, we could just keep increasing revenue (the price of premium or the price of ad space), but that doesn’t happen here. As we learn from basic microeconomic theory, as we increase price, we decrease demand, which means our churn rate increases. The speed at which this occurs is the price elasticity of demand (PED).</p>
-<p><span class="math display">\[
+<p><span class="math display">
 PED = \frac{\Delta Q}{\Delta P}
-\]</span></p>
+</span></p>
 <p>The general rule is that if the absolute value of the PED is greater than 1, we are dealing with elastic demand (customers are sensitive to price changes). If the ratio is less than 1, it is inelastic demand (customers are insensitive to price changes). Obviously, churn rate is affected by other elements of the business, but price is one of the biggest drivers of a change in churn rate.</p>
 <p>In short, our two LTVs serve as “North Star” metrics when it comes to decisions regarding revenue and costs. If revenue does not keep up with variable costs, we have a problem. If the churn rate grows faster than our gross profit, we have a problem. LTV is excellent for understanding the fundamental relationship between our revenue streams and cost streams.</p>
 <p>If LTV is understanding how our revenue is impacted by costs and churn, then CAC is understanding how our costs and acquistion impact our revenue. While there are a few ways we can calculate CAC, we’ll focus on the single formula below.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 CAC = \frac{\text{Marketing Spend} + \text{Freemium Costs}}{\text{Total New Premium Members}}
-\]</span></p>
+</span></p>
 <p>Essentially, this CAC tells us how much we spend on average to acquire a single new premium-paying member. The reason we chose to focus on premium-paying members is the consistency of the revenue generation. While freemium members generate ad revenue, the primary goal of the business is to convert these freemium members into premium members. Hence, we want to focus our strategies on how much it currently costs us to move freemium or non-users into premium-paying customers.</p>
 <p>To connect the LTV and the CAC, we want to focus on the LTV of premium members to our single CAC. When we take the ratio of the two, we essentially get our <strong>ROI on customer acquisition</strong>.</p>
-<p><span class="math display">\[
+<p><span class="math display">
 ROI = \frac{LTV_{premium}}{CAC}
-\]</span></p>
+</span></p>
 <p>The reason this is the “final” metric for understanding our profit model is that it represents the sustainability of current revenue and spending efforts. The higher the ratio, the more we gain in LTV compared to our acquisition cost. Conversely, the lower the ratio, the closer we are to spending more on customers than they are providing in value.</p>
 </section>
 <section id="the-cost-to-stream-royalties" class="level2">
@@ -275,24 +289,24 @@ ROI = \frac{LTV_{premium}}{CAC}
 <p>No, Spotify isn’t the Fed… but they are for music labels. As previously mentioned, Spotify has significant control over what songs get promoted. So, while the 70% cut is there, there are real incentives for independent artists and music labels alike to gain “favor” with these recommendation algorithms. How do they “gain favor”? Simple: they give Spotify a cut of their cut.</p>
 <p>If an independent artist or music label wants their tracks to be a bit more “promoted” in different playlists or discovery engines, they can provide a “kickback” to Spotify <span class="citation" data-cites="spotifyartists2024discovery"><a href="#ref-spotifyartists2024discovery" role="doc-biblioref">[2]</a></span>. For this promotion, Spotify gets about 30% of an artists payout back.</p>
 <p>There are other tactics that Spotify employs to try to minimize their payouts or contractual obligations (see <span class="citation" data-cites="mlcvspotify2024"><a href="#ref-mlcvspotify2024" role="doc-biblioref">[3]</a></span> or <span class="citation" data-cites="spotify2024monetization"><a href="#ref-spotify2024monetization" role="doc-biblioref">[4]</a></span>). For now, it suffices to say that with this simple example, Spotify has figured out how to turn a fixed contract cost into a variable cost through the power of their platform. Thus, we can update our LTV formula to be a <strong>weighted average</strong>.</p>
-<p><span id="eq-ltv-3"><span class="math display">\[
+<p><span id="eq-ltv-3"><span class="math display">
 LTV = \frac{\text{Revenue} - (w_{org} c_{org}) + (w_{disc} c_{disc})}{\text{Churn}}
-\tag{3.4}\]</span></span></p>
-<p><span class="math inline">\(w_{org}\)</span> is the proportion of usage that a given user spends on “organic” content (content that is not discounted). <span class="math inline">\(w_{disc}\)</span> then is the proportion of usage that a given user spends on discounted content. The respective <span class="math inline">\(c\)</span> variables are the cost associated with that content. In this view, our fixed contract cost of 70% has now become a true variable cost.</p>
+\tag{3.4}</span></span></p>
+<p><span class="math inline">w_{org}</span> is the proportion of usage that a given user spends on “organic” content (content that is not discounted). <span class="math inline">w_{disc}</span> then is the proportion of usage that a given user spends on discounted content. The respective <span class="math inline">c</span> variables are the cost associated with that content. In this view, our fixed contract cost of 70% has now become a true variable cost.</p>
 </section>
 </section>
 <section id="the-pricing-decision" class="level1">
 <h1>The Pricing Decision</h1>
 <p>Let’s take a moment to recall what we’ve done so far. We’ve learned a bit of the backstory of Spotify, determined the environment in which it operates, and identified some north star metrics for business growth. With regard to profitability, we showed that the major cost for Spotify is their fixed royalty cost. By changing that fixed cost to a variable one using their platform influence, Spotify can get back some of that royalty cost.</p>
 <p>From the LTV perspective, the costs have essentially been figured out as a function of revenue. That leaves us with revenue and churn left to discuss. Revenue is something we entirely decide so it’s a tactical input we can manipulate in this equation. Churn on the other hand, is also a function of revenue. As mentioned earlier, as price increases, demand decreases (and thus churn increases).</p>
-<p>This problem can become very tricky if we let too many variables become influential, so let’s simplify the problem a bit. Let’s assume the weighted average costs are constant with <span class="math inline">\(w_{org}\)</span> = .7 and <span class="math inline">\(w_{disc}\)</span> = .3. Now all we have to do is find the right price point that offsets that negative effects of churn. Simple enough, right?</p>
-<p>Let’s walk throught the math of it. What kind of math do we need to find an optimal point of a “consistent” function? Good ol calculus. If we take the derivative of the LTV equation with respect to revenue, set it equal to 0, and solve, we get an equation that can guide our decision in setting <span class="math inline">\(R\)</span>. Below is the derivation.</p>
-<p><span class="math display">\[\ln(CLTV) = \ln\left(\frac{R - V}{\lambda(R)}\right)\]</span> <span class="math display">\[\rightarrow \ln(CLTV) = \ln(R - V) - \ln(\lambda(R))\]</span> <span class="math display">\[\rightarrow \frac{\partial \ln(CLTV)}{\partial R} = \frac{1}{R - V} - \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R}\]</span> <span class="math display">\[\rightarrow \frac{1}{R - V} - \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R} = 0\]</span> <span class="math display">\[\rightarrow \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R} = \frac{1}{R - V}\]</span> <span id="eq-opt-1"><span class="math display">\[\rightarrow R - V = \frac{\lambda(R)}{\frac{\partial \lambda}{\partial R}} \tag{4.1}\]</span></span></p>
-<p>We took the natural log of our equation to make the derivation easier. All this math basically is summed up at the last line. <span class="math inline">\(R-V\)</span> is our profit margin. <span class="math inline">\(\lambda(R)\)</span> is our churn rate. <span class="math inline">\(\frac{\partial \lambda}{\partial R}\)</span> is the rate of change of churn with respect to price. Put simply, it is how fast your churn rate spikes for a given price change. Since we don’t know the actual function behind the churn rate, we can only “guess” as to what the derivative of the churn rate function is.</p>
+<p>This problem can become very tricky if we let too many variables become influential, so let’s simplify the problem a bit. Let’s assume the weighted average costs are constant with <span class="math inline">w_{org}</span> = .7 and <span class="math inline">w_{disc}</span> = .3. Now all we have to do is find the right price point that offsets that negative effects of churn. Simple enough, right?</p>
+<p>Let’s walk throught the math of it. What kind of math do we need to find an optimal point of a “consistent” function? Good ol calculus. If we take the derivative of the LTV equation with respect to revenue, set it equal to 0, and solve, we get an equation that can guide our decision in setting <span class="math inline">R</span>. Below is the derivation.</p>
+<p><span class="math display">\ln(CLTV) = \ln\left(\frac{R - V}{\lambda(R)}\right)</span> <span class="math display">\rightarrow \ln(CLTV) = \ln(R - V) - \ln(\lambda(R))</span> <span class="math display">\rightarrow \frac{\partial \ln(CLTV)}{\partial R} = \frac{1}{R - V} - \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R}</span> <span class="math display">\rightarrow \frac{1}{R - V} - \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R} = 0</span> <span class="math display">\rightarrow \frac{1}{\lambda(R)} \cdot \frac{\partial \lambda}{\partial R} = \frac{1}{R - V}</span> <span id="eq-opt-1"><span class="math display">\rightarrow R - V = \frac{\lambda(R)}{\frac{\partial \lambda}{\partial R}} \tag{4.1}</span></span></p>
+<p>We took the natural log of our equation to make the derivation easier. All this math basically is summed up at the last line. <span class="math inline">R-V</span> is our profit margin. <span class="math inline">\lambda(R)</span> is our churn rate. <span class="math inline">\frac{\partial \lambda}{\partial R}</span> is the rate of change of churn with respect to price. Put simply, it is how fast your churn rate spikes for a given price change. Since we don’t know the actual function behind the churn rate, we can only “guess” as to what the derivative of the churn rate function is.</p>
 <p>While the equation might be nice to look at, the story is even better. This equation says that our profit margin is equal to the ratio of our current churn rate and the rate at which churn changes. This means that our profit margin <strong>is always bounded by the current churn and the change in churn due to price changes</strong>. So, the power comes in <strong>maximizing the ratio on the right side</strong>.</p>
-<p>This may seem like counterintuitive thinking since we want low churn and low changes in churn rate. Yes, we do want that, but if this equation holds true, we want the equation that can maximize the difference between <span class="math inline">\(R\)</span> and <span class="math inline">\(V\)</span>.</p>
+<p>This may seem like counterintuitive thinking since we want low churn and low changes in churn rate. Yes, we do want that, but if this equation holds true, we want the equation that can maximize the difference between <span class="math inline">R</span> and <span class="math inline">V</span>.</p>
 <p>Let’s roll with a simple example. Let’s say our current churn rate is .02, meaning 2% of our users churn each month. If the rate at which people churn with a $1 price increase is low, say .001, then our ratio is <strong>20</strong>. This means that our profit margin can be at most <strong>$20</strong>. So, if we were to be able to approximate the rate of churn, we could use these values to get a value that maximizes our profit margin which in turn maximizes our LTV.</p>
-<p>Now, suppose we were able to accurately “predict” what our rate of churn would be and our variable cost in the future. Using the approach above, we can plot as a function of <span class="math inline">\(R\)</span> (price) where this optimal point would be. Below in <a href="#fig-margin-1">Figure&nbsp;4.1</a>, we show this based on a variable cost of 8, churn rate of .02, and a rate of churn .001. (Note: We assume a quadratic churn function in the graph below, so the numbers will be slightly different than in the example above.)</p>
+<p>Now, suppose we were able to accurately “predict” what our rate of churn would be and our variable cost in the future. Using the approach above, we can plot as a function of <span class="math inline">R</span> (price) where this optimal point would be. Below in <a href="#fig-margin-1">Figure&nbsp;4.1</a>, we show this based on a variable cost of 8, churn rate of .02, and a rate of churn .001. (Note: We assume a quadratic churn function in the graph below, so the numbers will be slightly different than in the example above.)</p>
 <div class="cell" data-tags="[]" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div id="fig-margin-1" class="quarto-figure quarto-figure-center anchored">

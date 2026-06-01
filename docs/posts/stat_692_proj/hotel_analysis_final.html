@@ -64,8 +64,22 @@ ul.task-list li input[type="checkbox"] {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
 
 </head>
 
@@ -976,7 +990,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="bayesian-logistic-regression" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-logistic-regression">Bayesian Logistic Regression</h3>
 <p>Thus far we have attempted to compare the logistic regression model to more ensemble-esque methods. We now attempt to demonstrate a different approach to the logistic regression model by incorporating priors on each feature. That is, we will perform a bayesian logistic regression to compare to the normal logistic regression method.</p>
-<p>Due to our limited subject matter expertise in the hotel industry, we will use uninformative priors for each feature. We will assume that each feature is drawn from a normal distribution with mean = <span class="math inline">\(\mu\)</span> and standard deviation = <span class="math inline">\(\sigma\)</span>. For each <span class="math inline">\(\mu\)</span>, we will place a prior of a normal distribution with <span class="math inline">\(\mu\)</span> = 0 and <span class="math inline">\(\sigma\)</span> = 2. For each <span class="math inline">\(\sigma\)</span>, we will place a prior of a inverse gamma distribution with <span class="math inline">\(\alpha\)</span> = 1 and <span class="math inline">\(\beta\)</span> = 1.</p>
+<p>Due to our limited subject matter expertise in the hotel industry, we will use uninformative priors for each feature. We will assume that each feature is drawn from a normal distribution with mean = <span class="math inline">\mu</span> and standard deviation = <span class="math inline">\sigma</span>. For each <span class="math inline">\mu</span>, we will place a prior of a normal distribution with <span class="math inline">\mu</span> = 0 and <span class="math inline">\sigma</span> = 2. For each <span class="math inline">\sigma</span>, we will place a prior of a inverse gamma distribution with <span class="math inline">\alpha</span> = 1 and <span class="math inline">\beta</span> = 1.</p>
 <p>For our sampler, we will use a Hamiltonian Monte Carlo with Energy Conserving Sampling. This is chosen due to the size of our dataset and the lack of sufficient computational power to perform a more precise sampling with sampler such as the No-U Turn sampler. After fitting our bayesian logistic regression model, we obtain the following results in <a href="#fig-bay-mod-1">Figure&nbsp;5.7</a>.</p>
 <div class="cell" data-outputid="3bb24107-ddf7-4327-ba2e-f0d6ff7db58f" data-tags="[]" data-execution_count="74">
 <div class="cell-output cell-output-display">
@@ -1119,22 +1133,22 @@ Name: 10000, dtype: float64</code></pre>
 <h2 class="anchored" data-anchor-id="model-decision">Model Decision</h2>
 <p>While all four models proved to be viable models worthy of use in our system, the two logistic regression models had higher AUC scores and were more balanced in the sensitivity-specificity trade-off. To decide which logistic regression model to use, we look at the confusion matrix metrics and AUC scores. Both models have similar confusion matrix metrics and AUC scores. However, the bayesian logistic regression model has a particular advantage over the regular logistic regression model due to its inherit ability at including uncertainty around parameter estimates and predictions. Therefore, we recommend that we continue with the bayesian logistic regression model as our initial cancelation predictive model.</p>
 <p>The full model for our bayesian logistic regression model is shown in <a href="#eq-full-mod-1">Equation&nbsp;5.1</a></p>
-<p><span class="math display">\[
+<p><span class="math display">
 \text{log}(\frac{p(Y)}{1-p(Y)}) = \beta_0 + \beta_1x_1 ... + \beta_{m}x_m
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \text{Y}_1 ... \text{Y}_n \overset{\text{i.i.d.}}{\sim} \text{Bernoulli}(p)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta \sim N(\mu, \sigma)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \mu \sim N(0, 2)
-\]</span></p>
-<p><span id="eq-full-mod-1"><span class="math display">\[
+</span></p>
+<p><span id="eq-full-mod-1"><span class="math display">
 \sigma \sim IG(1, 1)
-\tag{5.1}\]</span></span></p>
-<p><a href="#eq-full-mod-1">Equation&nbsp;5.1</a> states that the log-odds of booking status (1 being cancelation and 0 being non-cancelation) is a linear function of <span class="math inline">\(m\)</span> predictors (our 11 features and two interaction terms) weighted by <span class="math inline">\(m+1\)</span> betas (13 for the features and one intercept beta). Our response variable <span class="math inline">\(Y\)</span> is a collection of n number of i.i.d. Bernoulli random variables with probability <span class="math inline">\(p\)</span>. Our betas are assumed to be normally distributed with mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>. All <span class="math inline">\(\mu\)</span> values have a normal prior distribution with mean = 0 and standard deviation = 2. All <span class="math inline">\(\sigma\)</span> values have an inverse gamma prior distribution with shape = 1 and scale = 1.</p>
+\tag{5.1}</span></span></p>
+<p><a href="#eq-full-mod-1">Equation&nbsp;5.1</a> states that the log-odds of booking status (1 being cancelation and 0 being non-cancelation) is a linear function of <span class="math inline">m</span> predictors (our 11 features and two interaction terms) weighted by <span class="math inline">m+1</span> betas (13 for the features and one intercept beta). Our response variable <span class="math inline">Y</span> is a collection of n number of i.i.d. Bernoulli random variables with probability <span class="math inline">p</span>. Our betas are assumed to be normally distributed with mean <span class="math inline">\mu</span> and standard deviation <span class="math inline">\sigma</span>. All <span class="math inline">\mu</span> values have a normal prior distribution with mean = 0 and standard deviation = 2. All <span class="math inline">\sigma</span> values have an inverse gamma prior distribution with shape = 1 and scale = 1.</p>
 </section>
 </section>
 <section id="example-business-impact" class="level1">
