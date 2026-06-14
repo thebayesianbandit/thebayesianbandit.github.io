@@ -228,20 +228,20 @@ div.csl-indent {
 <p><img src="https://www.dreamsunlimitedtravel.com/images/disneyland/disneyland-park-map-01.jpg" class="img-fluid"></p>
 <p>The park is organized in various zones that deal with a common theme. To traverse the park, you need to pass through different zones to get to different attractions (obviously again). Everyone must enter through <strong>Main Street</strong> and exit from there as well. When attempting to optimize guest experience from this perspective, we need to understand a few important things. To start, how do people usually traverse the park? By understanding “travel” patterns among guests, we can better prepare zones for guest arrivals or properly place entertainment throughout busy routes to “slow traffic”. In short, we want to understand these patterns to have better control on park outcomes. To model this mathematically, we can utilize a graph to visualize this flow.</p>
 <p>Let <span class="math inline">G</span> be our graph representation of the park. <span class="math inline">G</span> then is composed of <strong>vertices</strong> (or nodes) which we will denote as <span class="math inline">V</span> and <strong>edges</strong> which we will denote as <span class="math inline">E</span>. In this context, <span class="math inline">G = (V,E)</span>. A simple implementation of this framework would be to say that each attraction in the park would be part of our set <span class="math inline">V</span> and the connecting ways to get to those attractions would be part of our set <span class="math inline">E</span>. With that in mind, we can utilize this framework to visualize how a crowd moves from specific nodes along certain paths. This is demonstrated in the short video below.</p>
-<video autoplay="" muted="" loop="" playsinline="" width="100%">
-<source src="NetworkRandomWalk.mp4" type="video/mp4">
-<p>Your browser does not support the video tag. </p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="NetworkRandomWalk.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
 <p>While the number of nodes and people in the park aren’t up to scale, the demonstration of the flow of guests is what we’re after. As already mentioned, everyone begins at the entrance of the park. After that, guests are free to move around the park in whatever process they want. The key insight from this video is that flow doesn’t disappear when people go to an attraction. Flow is just temporarily paused and then released back into the graph. Essentially, once one ride is done, another ride should be expecting inflow.</p>
 <p>Returning back to mathematical notation, we call this kind of network a <strong>Jackson Network</strong> <span class="citation" data-cites="Jackson1957"><a href="#ref-Jackson1957" role="doc-biblioref">[1]</a></span>. A Jackson Network essentially is a graph (as shown above) that contains queues. Each node is itself a queue that has its own independent process of arrival and service times. Before getting too deep into the technicals of a Jackson Network, let’s quickly review some basic <strong>Queue Theory</strong>.</p>
 <p>The nice thing is, everyone has experience a queue so we can all imagine one! Queue theory is simply the mathematical approach to understanding the mechanics behind waiting in line. A queue is generally described in something called <strong>Kendall Notation</strong> <span class="citation" data-cites="Kendall1953"><a href="#ref-Kendall1953" role="doc-biblioref">[2]</a></span>, named after the scientist who coined it (obviously). There are three core parts of a queue structure: the arrival process, the service process, and the number of servers. In this post, we’ll assume what most other people assume, which is that the arrival process of park guests follow a <strong>poisson process</strong>, that service time follows an <strong>exponential distribution</strong>, and that there is only one server per queue (for ease of math for now).</p>
 <p>In Kendall notation, this would be described as a <strong>M/M/1</strong> queue.</p>
-<video autoplay="" muted="" loop="" playsinline="" width="100%">
-<source src="MM1QueueSimulation.mp4" type="video/mp4">
-<p>Your browser does not support the video tag. </p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="MM1QueueSimulation.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
 
 
 
-</video></video></section>
+</section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
 <div id="ref-Jackson1957" class="csl-entry" role="listitem">
