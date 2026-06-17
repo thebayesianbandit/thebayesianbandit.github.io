@@ -192,7 +192,12 @@ div.csl-indent {
   <li><a href="#the-dream" id="toc-the-dream" class="nav-link" data-scroll-target="#the-dream">The Dream</a></li>
   <li><a href="#the-big-screen-needs-a-big-park" id="toc-the-big-screen-needs-a-big-park" class="nav-link" data-scroll-target="#the-big-screen-needs-a-big-park">The Big Screen needs a Big Park</a></li>
   </ul></li>
-  <li><a href="#the-magic-behind-the-magic-designing-the-flow-of-the-park" id="toc-the-magic-behind-the-magic-designing-the-flow-of-the-park" class="nav-link" data-scroll-target="#the-magic-behind-the-magic-designing-the-flow-of-the-park">The Magic behind the Magic: Designing the Flow of the Park</a></li>
+  <li><a href="#the-magic-behind-the-magic-designing-the-flow-of-the-park" id="toc-the-magic-behind-the-magic-designing-the-flow-of-the-park" class="nav-link" data-scroll-target="#the-magic-behind-the-magic-designing-the-flow-of-the-park">The Magic behind the Magic: Designing the Flow of the Park</a>
+  <ul class="collapse">
+  <li><a href="#using-graphs-as-a-model" id="toc-using-graphs-as-a-model" class="nav-link" data-scroll-target="#using-graphs-as-a-model">Using Graphs as a Model</a></li>
+  <li><a href="#queue-theory" id="toc-queue-theory" class="nav-link" data-scroll-target="#queue-theory">Queue Theory</a></li>
+  <li><a href="#graphs-with-queues" id="toc-graphs-with-queues" class="nav-link" data-scroll-target="#graphs-with-queues">Graphs with Queues</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -227,20 +232,35 @@ div.csl-indent {
 <p>Let’s for a moment take a look at the park map (we’ll focus on the main Disneyland campus for now).</p>
 <p><img src="https://www.dreamsunlimitedtravel.com/images/disneyland/disneyland-park-map-01.jpg" class="img-fluid"></p>
 <p>The park is organized in various zones that deal with a common theme. To traverse the park, you need to pass through different zones to get to different attractions (obviously again). Everyone must enter through <strong>Main Street</strong> and exit from there as well. When attempting to optimize guest experience from this perspective, we need to understand a few important things. To start, how do people usually traverse the park? By understanding “travel” patterns among guests, we can better prepare zones for guest arrivals or properly place entertainment throughout busy routes to “slow traffic”. In short, we want to understand these patterns to have better control on park outcomes. To model this mathematically, we can utilize a graph to visualize this flow.</p>
+<section id="using-graphs-as-a-model" class="level2">
+<h2 class="anchored" data-anchor-id="using-graphs-as-a-model">Using Graphs as a Model</h2>
 <p>Let <span class="math inline">G</span> be our graph representation of the park. <span class="math inline">G</span> then is composed of <strong>vertices</strong> (or nodes) which we will denote as <span class="math inline">V</span> and <strong>edges</strong> which we will denote as <span class="math inline">E</span>. In this context, <span class="math inline">G = (V,E)</span>. A simple implementation of this framework would be to say that each attraction in the park would be part of our set <span class="math inline">V</span> and the connecting ways to get to those attractions would be part of our set <span class="math inline">E</span>. With that in mind, we can utilize this framework to visualize how a crowd moves from specific nodes along certain paths. This is demonstrated in the short video below.</p>
 <div style="width: 100%;">
 <p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="NetworkRandomWalk.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
 </div>
 <p>While the number of nodes and people in the park aren’t up to scale, the demonstration of the flow of guests is what we’re after. As already mentioned, everyone begins at the entrance of the park. After that, guests are free to move around the park in whatever process they want. The key insight from this video is that flow doesn’t disappear when people go to an attraction. Flow is just temporarily paused and then released back into the graph. Essentially, once one ride is done, another ride should be expecting inflow.</p>
 <p>Returning back to mathematical notation, we call this kind of network a <strong>Jackson Network</strong> <span class="citation" data-cites="Jackson1957"><a href="#ref-Jackson1957" role="doc-biblioref">[1]</a></span>. A Jackson Network essentially is a graph (as shown above) that contains queues. Each node is itself a queue that has its own independent process of arrival and service times. Before getting too deep into the technicals of a Jackson Network, let’s quickly review some basic <strong>Queue Theory</strong>.</p>
+</section>
+<section id="queue-theory" class="level2">
+<h2 class="anchored" data-anchor-id="queue-theory">Queue Theory</h2>
 <p>The nice thing is, everyone has experience a queue so we can all imagine one! Queue theory is simply the mathematical approach to understanding the mechanics behind waiting in line. A queue is generally described in something called <strong>Kendall Notation</strong> <span class="citation" data-cites="Kendall1953"><a href="#ref-Kendall1953" role="doc-biblioref">[2]</a></span>, named after the scientist who coined it (obviously). There are three core parts of a queue structure: the arrival process, the service process, and the number of servers. In this post, we’ll assume what most other people assume, which is that the arrival process of park guests follow a <strong>poisson process</strong>, that service time follows an <strong>exponential distribution</strong>, and that there is only one server per queue (for ease of math for now).</p>
-<p>In Kendall notation, this would be described as a <strong>M/M/1</strong> queue.</p>
+<p>In Kendall notation, this would be described as a <strong>M/M/1</strong> queue (illustrated below).</p>
 <div style="width: 100%;">
 <p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="MM1QueueSimulation.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
 </div>
+<p>As shown in the video, the arrival and service process are random according to the probability distribution it follows. In this video, the arrival follows a poisson process with <span class="math inline">\lambda = 50</span>, which represents 50 customers arriving per hour. The service rate follows an exponential distribution with <span class="math inline">\mu = 80</span>, meaning the average service rate is 80 customers per hour.</p>
+<p>Moving back to the park, the process of the M/M/1 queue is essentially what is happening at each ride in the park (at least in our current simplified view). There is one park operator helping guests onto rides where they arrive in random processes. Once the guests finish their rides, they enter the system again to get into another M/M/1 queue to wait for another ride.</p>
+<p>So what’s the point of modeling these lines mathematically? The value is really actually two fold. Using queue theory, we can understand <strong>what is currently happening in our system</strong> and <strong>what we need to improve</strong> in the system. For example, let’s take the M/M/1 queue from the video. If in steady state our queue has on average 50 arrivals per hour and can serve on average 80 customers per hour, we can calculate a <strong>utilization rate (<span class="math inline">\rho</span>)</strong>. This is just the ratio between arrival rate and service rate, which would be 50 over 80, which yields <span class="math inline">\rho = .625</span>.</p>
+<p>Any <span class="math inline">\rho</span> less than 1 indicates a stable system, meaning the service rate is greater than the arrival rate (i.e.&nbsp;the queue will eventually disappear… phew!). So, from the perspective of park operations, we want to make sure that our queues are stable for each ride. If they aren’t, then we run the risk of super long lines which ruins customer experiences which means bad business.</p>
+</section>
+<section id="graphs-with-queues" class="level2">
+<h2 class="anchored" data-anchor-id="graphs-with-queues">Graphs with Queues</h2>
+<p>So far we’ve established that we can model the park as a graph with nodes and edges representing park attractions and pathways between those attractions. We’ve shown that there are mathematial tools that help us quantify the process of arriving, waiting, and being processed at those attractions. We have a model and we have the math that defines the activity within the model. We can now use these together to begin to understand what is happening in the park.</p>
+<p>Let’s suppose that we gathered the data in the tables below.</p>
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
