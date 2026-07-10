@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Brandon Scott">
-<meta name="dcterms.date" content="2026-06-13">
+<meta name="dcterms.date" content="2026-07-10">
 
-<title>The Bayesian Bandit - The Magical World of Queues: Understanding the Magic Kingdom through Queue Theory (in progress)</title>
+<title>The Bayesian Bandit - The Magical World of Queues: Understanding the Magic Kingdom through Queue Theory</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -149,7 +149,7 @@ div.csl-indent {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">The Magical World of Queues: Understanding the Magic Kingdom through Queue Theory (in progress)</h1>
+      <h1 class="title">The Magical World of Queues: Understanding the Magic Kingdom through Queue Theory</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">python</div>
                 <div class="quarto-category">optimization</div>
@@ -171,7 +171,7 @@ div.csl-indent {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">June 13, 2026</p>
+        <p class="date">July 10, 2026</p>
       </div>
     </div>
     
@@ -197,7 +197,9 @@ div.csl-indent {
   <li><a href="#using-graphs-as-a-model" id="toc-using-graphs-as-a-model" class="nav-link" data-scroll-target="#using-graphs-as-a-model">Using Graphs as a Model</a></li>
   <li><a href="#queue-theory" id="toc-queue-theory" class="nav-link" data-scroll-target="#queue-theory">Queue Theory</a></li>
   <li><a href="#graphs-with-queues" id="toc-graphs-with-queues" class="nav-link" data-scroll-target="#graphs-with-queues">Graphs with Queues</a></li>
+  <li><a href="#from-queue-theory-to-operations-management" id="toc-from-queue-theory-to-operations-management" class="nav-link" data-scroll-target="#from-queue-theory-to-operations-management">From Queue Theory to Operations Management</a></li>
   </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -257,10 +259,101 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="graphs-with-queues">Graphs with Queues</h2>
 <p>So far we’ve established that we can model the park as a graph with nodes and edges representing park attractions and pathways between those attractions. We’ve shown that there are mathematial tools that help us quantify the process of arriving, waiting, and being processed at those attractions. We have a model and we have the math that defines the activity within the model. We can now use these together to begin to understand what is happening in the park.</p>
 <p>Let’s suppose that we gathered the data in the tables below.</p>
-
-
-
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Ride name</th>
+<th style="text-align: right;">Arrival rate</th>
+<th style="text-align: right;">Service rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">112</td>
+<td style="text-align: right;">121</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">121</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">135</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">102</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E</td>
+<td style="text-align: right;">94</td>
+<td style="text-align: right;">96</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: right;">94</td>
+<td style="text-align: right;">119</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">G</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">110</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">H</td>
+<td style="text-align: right;">119</td>
+<td style="text-align: right;">136</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">I</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">112</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">J</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">102</td>
+</tr>
+</tbody>
+</table>
+<p>Using the framework of a Jackson Network, we assume that each these queues act independently within the network such that the arrival rates of each ride is the sum of the exit rates of other rides multiplied by the probability of a guest choosing that ride. Mathematically, the arrival rate looks like <a href="#eq-net-1">Equation&nbsp;2.1</a>.</p>
+<p><span id="eq-net-1"><span class="math display">
+\lambda_i = \gamma_i + \sum_{j=1}^{J} \lambda_j r_{ji} \quad \text{for } i = 1, 2, \dots, J
+\tag{2.1}</span></span></p>
+<p>For example, the arrival rate of ride A is the external arrivals <span class="math inline">\gamma_i</span> and the expectation (mean) of exit rates from other nodes to ride A. If this is still a bit fuzzy, perhaps a visualization would help. The video below demonstrates a brief simulation using the data from the table.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="NetworkQueueSimulation.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>While a bit chaotic (as an amusement park is as well), the video captures what the data shows. There are certain attractions that have lines that grow much faster than they shrink! For example, ride D’s queue grows from 0 to over 60 by the end of the video. This makes sense because the of the utilization rate of D. D’s utilization rate is a whopping 98%! While the queue won’t grow to infinity, it certainly grows and if it grows, the wait time grows exponentially. We can mathematically view this through <strong>Little’s Law</strong><span class="citation" data-cites="Little1961"><a href="#ref-Little1961" role="doc-biblioref">[3]</a></span> shown below.</p>
+<p><span id="eq-little-1"><span class="math display">
+L = \lambda W
+\tag{2.2}</span></span></p>
+<p>The simple formula in <a href="#eq-little-1">Equation&nbsp;2.2</a> simply says that the length of the queue is equal to the product between the arrival rate and the wait time of the queue. Rearranging this, we can get the wait time to be <span class="math inline">W = \frac{L}{\lambda}</span>. If we take the length at the end of the video (60) and divide it by our arrival rate (100), we get .6 hours, or in minutes, 36 minutes. The average wait time (assuming 60 is the long run average) at ride D is 36 minutes! While that might sound like a dream at a place like Disney, it’s not my ideal wait time!</p>
+<p>While seeing wait times may be a bit discouraging to park guests, it certainly is a great sight for those running it. Not because park administrators and operators want people waiting in long lines. Rather, the beauty is that they can have baseline metrics to improve the experience! If our park behaves like a Jackson Network, then we can utilize these tools not to just understand how the park is currently working, but how we can manipulate the park to improve customer experience.</p>
 </section>
+<section id="from-queue-theory-to-operations-management" class="level2">
+<h2 class="anchored" data-anchor-id="from-queue-theory-to-operations-management">From Queue Theory to Operations Management</h2>
+<p>Up to this point, we’ve covered a lot of math theory to explain the tools that are at our disposal in understanding the physics of guest movement within the park. While we’ll still be utilizing much of the theory, we can now move into the part where we can formulate strategy on how to enhance guest experiences throughout the park.</p>
+<p>We know from the table above that we are having issues with the wait time at ride D. The two options we have to help is to either speed up service or slow down flow. Let’s assume that we can’t speed up service right now so our only solution is to slow down flow. How can we do that? Well, since we’re Disney, we can add magic! By that I mean, we should utilize our intellectual property by having our magical guests traverse the park to act as sort of “road blocks”.</p>
+<p>Essentially, by strategically placing <strong>cast members</strong> across the park to slow down flow between rides, we can decrease utilization rates at those rides and subsequently decrease wait time for our guests. Let’s suppose that each guest has a 30% chance of stopping for our cast members. If we place cast members on the path to ride D, we should (in theory) slow flow by about 30%. Let’s see in the video below how this cast member spot slows the flow.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="NetworkQueueSimulationWithCast.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>Guests who stop change from red to yellow dots. As we can see, small groups now stop around these attractions. By the end of the video, we ended with 44 guests instead of our previous 60. That’s a 27% decrease in flow to ride D! All with just add some cast members that our guests could say hi to! In theory, we’ve slowed ride attendance by adding guest experiences to the park.</p>
+<p>If we can slow flows by adding something as simple as having movie characters walk around the park, what about adding things like gift shops? Food venues? Other fun games? This is essentially the operating model of Disney when it comes to their theme parks. While the rides at attractions provide the “destinations” for the guests, the real money makers are the venues along the way. By providing guests with meaningful experiences and fun gifts along the way to their ride, Disney can both decrease line congestion and bring in more revenue. Don’t believe me? According to Disney’s financials, in 2025 alone, Dinsey brought in about $9 billion in revenue from these in-park sites alone. Not bad for buildings that are meant to slow the flow.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this post, we covered the history and general business of Disney theme parks. We then dove into the mathematical modeling of the park by showing the park could be defined as a queue network, specifically a Jackson network. We proceeded to walk through some formal definitions of queue models along with their usefulness in defining operations strategy. We utilized these tools to quantify wait time and see if there were ways to help “slow the flow” towards more popular ride destinations.</p>
+<p>While the model we presented in this post was valid, it was a VERY simple model of the park. First, we didn’t even include all the rides in the park. Second, we assumed the distances between rides were fairly homogenous. Third, we assumed rides were executed as M/M/1 queue. Fourth, we assumed the park guests were essentially objects that had set probabilities on where to go within the park. In reality, we’d need to step up the model to properly understand the park dynamics. Nonetheless, the point of this point of this point and its simplified model was to introduce readers to the idea of using queue theory to model systems. In that, we can call this post a success.</p>
+
+
+
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
@@ -269,6 +362,9 @@ div.csl-indent {
 </div>
 <div id="ref-Kendall1953" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[2] </div><div class="csl-right-inline">D. G. Kendall, <span>“Stochastic processes occurring in the theory of queues and their analysis by the method of the imbedded markov chain,”</span> <em>The Annals of Mathematical Statistics</em>, vol. 24, no. 3, pp. 338–354, 1953, doi: <a href="https://doi.org/10.1214/aoms/1177728975">10.1214/aoms/1177728975</a>.</div>
+</div>
+<div id="ref-Little1961" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">J. D. C. Little, <span>“A proof for the queuing formula: L = w,”</span> <em>Operations Research</em>, vol. 9, no. 3, pp. 383–387, 1961, doi: <a href="https://doi.org/10.1287/opre.9.3.383">10.1287/opre.9.3.383</a>.</div>
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
