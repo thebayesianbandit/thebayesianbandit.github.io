@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Brandon Scott">
+<meta name="dcterms.date" content="2026-10-30">
+
+<title>The Bayesian Bandit - You Shall Not (have a) Pass!: Managing Queue Congestion at Deer Valley</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">The Bayesian Bandit</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://thebayesianbandit.com/sports_book/" rel="" target="">
+ <span class="menu-text">Book</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thebayesianbandit" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/brandon-scott-5a7139211/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">You Shall Not (have a) Pass!: Managing Queue Congestion at Deer Valley</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">python</div>
+                <div class="quarto-category">optimization</div>
+                <div class="quarto-category">operations</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Brandon Scott </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 30, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#silver-mine-to-silver-lake" id="toc-silver-mine-to-silver-lake" class="nav-link" data-scroll-target="#silver-mine-to-silver-lake">Silver Mine to Silver Lake</a></li>
+  <li><a href="#the-uniqueness-of-deer-valley" id="toc-the-uniqueness-of-deer-valley" class="nav-link" data-scroll-target="#the-uniqueness-of-deer-valley">The Uniqueness of Deer Valley</a></li>
+  </ul></li>
+  <li><a href="#operating-luxury" id="toc-operating-luxury" class="nav-link" data-scroll-target="#operating-luxury">Operating Luxury</a>
+  <ul class="collapse">
+  <li><a href="#how-many-tickets-do-we-sell" id="toc-how-many-tickets-do-we-sell" class="nav-link" data-scroll-target="#how-many-tickets-do-we-sell">How many tickets do we sell?</a></li>
+  <li><a href="#finding-the-constraints" id="toc-finding-the-constraints" class="nav-link" data-scroll-target="#finding-the-constraints">Finding the constraints</a></li>
+  <li><a href="#measuring-utility" id="toc-measuring-utility" class="nav-link" data-scroll-target="#measuring-utility">Measuring Utility</a></li>
+  <li><a href="#utilizing-naors-model" id="toc-utilizing-naors-model" class="nav-link" data-scroll-target="#utilizing-naors-model">Utilizing Naor’s Model</a></li>
+  <li><a href="#mapping-the-network" id="toc-mapping-the-network" class="nav-link" data-scroll-target="#mapping-the-network">Mapping the Network</a></li>
+  <li><a href="#trust-the-theory" id="toc-trust-the-theory" class="nav-link" data-scroll-target="#trust-the-theory">Trust the Theory</a></li>
+  <li><a href="#simulate-the-uncertainty" id="toc-simulate-the-uncertainty" class="nav-link" data-scroll-target="#simulate-the-uncertainty">Simulate the Uncertainty</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<section id="silver-mine-to-silver-lake" class="level2">
+<h2 class="anchored" data-anchor-id="silver-mine-to-silver-lake">Silver Mine to Silver Lake</h2>
+<p><img src="https://expandedexcellence.deervalley.com/wp-content/uploads/2023/06/dv-wplogin-logo.jpg" class="img-fluid"></p>
+<p>Park City wasn’t always known for being a ski town. In fact, it wasn’t built to be a ski town. In the early 1930s, Park City was a mining town for silver. It wasn’t until 1936 that projects on the mountains in Park City began. The Works Progress Administration (WPA) began the initiative of creating ski runs to help stimulate the economy during the winter. While the operations were fairly small and modest, two residents saw the potential.</p>
+<p>In 1946, Bob Burns and Otto Carpenter saw the ski runs and thought there could some for fun on the hills. To do this, they utilized old mining equipment to build a mechanized ski lift. The lift became the first operating system at the offical <strong>Snow Park Ski Area</strong>. However, the operation remained small-scale. That is until the early 1970s.</p>
+<p>Two luxury real estate brokers, Edgar and Polly Stern, visited Park City. They fell in love with the area and saw major potential for a luxury ski experience. They purchase Snow Park and Treasure Mountain to begin their vision. In 1981, <strong>Deer Valley Resort</strong> officially opened with 5 chairlifts, 35 runs, and two main lodges (Snow Park and Silver Lake). After a few years of operations, Deer Valley began attracting big stars like Roger Penske to join the lodge. Soon, olympians, celebrities, and other wealthy business people were skiing at Deer Valley.</p>
+<p>In 2017, Deer Valley was acquired by KSL Capital Partners and Henry Crown and Company, which eventually became <strong>Alteraa Mountain Company</strong>. While part of the broader network of Alterra ski resorts, Deer Valley stands alone as one of the top, if not the top, luxury ski resort in the United States.</p>
+</section>
+<section id="the-uniqueness-of-deer-valley" class="level2">
+<h2 class="anchored" data-anchor-id="the-uniqueness-of-deer-valley">The Uniqueness of Deer Valley</h2>
+<p>There are few things that really make Deer Valley, well, Deer Valley. First, if you’ve noticed so far, we’ve only chatted about skiing. Well, that is because Deer Valley is a <strong>Ski Only Resort</strong>. That’s right, snowboarders are not allowed, ever. Before you get too up in arms about the injustice to snowboarders, this was actually fairly common back in the 1980s (according to AI). Deer Valley just decided to keep the rule in place to differentiate themselves from the market. This differentiation actually does resound with a lot of high-end skiers that want ski only “vibes” if you will (you can google these reasons on your own).</p>
+<p>Another thing the really differentiates Deer Valley and sets them as a premium luxury ski experience, is the <strong>limit of lift tickets/guest admittance</strong>. Deer Valley believes that to enhance the guest experience, the mountain should feel like an exclusive location. This focus on providing an exclusive, premium, and luxury ski experience is what attracts Deer Valley skiers every year.</p>
+</section>
+</section>
+<section id="operating-luxury" class="level1">
+<h1>Operating Luxury</h1>
+<section id="how-many-tickets-do-we-sell" class="level2">
+<h2 class="anchored" data-anchor-id="how-many-tickets-do-we-sell">How many tickets do we sell?</h2>
+<p>While Deer Valley’s goal is to optimize luxury ski experiences through exclusive mountain access, they are also still a business. They have operating costs, marketing expenses, stakeholders looking for returns on investment, etc. So, we have an entity that wants to minimize the supply of a given good, while still maximizing the revenue generated from the good. So what is the right number of tickets to sell? In order to solve this, we need a guiding metric that is influenced by our overall strategy.</p>
+<p>To repeat it, the overall strategy and position of Deer Valley is to differentiate itself from other ski resorts by providing premium, luxury, and exclusive ski experiences. The hope of this is to generate a high enough experience to maximize loyalty (returned skiers) each year. What is one thing that detracts from a good experience on a ski trip? <strong>Waiting in line</strong>. It’s the same on any trip really. People who expect exclusive experiences do not want to wait in line for awhile. They want to pay a premium to be able to access their resort and maximize time on it.</p>
+<p>This brings us to the real question we want to answer. If we believe that increased wait time provides a negative experience, then we just need to minimize this experience, constrained by the needs of the business (i.e.&nbsp;find a breakeven point). We then can charge a premium from there in order to gain profit on our services. Great! But how do we derive any of that?</p>
+</section>
+<section id="finding-the-constraints" class="level2">
+<h2 class="anchored" data-anchor-id="finding-the-constraints">Finding the constraints</h2>
+<p>Let’s start with identifying the constraints of the business. That is, we don’t ever want to operate the resort at a loss (it wouldn’t matter if we were maximizing CLTV if we went out of business ya know). To make our problem simple, let’s assume that Deer Valley operates only on fixed costs and make that average fixed cost a flat number of $1 million a day. Let’s also assume that the average day pass is $200. The math is trivial at this point(divide cost by average pass amount) to get 5000 tickets. We can use this number as our lower bound for the rest of our analysis.</p>
+<p>Not bad! We have a number now. A next good question could be what is the total capacity of the ski resort? In this case, we define capacity as the number of people processed (in aggregate) at ski lifts over some interval of time. Fortunately for us, Deer Valley actually lists on their site their uphill lift capacity (check it out <a href="https://www.deervalley.com/things-to-do/activities/skiing">here</a> under winter mountain stats). The max capacity of Deer Valley uphill lift is <strong>85,360 guests per hour</strong>. This number represents basically if every chair on every lift was filled and ran in parallel, it could theoretically process this many people in an hour.</p>
+<p>Cool, so now what? We have the theoretical max that could fit on those chairs in a given hour, but how does that help us with figuring out our ticket number? Because knowing the capacity of our system helps us to identify (theoretically) the wait that customers endure. We know we can process that many guests, but <strong>how long would a guest have to wait before being served?</strong>. We can back this number out of our capacity finding.</p>
+<p>For simplicity, let’s assume we are looking at a high-speed quad lift and assume it is operating at max capacity. So, at the end of the ski lift, 4 people will be dismounting. Let’s also assume that this quad lift has 100 carriers. So, at most 400 people can be on this lift at a time. If we assume that each lift at the resort is carrying the “average” load (total capacity / all lifts), this lift would need to process about 2753 people per hour. If we have 100 carriers, each fitting 4 people, and need to drop off 2753 people at the top of our lift in one hour, at what interval would these carriers need to arrive? Moving this 2753 number to guests per minute, we need about 45 guests per minute. At 4 people per carrier, we need about 11 carriers to dump their guests off in this 60 second window. This comes to about 1 carrier every 5.45 seconds (essentially 6 seconds). Below is a sample video of what this would look like.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="https://pub-8b60b1420876461485e0e8b9a54bde58.r2.dev/ski_post_vids/SkiLift.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>Phew, we made it through all that math (for now). But why do we care about how often a carrier drops off their guests? Because that is the exact time it takes for a carrier to pick up its guests! If you managed to get at the lift right as a carrier is leaving, and no one was in front of you (and you also had no trouble getting to the boarding area), you’d only have to wait about 6 seconds. Furthermore, this is now the established rate at which a queue can be cleared. That is, 4 people gone from the queue every 6 seconds.</p>
+</section>
+<section id="measuring-utility" class="level2">
+<h2 class="anchored" data-anchor-id="measuring-utility">Measuring Utility</h2>
+<p>In the previous section we layed out some important information. We need to sell at least 5000 tickets (according to our assumptions) to breakeven. We discovered the max capacity of the resort and calculated the throughput capacity of a quad lift (1 carrier every 6 seconds, or 4 people every 6 seconds). So, guests know that the queue will move forward every 6 seconds, regardless of how many people are in front of them. With all this information, let’s remember what we’re trying to accomplish.</p>
+<p>From a business level, we want to sell the most amount of tickets without ruining the experience for guests via long wait times. This number has to be at least 5000. But what’s the upper bound? How would we even begin to figure that out?</p>
+<p>This is where Naor’s model <span class="citation" data-cites="naor1969"><a href="#ref-naor1969" role="doc-biblioref">[1]</a></span> comes in handy. In 1969, economist Paul Naor released his paper <em>The Regulation of Queue Size by Levitating Control</em>. Naor was the first (at least credit wise given) to view queues as an economic problem and not just a probability problem. Basically, Naor said when people choose lines, they weigh tradeoffs… that is, does the reward at the end of this line outweigh the cost of waiting in it?</p>
+<p>From a more formal mathematical perspective, let <span class="math inline">R</span> represent the utility reward one receives at the end of the line and let <span class="math inline">C</span> be the cost of waiting for a single unit of time. Let’s also let <span class="math inline">\mu</span> be the service time. Suppose we arrive at a line and there are i number of people in front of us, making us the i+1 person to join the queue. The net utility then for waiting in this line would be <span class="math inline">R - \frac{C(i+1)}{\mu}</span>. This formula just means that the leftover utility (reward) from waiting in this line depends on the service rate and the total cost of waiting due to the queue.</p>
+<p>For example, suppose I’m at Chick-fil-A and my reward is 5, my cost is .5 per minute, the service rate is 1 car per minute, and there are 3 people in front of me. My net utility would be 5 - (.5 * (3+1) / 1) = 3. Using basic microeconomic theory here, since my net utility is greater than 0, a rational (utility maximizing) agent would choose to wait in this line.</p>
+<p>This is the beauty and simplicity of Naor’s model. If net utility is greater than 0, you should join the line. If it is less than 0, you shouldn’t join the line since it “won’t be worth it” to you. The current formula of Naor’s model doesn’t intuitively show this, but rearranging it a bit, a threshold value is revealed.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="https://pub-8b60b1420876461485e0e8b9a54bde58.r2.dev/ski_post_vids/NaorEq.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>Using this newly rearranged Naor model now, we say a rational agent joins a queue if the the ratio of reward service by cost is greater than the length of the queue when joined. Using my example previously, (5 * 1) / .5 = 10, which is greater than 4, so I should join.</p>
+<p>You may be thinking “well this is cool, but how is this more intuitive than the net utility?”. This new form of Naor’s model is great because it gives an explicit threshold (i.e.&nbsp;upper bound) on people joining this queue. Assuming rewards and costs are homogenous and service rate is constant, rational agents will only join the queue if the length of the queue (plus them) is 10. If it is any greater than 10, net utility is negative and therefore “not worth it”.</p>
+</section>
+<section id="utilizing-naors-model" class="level2">
+<h2 class="anchored" data-anchor-id="utilizing-naors-model">Utilizing Naor’s Model</h2>
+<p>Now, Naor’s model was not developed for ski resorts or queueing networks in general. Naor’s model applies to M/M/1 queues where the queue length is observable. It’s a very simple model. How do we then use Naor’s model to guide our model of Deer Valley queue congestion?</p>
+<p>Let’s continue to make some assumptions about our environment for modeling sake (yay more assumptions). Let’s assume that any person on the mountain chooses a ski run to get to a certain lift and doesn’t defer from that decision. So, even if the line is really long, they still join the queue. Using Naor’s model, we can say that any queue <span class="math inline">i</span> (i.e.&nbsp;the lift line) either produces positive net utility or negative net utility (or 0 but we’ll assume that’s rare). Then, at the end of the ski day, an individual’s net utility will either be positive or negative. If it is positive, the skier viewed the service as “worth it” and will return. If it is negative, the skier viewed the service as “not worth it” and will not return (i.e.&nbsp;churn). Formally, the mathematical definition for this process for single skier is shown below.</p>
+<p><span class="math display">
+\sum_{i=1}^{n} U_{i}
+</span> <span id="eq-naor-1"><span class="math display">
+U_{i} = R_{i} - C_{i}T
+\tag{2.1}</span></span></p>
+<p>All <a href="#eq-naor-1">Equation&nbsp;2.1</a> says is that for any skier, we sum up all their net utilities for all the lift lines they visited throughout the day (n is the number of ski lifts visited). <span class="math inline">U</span> is the net utility defined as the reward for making it through the line minus the cost per time unit of waiting in the line. This will be our “micro” view of the mountain operations, where each skier has some aggregate net utility they carry throughout the day. To see a more macro view of the net utility across the mountain, we just simply sum all the utilities of each skier. If we have m total skiers on the mountain, then we have</p>
+<p><span class="math display">
+\sum_{j=1}^{m}\sum_{i=1}^{n} U_{i}
+</span></p>
+<p>These are fairly simple formulas but powerful in understanding the dynamics of the mountain based on our assumptions. Remember from Naor’s model that <span class="math inline">\frac{R\mu}{C}</span> is the threshold value. If the queue is longer than this threshold value, then (according to this simple model) <strong>we will always have a negative net utility for any skier joining this queue</strong>. This is great! But why is this great?</p>
+<p>This is great because we can use this information in helping us answer our original question of how many tickets to sell! Every ski lift now has a threshold of <span class="math inline">\frac{R\mu}{C}</span>. If we knew that R was 5 and C was 1, and if we use the service rate provided earlier (40 people every minute), the threshold for every lift would be</p>
+<p><span class="math display">
+\frac{R\mu}{C} \implies \frac{5 \cdot 40}{1} = 200
+</span></p>
+<p>200! If I am the 200th person in line, my net utility would be 0 by the time I reach the front and am served. Therefore, so long as there are less than 198 people in front of me, I would still have positive net utility! This obviously is a very conservative example of the use of this model, but it illustrates the point we’re trying to make. Based on this implementation of Naor’s model, there is some fixed threshold that we have to meet in order to generate positive net utility for guests. This also shows that we can “play around” with R and C to provide some sensitivity analysis of our system.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="https://pub-8b60b1420876461485e0e8b9a54bde58.r2.dev/ski_post_vids/Sensitivity.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>For the purposes of reaching an answer eventually on number of tickets to sell, let’s assume the reward of each ski lift is constant at 2.5, the cost of waiting every minute in line is 1, and the service rate is still 40 per minute. This gives us a threshold value of 100. So, if you were the 99th person to join the line, you’d still end up with some positive utility. If it were the case that you were the 99th person, how long would it take you to be served? Using the (theoretical) service rate of 1.5 seconds per person, you’d be served in about 147 seconds (about 2 minutes and 27 seconds). Is that a realistic time for you to wait in line and still be happy?</p>
+</section>
+<section id="mapping-the-network" class="level2">
+<h2 class="anchored" data-anchor-id="mapping-the-network">Mapping the Network</h2>
+<p>We’ve established the economic framework to understand how much it “costs” for guests to wait in lines. But guests don’t just spend the entire time in line do they? There are guests on lifts and on runs. As long as the flow of guests from lines to lifts to runs is smooth, we can fit more guests into the resort! Let’s assume that we live in a perfect world where ski lifts don’t break (or stop because people fall off), that lift ride times are deterministic, and that ski run times have a fairly strong average.</p>
+<p>First, let’s calculate how long someone would be riding a ski lift on average? Returning to our current timing standard of the quad lift presented at the beginning of this post, we average a carrier about every 6 seconds. There are 100 carriers on this lift. Assuming equal spacing, how long would it take a carrier that just got loaded with passengers to reach the top of the lift? That would mean there are about 49 other carriers in front of us and if all those get served, then we’d be served in 49 * 6 seconds, or 294 seconds. So, this chair we’re following would dump its passengers at the 300th second mark. In total, this chair took 5 minutes to get to the top of the lift.</p>
+<p>For the purposes of making our lives easier, let’s assume the average lift follows this speed of 5 minutes. We at least have a 5 minute buffer now between once skiers leave the queue. Now, we need to figure out how long it would take them to get back to a queue. How can we model that? Using classical queue theory, we assume that guests follow a transition matrix. A transition matrix is a mapping of the probabilities of moving from one queue to some other queue. Below is a simple example of this principle.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="https://pub-8b60b1420876461485e0e8b9a54bde58.r2.dev/ski_post_vids/TransitionMatrix.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>In the video, we have a 1x3 matrix that shows the probabilities of choosing between 3 routes from node 1. According to the matrix, the orange dot chooses node 2 with probability .25, node 3 at .5, and node 4 at .25. Returning to ski runs, if we say that node 1 is the top of the hill and a skier had 3 ski runs to choose from and followed this transition matrix, we’d expect the path to node 3 to be twice as busy as the runs to node 2 and node 4.</p>
+<p>So how does the transition matrix help us calculate time till entry to the queue? By helping us calculate another average! That is, we’d calculate the average travel time using the weights in the transition matrix. Let’s imagine that in the above transition matrix, all three routes led to a single lift. Let’s now assume that it takes 6 minutes to get down path 2, 7 minutes to get down path 3, and 8 minutes to get down path 4. We’d weight these times by the probabilites of a guest choosing that path and sum up those values. In this case, we’d get an average of 7 minutes. If we believe that this number is good representation across the resort, along with the the 5 minutes we solved for earlier, then on average a skier would be out of a queue for 12 minutes.</p>
+</section>
+<section id="trust-the-theory" class="level2">
+<h2 class="anchored" data-anchor-id="trust-the-theory">Trust the Theory</h2>
+<p>Let’s review all the numbers so far. We (theoretically) process a guest to a lift at 1.5 seconds a pop. From our implementation of Naor’s model, we assume the cost-reward ratio produces positive net utility up to the 99th person in line. The total wait time for the 99th person to be processed would be about 2 minutes and 30 seconds. Guests spend an average of 5 minutes on a lift and from our transition matrix example, guests spend on average 7 minutes skiing, totaling in 12 minutes of average time spent between queues. With all these numbers, can we now converge on a number of tickets to sell? Yes! Well, theoretically at least.</p>
+<p>Using the numbers above, we can get a theoretical steady state number of how many people we can fit in our resort. To do this, we’ll use <em>Little’s Law</em> <span class="citation" data-cites="Little1961"><a href="#ref-Little1961" role="doc-biblioref">[2]</a></span> for these steady state calculations. Little’s law is <span class="math inline">L = \lambda W</span>. That is, <span class="math inline">L</span> is the average number of people in the system, <span class="math inline">\lambda</span> is the average arrival rate, and <span class="math inline">W</span> is the average wait time. This will be useful for us in calculating the number of people in transition in the system.</p>
+<p>Ok, let’s do the math. Let’s assume that we always have 100 people in line (but not more). So, 100 people multiplied by 31 queues gets us 3100 people. Each queue processes a person every 1.5 seconds, or about 40 people per minute. Across all 31 queues, we are outputting 1240 people per minute <strong>into the transition period between queues</strong>. On average, these people <strong>wait in the transition period for 12 minutes</strong>. See what’s happening? We now have our arrival rate and our average wait time. Multiplying 1240 by 12 gets us 14880 people. Adding that to the people in the queues, we have <strong>17980 guests</strong>!</p>
+<p>That’s amazing! By breaking down the system capacity into processing times, deriving the wait time utility bounds on guests, and estimating the number of guests in transition, we’ve uncovered an actual number of how many guests we can theoretically have in the resort at once! Remember how we needed at least 5000 guests to break even? Well, if we were to sell this many tickets at Deer Valley, we’d generate revenue of 17980 by 200, which gives us about $3,596,000 in revenue. Using our fixed cost of 1 million, we end up with BANK (you can do the math to find out how much bank).</p>
+<p>Phew, we did it. We found the number. Let’s go tell Deer Valley that they are severly underselling (they cap around 7000-8000 tickets) and to sell 10000 more to drive profits. Boom. Let’s go home.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/pQd1-4tqymo?si=R_a2sQLypTatwi2R&amp;start=107" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+</section>
+<section id="simulate-the-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="simulate-the-uncertainty">Simulate the Uncertainty</h2>
+<p>Ok, the scene above was a bit of a stretch, but really… this number 17980, leaves much question. If you actually read through this whole post so far (thanks btw), you would know then that we have made MANY assumptions to get to this number. Some assumptions include: Consistent average lift times across all lifts, the whole implementation of Naor’s model to our system is based on assumptions, the system operating continually in steady state, and the list goes on. While it is entirely practical to make assumptions to reach a number using models, we shouldn’t immediately trust a single number from a model.</p>
+<p>What we need now is some evidence that, based on the current system capacities in place, shows that the system behaves according to our assumptions. To do this, we can run simulations. A simulation is nothing more than us taking our model, along with the assumptions, and throwing them into a computer to see how the system “truly” behaves. Obviously simulations should also be taken with a grain of salt, but simulations are great at quantifying uncertainty and checking the robustness of our model, especially in complex environments. Below is a small scale simulation of our ski resort that uses similar parameters to the transition matrix above.</p>
+<div style="width: 100%;">
+<p><video autoplay="" muted="" loop="" playsinline="" style="width: 100%; height: auto; display: block;"> <source src="https://pub-8b60b1420876461485e0e8b9a54bde58.r2.dev/ski_post_vids/SmallSim.mp4" type="video/mp4"> Your browser does not support the video tag. </video></p>
+</div>
+<p>In the simulation above, we have one lift that takes guests to the top of the mountain where they have the choice between 3 ski runs. The weights on each run represents the time it takes a guest to finish that run. With this simulation, we calculate the average travel time (sum of all travel time / number of runs completed) and average wait time (sum of all wait time / number of guests processed).</p>
+<p>This simulation returned average travel times of about 4 mins and an average wait time of about 8.5 seconds. Pretty cool that we can simulate this! Obviously this was a small scale demonstration with just 8 guests, but it shows the capability we have in seeing how realistic and robust our system is.</p>
+<p>Ok so can we actually simulate our model at the scale of Deer Valley? For sure! Just not as a video (we technically can, but I don’t feel like coding up a whole resort animated simulation). To simulate at the scale of Deer Valley, we’ll use <code>SimPy</code>.</p>
+<p>Before jumping right into the simulation and obtaining results, we need to define our model (that’s right, another model). First, we’ll establish the environment. We have 32 lifts at Deer Valley (I know not all of these are the detachable chairlifts, but for ease, let’s roll with 32). We’ll also simplify and say 25 of these are high-speed quads and the other 7 are triple chair lifts. We’ll assume that these operate deterministically at the rates we’ve been using so far (a chair every 6 seconds for the quad and for a bit more reality, a chair every 8 seconds for the triples).</p>
+<p>Additionally, we’ll assume each lift leads to a hill top that is connected to 2-3 paths that lead to other lifts at the resort (Note: The topology generated by the simulation does not reflect the topology of Deer Valley). These paths have randomly assigned probabilites. Furthermore, we assume that the time it takes for any given skier is uniform on some bound randomly selected beforehand.</p>
+<p>The rate at which skiers enter the resort is staggered across a 2 hour window. The total operational window of the resort is 8 hours (a bit longer than normal day but is what it is). Each skier will ski 4 hours. We run this simulation wiht 5000 skiers, 10000 skiers, 15000 skiers, and 20000 skiers. Below, we show the top 10 lift average wait times (based on the 20000 skier simulation).</p>
+<div class="cell" data-tags="[]" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- SIDE-BY-SIDE COMPARISON ACROSS ALL SCALES (POLARS) ---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>comparison_table <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> count <span class="kw">in</span> scales:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Calculate average wait time for each lift at the current scale</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    df_summary <span class="op">=</span> (</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        benchmark_results[count][<span class="st">"df"</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        .group_by(<span class="st">"lift_id"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        .agg(pl.col(<span class="st">"wait_time"</span>).mean().alias(<span class="ss">f"</span><span class="sc">{</span>count<span class="sc">}</span><span class="ss"> Skiers"</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Join it into our master comparison table</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> comparison_table <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        comparison_table <span class="op">=</span> df_summary</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        comparison_table <span class="op">=</span> comparison_table.join(df_summary, on<span class="op">=</span><span class="st">"lift_id"</span>, how<span class="op">=</span><span class="st">"inner"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by the largest scenario (20,000 skiers) to highlight the busiest bottlenecks at scale</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>comparison_table <span class="op">=</span> comparison_table.sort(<span class="st">"20000 Skiers"</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Side-by-Side Average Wait Time Comparison Across All Scales ---"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comparison_table.head(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+--- Side-by-Side Average Wait Time Comparison Across All Scales ---
+shape: (10, 5)
+┌─────────┬─────────────┬──────────────┬──────────────┬──────────────┐
+│ lift_id ┆ 5000 Skiers ┆ 10000 Skiers ┆ 15000 Skiers ┆ 20000 Skiers │
+│ ---     ┆ ---         ┆ ---          ┆ ---          ┆ ---          │
+│ str     ┆ f64         ┆ f64          ┆ f64          ┆ f64          │
+╞═════════╪═════════════╪══════════════╪══════════════╪══════════════╡
+│ Lift_31 ┆ 0.011345    ┆ 0.00596      ┆ 0.023878     ┆ 155.844119   │
+│ Lift_26 ┆ 0.022482    ┆ 3.642674     ┆ 51.420898    ┆ 78.143064    │
+│ Lift_00 ┆ 0.000006    ┆ 0.000064     ┆ 0.001604     ┆ 35.802163    │
+│ Lift_27 ┆ 1.911629    ┆ 0.056285     ┆ 2.485673     ┆ 17.522207    │
+│ Lift_09 ┆ 0.001886    ┆ 0.002288     ┆ 0.000144     ┆ 9.513111     │
+│ Lift_06 ┆ 0.001099    ┆ 0.0          ┆ 0.000515     ┆ 2.880776     │
+│ Lift_29 ┆ 0.149947    ┆ 0.045938     ┆ 1.271195     ┆ 2.782864     │
+│ Lift_21 ┆ 0.000042    ┆ 0.003855     ┆ 0.003137     ┆ 1.185119     │
+│ Lift_07 ┆ 0.001632    ┆ 0.000882     ┆ 0.000724     ┆ 0.694414     │
+│ Lift_10 ┆ 0.0         ┆ 0.000069     ┆ 0.00084      ┆ 0.173303     │
+└─────────┴─────────────┴──────────────┴──────────────┴──────────────┘</code></pre>
+</div>
+</div>
+<p>From the table above, in the 20000 simulation, guests on average had to wait 155 minutes at lift 31! Crazy! While the busiest lifts are obviously not the same across the different simulations, we can easily see how increases in guest number drastically increase wait time. To get an idea of the net utility experienced by guests in each of these simulations, we take the average across all guest utilites. This is shown below.</p>
+<div class="cell" data-tags="[]" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- GLOBAL AVERAGE NET UTILITY ACROSS SCALES (POLARS) ---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>summary_data <span class="op">=</span> {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>count<span class="sc">}</span><span class="ss"> Skiers"</span>: [benchmark_results[count][<span class="st">"df"</span>][<span class="st">"net_utility"</span>].mean()]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> count <span class="kw">in</span> scales</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a single-row Polars DataFrame comparing all scales</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>summary_table <span class="op">=</span> pl.DataFrame(summary_data)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Overall Average Net Utility Across All Scales ---"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(summary_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+--- Overall Average Net Utility Across All Scales ---
+shape: (1, 4)
+┌─────────────┬──────────────┬──────────────┬──────────────┐
+│ 5000 Skiers ┆ 10000 Skiers ┆ 15000 Skiers ┆ 20000 Skiers │
+│ ---         ┆ ---          ┆ ---          ┆ ---          │
+│ f64         ┆ f64          ┆ f64          ┆ f64          │
+╞═════════════╪══════════════╪══════════════╪══════════════╡
+│ 1.893122    ┆ -5.674287    ┆ -13.002009   ┆ -13.513322   │
+└─────────────┴──────────────┴──────────────┴──────────────┘</code></pre>
+</div>
+</div>
+<p>The only simulation to produce positive net utility was the 5000 simulation. All other simulations produced negative utility! Why could that be? In modeling, the results always return back to the assumptions we put in place. One of the biggest assumptions we made was the flat reward of 2.5 with the cost of waiting being 1 unit per minute. Essentially, we assumed guests could only wait 2.5 minutes before experiencing negative net utility. That’s a fairly strong assumption to make! Even with this fairly conservative reward to cost ratio, we still ended up with positive net utility in one simulation and not “too” bad of negative net utility in the 10000 simulation.</p>
+<p>For fun, let’s say that these assumptions accurately reflect reality. Somewhere between 5000 and 10000 skiers we go from positive net utility to negative net utility. How could we find the best number then between this to maximize revenue while still producting “positive” guest experiences? We could keep running our simulation to converge on a number, or we can just use linear interpolation.</p>
+<p>Let <span class="math inline">x</span> be the number of skiers and <span class="math inline">y</span> be the net utility. We have two points, (5000, 1.89) and (10000, -5.67). We want to find the point where net utility is equal to 0 (this is the most tickets we could sell before breaking into negative net utility). To find this point, we use the formula below.</p>
+<p><span class="math display">
+y = y_{1} + m(x - x_{1})
+</span></p>
+<p><span class="math inline">m</span> in this formula is the slope of the line between our two known points. We set <span class="math inline">y</span> equal to 0, plug in our values for <span class="math inline">y_{1}</span>, <span class="math inline">x_{1}</span>, and <span class="math inline">m</span> to eventually solve for <span class="math inline">x</span>. After plugging those in and solving for <span class="math inline">x</span>. Doing all that, we arrive at ~6250 skiers.</p>
+<p>Wow! Our new number says we should only add about 1250 more skiers past our breakeven point. Comparing this to our previous number of essentially 18000 skiers, this is quite the drop in potential revenue. So what gives? Were our steady-state numbers off when arriving at 18000? Not necessarily. Speaking mathematically, both of our models are correct. However, as we mentioned earlier, the assumptions are always the biggest culprit in the difference between model and reality. Our steady-state number of 18000 assumed steady-state. In reality, that rarely ever holds. In our simulation, we assumed we perfectly knew the reward and cost of waiting in line. In reality, we don’t know. But this is actually the beauty of modeling! We make assumptions to make models easier to implement and interpret, but we also learn what assumptions need to break in order to better match reality.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this blog post, we covered the early history of Deer Valley on how it went from mining town to a booming luxury ski resort. We discussed how we should proceed with modeling ticket sales. We utilized operations numbers to arrive at various different numbers such as the throughput rates of lifts, the wait time of guests, etc. We dove into the idea of optimizing ticket sales by using these operation numbers along with economic theory, assuming that guests incur a cost for waiting and a reward for making it through the line. We implemented this model theoretically and arrived at our first number of ~18000. We didn’t allow ourselves to settle for one number so we pushed further to gain insights into wait times and net utilities using simulations. We compared the two ticket numbers and spoke on why the numbers didn’t agree.</p>
+<p>Overall, we hope this blog post illustrated the beauty of modeling. While the math is an important part of modeling, the real game is in identifying the assumptions of your model. Models inherently need assumptions because they are simplifications of reality. As you move forward with your own models, remember to have your models be a guiding influence in your iteration and not be the primary metric that decides your direction.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-naor1969" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">P. Naor, <span>“The regulation of queue size by levitating control,”</span> <em>Econometrica</em>, vol. 37, no. 1, pp. 15–24, 1969.</div>
+</div>
+<div id="ref-Little1961" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">J. D. C. Little, <span>“A proof for the queuing formula: L = w,”</span> <em>Operations Research</em>, vol. 9, no. 3, pp. 383–387, 1961, doi: <a href="https://doi.org/10.1287/opre.9.3.383">10.1287/opre.9.3.383</a>.</div>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<hr class="footer-divider" style="margin-top: 60px; opacity: 0.2;">
+<div class="bmc-container" style="text-align: center; margin: 40px 0; padding: 20px; background-color: rgba(0,0,0,0.02); border-radius: 8px;">
+  <p style="font-style: italic; font-size: 0.95em; margin-bottom: 15px;">
+    If you found this content helpful, consider supporting the journey!
+  </p>
+  <a href="https://www.buymeacoffee.com/thebayesianbandit" target="_blank" class="btn btn-outline-primary btn-sm" role="button" style="padding: 8px 16px; font-weight: 500;">
+    <i class="bi bi-ice-cream"></i> Buy Me an Ice Cream
+  </a>
+</div>
+
+
+
+</body></html>
